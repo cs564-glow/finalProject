@@ -14,7 +14,7 @@ namespace Importer
         public int Id { get; set; }
         [FieldOrder(2), FieldCaption("title"), FieldQuoted('"', QuoteMode.OptionalForBoth)]
         public string Title { get; set; }
-    [FieldOrder(3), FieldCaption("genres"), FieldDelimiter("|")]
+        [FieldOrder(3), FieldCaption("genres"), FieldDelimiter("|")]
         public string[] GenreArray { get; set; }
     }
 }
