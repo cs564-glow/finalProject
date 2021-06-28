@@ -46,69 +46,23 @@ Title TEXT
                 createMovieTableCmd.ExecuteNonQuery();
 
                 // method 1
-//                using (SqliteTransaction transaction = connection.BeginTransaction())
-//                {
-//                    stopWatch.Start();
-//                    // this works
-//                    //                    SqliteCommand command = connection.CreateCommand();
-//                    //                    command.CommandText = @"INSERT INTO movie(movieId, Title)
-//                    //VALUES($movieId, $movieTitle);";
-
-//                    //SqliteParameter movieIdParameter = command.CreateParameter();
-//                    //movieIdParameter.ParameterName = "$movieId";
-//                    //command.Parameters.Add(movieIdParameter);
-
-//                    //SqliteParameter movieTitleParameter = command.CreateParameter();
-//                    //movieTitleParameter.ParameterName = "$movieTitle";
-//                    //command.Parameters.Add(movieTitleParameter);
-
-//                    // this doesn't work because I can't access the members of Parameters
-//                    //List <SqliteParameter> sqliteParams = new List<SqliteParameter>();
-//                    //command.Parameters.AddRange(sqliteParams);
-
-//                    // this works (trying to reduce duplicative code...)
-//                    // I can't reduce any further because I can't access the members of Parameters
-//                    // and so I need to create the SqliteParameter variables here.
-//                    SqliteCommand insertCmd = SqliteCmdFactory.CreateSqliteCmd(connection, @"INSERT INTO movie(movieId, Title)
-//VALUES($movieId, $movieTitle);");
-
-//                    SqliteParameter movieIdParameter = SqliteCmdFactory.CreateSqliteParam(insertCmd, "$movieId");
-//                    insertCmd.Parameters.Add(movieIdParameter);
-//                    SqliteParameter movieTitleParameter = SqliteCmdFactory.CreateSqliteParam(insertCmd, "$movieTitle");
-//                    insertCmd.Parameters.Add(movieTitleParameter);
-
-//                    // didn't work
-//                    //List<SqliteParameter> movieParams = new List<SqliteParameter>() { movieIdParameter, movieTitleParameter };
-//                    //movieParams.AddRange(movieParams);
-
-//                    foreach (Movie movie in movies)
-//                    {
-//                        // use nullable type?
-//                        //movieIdParameter.Value = movie.Id ?? DBNull.Value; 
-//                        //movieTitleParameter.Value = movie.Title ?? DBNull.Value;
-
-//                        movieIdParameter.Value = movie.Id;
-//                        movieTitleParameter.Value = movie.Title;
-
-//                        //command.ExecuteNonQuery();
-//                        insertCmd.ExecuteNonQuery();
-//                    }
-
-//                    transaction.Commit();
-//                    stopWatch.Stop();
-//                }
-
-                // method 2
                 using (SqliteTransaction transaction = connection.BeginTransaction())
                 {
                     stopWatch.Start();
+                    SqliteCommand insertCmd = SqliteCmdFactory.CreateSqliteCmd(connection, @"INSERT INTO movie(movieId, Title)
+VALUES($movieId, $movieTitle);");
+
+                    // This was the best I could do to reduce duplicative code. AddRange didn't work.
+                    // Creating the command in the foreach loop is extra work.
+                    SqliteParameter movieIdParameter = SqliteCmdFactory.CreateSqliteParam(insertCmd, "$movieId");
+                    SqliteParameter movieTitleParameter = SqliteCmdFactory.CreateSqliteParam(insertCmd, "$movieTitle");
+                    insertCmd.Parameters.Add(movieIdParameter);
+                    insertCmd.Parameters.Add(movieTitleParameter);
 
                     foreach (Movie movie in movies)
                     {
-                        SqliteCommand insertCmd = SqliteCmdFactory.CreateSqliteCmd(connection, @"INSERT INTO movie(movieId, Title)
-VALUES($movieId, $movieTitle);");
-                        insertCmd.Parameters.AddWithValue("$movieId", movie.Id);
-                        insertCmd.Parameters.AddWithValue("$movieTitle", movie.Title);
+                        movieIdParameter.Value = movie.Id;
+                        movieTitleParameter.Value = movie.Title;
 
                         insertCmd.ExecuteNonQuery();
                     }
@@ -116,6 +70,25 @@ VALUES($movieId, $movieTitle);");
                     transaction.Commit();
                     stopWatch.Stop();
                 }
+
+                // method 2 - slower
+                //                using (SqliteTransaction transaction = connection.BeginTransaction())
+                //                {
+                //                    stopWatch.Start();
+
+                //                    foreach (Movie movie in movies)
+                //                    {
+                //                        SqliteCommand insertCmd = SqliteCmdFactory.CreateSqliteCmd(connection, @"INSERT INTO movie(movieId, Title)
+                //VALUES($movieId, $movieTitle);");
+                //                        insertCmd.Parameters.AddWithValue("$movieId", movie.Id);
+                //                        insertCmd.Parameters.AddWithValue("$movieTitle", movie.Title);
+
+                //                        insertCmd.ExecuteNonQuery();
+                //                    }
+
+                //                    transaction.Commit();
+                //                    stopWatch.Stop();
+                //                }
 
             }
             // Get the elapsed time as a TimeSpan value.
