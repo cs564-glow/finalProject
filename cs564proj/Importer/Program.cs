@@ -18,15 +18,6 @@ namespace Importer
             string path = "W:\\source\\repos\\finalProject\\testFiles\\ml-25m\\movies.csv";
             //string path = "W:\\source\\repos\\finalProject\\testFiles\\ml-latest-small\\movies.csv";
             Movie[] movies = engine.ReadFile(path);
-            //foreach (var movie in movies)
-            //{
-            //    Console.Write(movie.Id + ", " + movie.Title + ", ");
-            //    foreach (string genre in movie.GenreArray)
-            //    {
-            //        Console.Write(genre + ", ");
-            //    }
-            //    Console.WriteLine();
-            //}
 
             // performance testing
             Stopwatch stopWatch = new Stopwatch();

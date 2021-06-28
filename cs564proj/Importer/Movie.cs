@@ -12,7 +12,7 @@ namespace Importer
     {
         [FieldOrder(1), FieldCaption("movieId")]
         public int Id { get; set; }
-        [FieldOrder(2), FieldCaption("title"), FieldQuoted('"', QuoteMode.OptionalForBoth)]
+        [FieldOrder(2), FieldCaption("title"), FieldQuoted('"', QuoteMode.OptionalForBoth), FieldConverter(typeof(ConverterRemoveYearFromTitle))]
         public string Title { get; set; }
         [FieldOrder(3), FieldCaption("genres"), FieldDelimiter("|")]
         public string[] GenreArray { get; set; }
