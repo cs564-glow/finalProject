@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using FileHelpers;
-using Microsoft.Data.Sqlite;
-using CsvHelper;
 using System.Linq;
 using System.Globalization;
+using Microsoft.Data.Sqlite;
+using CsvHelper;
 using CsvHelper.Configuration;
+
+using FileHelpers;
 
 namespace Importer
 {
@@ -21,45 +22,30 @@ namespace Importer
             string path = "W:\\source\\repos\\finalProject\\testFiles\\hetrec2011-movielens-2k-v2\\movies.dat";
             List<MovieCsvHelper> movies;
 
-            var config = new CsvConfiguration(CultureInfo.InvariantCulture) {
+            var config = new CsvConfiguration(CultureInfo.InvariantCulture)
+            {
                 Delimiter = "\t"
             };
             using (var reader = new StreamReader(path))
             using (var csv = new CsvReader(reader, config))
             {
+                csv.Context.TypeConverterCache.AddConverter<double?>(new NullableDoubleConverter());
                 movies = csv.GetRecords<MovieCsvHelper>().ToList();
             }
 
             foreach (MovieCsvHelper movie in movies)
             {
-                Console.Write(movie.MovieId + ", ");
-                Console.Write(movie.Title + ", ");
-                Console.Write(movie.Year + ", ");
-                Console.Write(movie.ImdbId + ", ");
-                Console.Write(movie.RtId + ", ");
-                Console.WriteLine(movie.RtAllCriticsRating);
+                if (movie.RtAllCriticsRating is null)
+                {
+                    Console.Write(movie.MovieId + ", ");
+                    Console.Write(movie.Title + ", ");
+                    Console.Write(movie.Year + ", ");
+                    Console.Write(movie.ImdbId + ", ");
+                    Console.Write(movie.RtId + ", ");
+                    Console.WriteLine(movie.RtAllCriticsRating);
+                }
             }
 
-            //foreach (MoviePoco movie in new ChoCSVReader<MoviePoco>("W:\\source\\repos\\finalProject\\testFiles\\hetrec2011-movielens-2k-v2\\movies.dat").WithFirstLineHeader()) {             
-            //    Console.WriteLine("Id: " + movie.MovieId + ", title: " + movie.Title);
-            //}
-
-            //FileHelperEngine<MovieDetailed> engine = new FileHelperEngine<MovieDetailed>();
-            //string path = "W:\\source\\repos\\finalProject\\testFiles\\hetrec2011-movielens-2k-v2\\movies.dat";
-            //engine.ErrorManager.ErrorMode = ErrorMode.IgnoreAndContinue;
-            //MovieDetailed[] movies = engine.ReadFile(path);
-
-            //foreach (MovieDetailed movie in movies)
-            //{
-            //    Console.Write(movie.MovieId + ", ");
-            //    Console.Write(movie.Title + ", ");
-            //    Console.Write(movie.Year + ", ");
-            //    Console.Write(movie.ImdbId + ", ");
-            //    Console.Write(movie.RtId + ", ");
-            //    Console.WriteLine(movie.RtAllCriticsRating);
-            //}
-
-            //Directory.CreateDirectory(cs564proj);
         }
 
         static void MovieLensImport()

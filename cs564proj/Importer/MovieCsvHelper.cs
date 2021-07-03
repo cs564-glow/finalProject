@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using CsvHelper.Configuration;
 using CsvHelper.Configuration.Attributes;
 
 namespace Importer
 {
-    class MovieCsvHelper
+    public class MovieCsvHelper
     {
         [Name("id")]
         public int MovieId { get; set; }
@@ -23,10 +24,12 @@ namespace Importer
         public string Year { get; set; }
         [Name("rtID")]
         public string RtId { get; set; }
-        [Optional, Name("rtAllCriticsRating")]
-        public string RtAllCriticsRating { get; set; }
-        [Ignore]
-        public string RtAllCriticsNumReviews { get; set; }
+        [Name("rtAllCriticsRating")]
+#nullable enable
+        public double? RtAllCriticsRating { get; set; }
+        [Name("rtAllCriticsNumReviews")]
+        public double? RtAllCriticsNumReviews { get; set; }
+#nullable disable
         [Ignore]
         public string RtAllNumFresh { get; set; }
         [Ignore]
@@ -51,5 +54,13 @@ namespace Importer
         public string RtAudienceScore { get; set; }
         [Ignore]
         public string RtPictureUrl { get; set; }
+    }
+
+    public sealed class MovieMap : ClassMap<MovieCsvHelper>
+    {
+        public MovieMap()
+        {
+            Map(m => m.ToString().Replace("\\N", ""));
+        }
     }
 }
