@@ -14,6 +14,25 @@ namespace Importer
         public static string cs564proj = Path.Combine(appData, "cs564proj");
         static void Main(string[] args)
         {
+            FileHelperEngine<MovieDetailed> engine = new FileHelperEngine<MovieDetailed>();
+            string path = "W:\\source\\repos\\finalProject\\testFiles\\hetrec2011-movielens-2k-v2\\movies.dat";
+            MovieDetailed[] movies = engine.ReadFile(path);
+
+            foreach (MovieDetailed movie in movies)
+            {
+                Console.WriteLine(movie.MovieId + ", ");
+                Console.WriteLine(movie.Title + ", ");
+                Console.WriteLine(movie.Year + ", ");
+                Console.WriteLine(movie.ImdbId + ", ");
+                Console.WriteLine(movie.RtId + ", ");
+                Console.WriteLine(movie.RtAllCriticsRating);
+            }
+
+            Directory.CreateDirectory(cs564proj);
+        }
+
+        static void MovieLensImport()
+        {
             FileHelperEngine<Movie> engine = new FileHelperEngine<Movie>();
             string path = "W:\\source\\repos\\finalProject\\testFiles\\ml-25m\\movies.csv";
             //string path = "W:\\source\\repos\\finalProject\\testFiles\\ml-latest-small\\movies.csv";
@@ -24,7 +43,7 @@ namespace Importer
 
             Directory.CreateDirectory(cs564proj);
 
-            string connString = "Data Source=" + cs564proj + "\\hello-" + DateTime.Now.ToString("o").Replace(":",".") + ".db";
+            string connString = "Data Source=" + cs564proj + "\\hello-" + DateTime.Now.ToString("o").Replace(":", ".") + ".db";
             using (SqliteConnection connection = new SqliteConnection(connString))
             {
                 connection.Open();
