@@ -7,7 +7,7 @@ using CsvHelper.TypeConversion;
 /// </summary>
 namespace Importer
 {
-    public class NullableDoubleConverter : DoubleConverter
+    class NullableIntConverter : Int32Converter
     {
         public override object ConvertFromString(string text, IReaderRow row, MemberMapData memberMapData)
         {

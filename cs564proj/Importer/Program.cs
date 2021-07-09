@@ -7,6 +7,8 @@ using System.Globalization;
 using Microsoft.Data.Sqlite;
 using CsvHelper;
 using CsvHelper.Configuration;
+using Microsoft.EntityFrameworkCore;
+using EFCore.BulkExtensions;
 
 using FileHelpers;
 
@@ -20,7 +22,7 @@ namespace Importer
         static void Main(string[] args)
         {
             string path = "W:\\source\\repos\\finalProject\\testFiles\\hetrec2011-movielens-2k-v2\\movies.dat";
-            List<MovieCsvHelper> movies;
+            List<Movie> movies;
 
             var config = new CsvConfiguration(CultureInfo.InvariantCulture)
             {
@@ -30,10 +32,11 @@ namespace Importer
             using (var csv = new CsvReader(reader, config))
             {
                 csv.Context.TypeConverterCache.AddConverter<double?>(new NullableDoubleConverter());
-                movies = csv.GetRecords<MovieCsvHelper>().ToList();
+                csv.Context.TypeConverterCache.AddConverter<int>(new NullableIntConverter());
+                movies = csv.GetRecords<Movie>().ToList();
             }
 
-            foreach (MovieCsvHelper movie in movies)
+            foreach (Movie movie in movies)
             {
                 if (movie.RtAllCriticsRating is null)
                 {
@@ -46,14 +49,46 @@ namespace Importer
                 }
             }
 
+            Directory.CreateDirectory(cs564proj);
+
+            string connString = "Data Source=" + cs564proj + "\\hello-" + DateTime.Now.ToString("o").Replace(":", ".") + ".db";
+            using (SqliteConnection connection = new SqliteConnection(connString))
+            {
+                connection.Open();
+
+                SqliteCommand createMovieTableCmd = connection.CreateCommand();
+                createMovieTableCmd.CommandText = @"CREATE TABLE IF NOT EXISTS Movies (
+MovieId INTEGER PRIMARY KEY,
+Title TEXT,
+ImdbId TEXT,
+Year INTEGER,
+RtId TEXT,
+RtAllCriticsRating REAL,
+RtAllCriticsNumReviews INTEGER
+);";
+                createMovieTableCmd.ExecuteNonQuery();
+            }
+
+            var contextOptions = new DbContextOptionsBuilder<MovieContext>()
+                .UseSqlite(connString)
+                .Options;
+
+            using (var context = new MovieContext(contextOptions))
+            {
+                using (var transaction = context.Database.BeginTransaction())
+                {
+                    context.BulkInsertOrUpdate(movies);
+                    transaction.Commit();
+                }
+            }
         }
 
         static void MovieLensImport()
         {
-            FileHelperEngine<Movie> engine = new FileHelperEngine<Movie>();
+            FileHelperEngine<MovieFileHelpers> engine = new FileHelperEngine<MovieFileHelpers>();
             string path = "W:\\source\\repos\\finalProject\\testFiles\\ml-25m\\movies.csv";
             //string path = "W:\\source\\repos\\finalProject\\testFiles\\ml-latest-small\\movies.csv";
-            Movie[] movies = engine.ReadFile(path);
+            MovieFileHelpers[] movies = engine.ReadFile(path);
 
             // performance testing
             Stopwatch stopWatch = new Stopwatch();
@@ -86,7 +121,7 @@ VALUES($movieId, $movieTitle);");
                     insertCmd.Parameters.Add(movieIdParameter);
                     insertCmd.Parameters.Add(movieTitleParameter);
 
-                    foreach (Movie movie in movies)
+                    foreach (MovieFileHelpers movie in movies)
                     {
                         movieIdParameter.Value = movie.Id;
                         movieTitleParameter.Value = movie.Title;
