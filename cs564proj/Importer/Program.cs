@@ -10,8 +10,6 @@ using CsvHelper.Configuration;
 using Microsoft.EntityFrameworkCore;
 using EFCore.BulkExtensions;
 
-using FileHelpers;
-
 namespace Importer
 {
     class Program
@@ -57,7 +55,7 @@ namespace Importer
                 connection.Open();
 
                 SqliteCommand createMovieTableCmd = connection.CreateCommand();
-                createMovieTableCmd.CommandText = @"CREATE TABLE IF NOT EXISTS Movies (
+                createMovieTableCmd.CommandText = @"CREATE TABLE IF NOT EXISTS Movie (
 MovieId INTEGER PRIMARY KEY,
 Title TEXT,
 ImdbId TEXT,
@@ -83,6 +81,7 @@ RtAllCriticsNumReviews INTEGER
             }
         }
 
+        /*
         static void MovieLensImport()
         {
             FileHelperEngine<MovieFileHelpers> engine = new FileHelperEngine<MovieFileHelpers>();
@@ -161,6 +160,7 @@ VALUES($movieId, $movieTitle);");
                 ts.Hours, ts.Minutes, ts.Seconds,
                 ts.Milliseconds / 10);
             Console.WriteLine("RunTime " + elapsedTime);
-        }
+        } */
     }
+
 }
