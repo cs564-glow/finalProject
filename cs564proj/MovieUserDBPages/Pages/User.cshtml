@@ -1,0 +1,118 @@
+﻿@page
+@model LetterBoxDClone.Pages.UserModel
+@{
+    ViewData["Title"] = "duser";
+}
+
+<div class="text-left">
+    <h1 class="display-4">Duser</h1>
+    <p><b>Dummy User</b></p>
+</div>
+<h6>Movies You've Seen</h6>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Title
+            </th>
+
+            <th>
+                Release Year
+            </th>
+            <th>
+                Your Rating
+            </th>
+            <th>
+                Your tags
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        <!--Really this will use a loop and probably sql query of some sort?,
+            see Index.cshtml from Razer tutorial-->
+        <tr>
+            <td>
+                The Dark Knight
+            </td>
+            <td>
+                2008
+            </td>
+            <td>
+                4.5
+            </td>
+            <td>
+                batman, action, superhero
+            </td>
+        </tr>
+    </tbody>
+</table>
+<h6>Movies You Might Like</h6>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Title
+            </th>
+
+            <th>
+                Release Year
+            </th>
+            <th>
+                Directed by
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        <!--Really this will use a loop and probably sql query of some sort?,
+            see Index.cshtml from Razer tutorial-->
+        <tr>
+            <td>
+                Black Widow
+            </td>
+            <td>
+                2021
+            </td>
+            <td>
+                Cate Shortland
+            </td>
+        </tr>
+    </tbody>
+</table>
+<h6>Movies You're Friends Have Seen</h6>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Title
+            </th>
+            <th>
+                Release Year
+            </th>
+            <th>
+                Friend Username
+            </th>
+            <th>
+                Your Friend's Rating
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        <!--Really this will use a loop and probably sql query of some sort?,
+            see Index.cshtml from Razer tutorial-->
+        <tr>
+            <td>
+                Saving Private Ryan
+            </td>
+            <td>
+                1998
+            </td>
+            <td>
+                othuser
+            </td>
+            <td>
+                3.5
+            </td>
+
+        </tr>
+    </tbody>
+</table>
