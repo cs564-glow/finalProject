@@ -114,7 +114,7 @@ namespace Importer
                 }
             }
 
-            // Genre category import
+            // Genre Category Import
             List<Genre> genreList = genreSet.ToList();
             using (var context = new MovieContext(contextOptions))
             {
@@ -130,7 +130,7 @@ namespace Importer
                 }
 
                 // Get back the list of auto-generated IDs and genre names
-                // Yes, I could have just generated the IDs myself but whatever
+                // Yes, I could have just generated the IDs myself but...whatever I wanted to try autoincrement
                 context.BulkRead(genreList);
             }
 
@@ -164,8 +164,6 @@ namespace Importer
             }
         }
 
-        // TODO: row-by-row CSV parsing
-
         /// <summary>
         /// Reads entire CSV file into memory and returns a list
         /// </summary>
@@ -197,17 +195,6 @@ namespace Importer
             List<Movie> movies;
 
             movies = csvParsingAll<Movie>(movieDat, "\t");
-            //var config = new CsvConfiguration(CultureInfo.InvariantCulture)
-            //{
-            //    Delimiter = "\t"
-            //};
-            //using (var reader = new StreamReader(movieDat))
-            //using (var csv = new CsvReader(reader, config))
-            //{
-            //    csv.Context.TypeConverterCache.AddConverter<double?>(new NullableDoubleConverter());
-            //    csv.Context.TypeConverterCache.AddConverter<int>(new NullableIntConverter());
-            //    movies = csv.GetRecords<Movie>().ToList();
-            //}
 
             // SQLite Bulk Import
             // https://github.com/borisdj/EFCore.BulkExtensions
