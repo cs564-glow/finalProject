@@ -35,7 +35,7 @@ namespace Importer
                 {
                     string arg = args[i];
                     if (arg.Equals("-i"))
-                    { 
+                    {
                         datasetFolder = args[++i];
                     }
                     else if (arg.Equals("-x"))
@@ -91,12 +91,10 @@ namespace Importer
 
         private static void transformLoadGenreDat(string genreDat, string connString, DbContextOptions<MovieContext> contextOptions)
         {
-            //HashSet<string> genreStringSet = new HashSet<string>();
             HashSet<Genre> genreSet = new HashSet<Genre>();
             List<GenreDat> genreDatList = new List<GenreDat>();
 
-            // https://joshclose.github.io/CsvHelper/examples/reading/reading-by-hand/
-            // https://joshclose.github.io/CsvHelper/getting-started/#reading-a-csv-file
+            // CSV Parsing
             var config = new CsvConfiguration(CultureInfo.InvariantCulture)
             {
                 Delimiter = "\t"
@@ -110,39 +108,39 @@ namespace Importer
                 while (csv.Read())
                 {
                     genreDatList.Add(csv.GetRecord<GenreDat>());
-                    //genreStringSet.Add(csv.GetField("genre"));
+
                     Genre newGenre = new Genre(csv.GetField("genre"));
                     genreSet.Add(newGenre);
                 }
             }
 
-            //List<string> genreStringList = genreStringSet.ToList();
+            // Genre category import
             List<Genre> genreList = genreSet.ToList();
-
             using (var context = new MovieContext(contextOptions))
             {
                 context.Database.EnsureCreated();
 
                 using (var transaction = context.Database.BeginTransaction())
                 {
-                    //context.BulkInsertOrUpdate(genreStringList);
                     // https://github.com/borisdj/EFCore.BulkExtensions
+                    // SetOutputIdentity have purpose only when PK has Identity (usually int type with AutoIncrement),
+                    // while if PK is Guid(sequential) created in Application there is no need for them.
                     context.BulkInsert(genreList, new BulkConfig { SetOutputIdentity = true });
                     transaction.Commit();
                 }
 
-                // get back the list of auto-generated IDs and genre names
+                // Get back the list of auto-generated IDs and genre names
                 // Yes, I could have just generated the IDs myself but whatever
                 context.BulkRead(genreList);
             }
 
-            // use dictionary/hashtable for fast lookup
+            // MovieGenre Transform
+            // Use dictionary/hashtable for fast lookup
             Dictionary<string, int> genreDict = new Dictionary<string, int>();
             foreach (var genre in genreList)
             {
                 genreDict.Add(genre.GenreName, genre.GenreId);
             }
-
             List<MovieGenre> movieGenreList = new List<MovieGenre>();
             foreach (var movieGenreDat in genreDatList)
             {
@@ -152,6 +150,7 @@ namespace Importer
                 movieGenreList.Add(movieGenre);
             }
 
+            // MovieGenre Import
             using (var context = new MovieContext(contextOptions))
             {
                 context.Database.EnsureCreated();
