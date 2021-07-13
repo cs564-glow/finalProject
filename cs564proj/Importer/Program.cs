@@ -89,6 +89,14 @@ namespace Importer
             transformLoadGenreDat(genreDat, connString, contextOptions);
         }
 
+        /// <summary>
+        /// Transforms and loads movie_genres.dat into separate Movie and MovieGenre tables IN MEMORY
+        /// Could break up by transforming, writing to file, and then loading to file.
+        /// This would be necessary if out of memory.
+        /// </summary>
+        /// <param name="genreDat"></param>
+        /// <param name="connString"></param>
+        /// <param name="contextOptions"></param>
         private static void transformLoadGenreDat(string genreDat, string connString, DbContextOptions<MovieContext> contextOptions)
         {
             HashSet<Genre> genreSet = new HashSet<Genre>();
