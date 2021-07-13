@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Importer
 {
-    public class MovieContext : DbContext
+    class MovieContext : DbContext
     {
         private readonly string _connectionString;
         //public MovieContext()
@@ -38,6 +38,14 @@ namespace Importer
         //{
         //}
 
+        // https://docs.microsoft.com/en-us/ef/core/modeling/keys?tabs=data-annotations#configuring-a-primary-key
+        //protected override void OnModelCreating(ModelBuilder modelBuilder)
+        //{
+        //    modelBuilder.Entity<Genre>
+        //}
+
         public DbSet<Movie> Movie { get; set; }
+        public DbSet<Genre> Genre { get; set; }
+
     }
 }
