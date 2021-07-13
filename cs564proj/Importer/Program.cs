@@ -90,9 +90,8 @@ namespace Importer
         }
 
         /// <summary>
-        /// Transforms and loads movie_genres.dat into separate Movie and MovieGenre tables IN MEMORY
-        /// Could break up by transforming, writing to file, and then loading to file.
-        /// This would be necessary if out of memory.
+        /// Transforms and loads movie_genres.dat into separate Movie and MovieGenre tables ENTIRELY IN MEMORY
+        /// Could break up by transforming and loading in smaller batches.
         /// </summary>
         /// <param name="genreDat"></param>
         /// <param name="connString"></param>
@@ -131,8 +130,8 @@ namespace Importer
                 using (var transaction = context.Database.BeginTransaction())
                 {
                     // https://github.com/borisdj/EFCore.BulkExtensions
-                    // SetOutputIdentity have purpose only when PK has Identity (usually int type with AutoIncrement),
-                    // while if PK is Guid(sequential) created in Application there is no need for them.
+                    // Quote - "SetOutputIdentity have purpose only when PK has Identity (usually int type with AutoIncrement),
+                    // while if PK is Guid(sequential) created in Application there is no need for them."
                     context.BulkInsert(genreList, new BulkConfig { SetOutputIdentity = true });
                     transaction.Commit();
                 }
