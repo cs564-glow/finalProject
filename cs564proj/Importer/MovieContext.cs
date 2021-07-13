@@ -39,13 +39,16 @@ namespace Importer
         //}
 
         // https://docs.microsoft.com/en-us/ef/core/modeling/keys?tabs=data-annotations#configuring-a-primary-key
-        //protected override void OnModelCreating(ModelBuilder modelBuilder)
-        //{
-        //    modelBuilder.Entity<Genre>
-        //}
+        // https://stackoverflow.com/a/49594698
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<MovieGenre>()
+                .HasKey(m => new { m.MovieId, m.GenreId });
+        }
 
         public DbSet<Movie> Movie { get; set; }
         public DbSet<Genre> Genre { get; set; }
+        public DbSet<MovieGenre> MovieGenre { get; set; }
 
     }
 }

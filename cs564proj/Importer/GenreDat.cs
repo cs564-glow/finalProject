@@ -7,10 +7,10 @@ namespace Importer
     /// movie_genres.dat does not match our db schema.
     /// </summary>
     public class GenreDat
-    {
+    { 
         [Name("movieID")]
         public int MovieId { get; set; }
         [Name("genre")]
-        public string genre { get; set; }
+        public string GenreName { get; set; }
     }
 }

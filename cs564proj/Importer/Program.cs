@@ -85,24 +85,95 @@ namespace Importer
             string movieDat = Path.Combine(datasetFolder, "movies.dat");
             string genreDat = Path.Combine(datasetFolder, "movie_genres.dat");
 
-            importMovieDat(movieDat, connString, contextOptions);
-            importGenreDat(genreDat, connString, contextOptions);
+            loadMovieDat(movieDat, connString, contextOptions);
+            transformLoadGenreDat(genreDat, connString, contextOptions);
         }
 
-        private static void importGenreDat(string genreDat, string connString, DbContextOptions<MovieContext> contextOptions)
+        private static void transformLoadGenreDat(string genreDat, string connString, DbContextOptions<MovieContext> contextOptions)
         {
-            List<Genre> genre;
+            //HashSet<string> genreStringSet = new HashSet<string>();
+            HashSet<Genre> genreSet = new HashSet<Genre>();
+            List<GenreDat> genreDatList = new List<GenreDat>();
 
+            // https://joshclose.github.io/CsvHelper/examples/reading/reading-by-hand/
+            // https://joshclose.github.io/CsvHelper/getting-started/#reading-a-csv-file
+            var config = new CsvConfiguration(CultureInfo.InvariantCulture)
+            {
+                Delimiter = "\t"
+            };
+            using (var reader = new StreamReader(genreDat))
+            using (var csv = new CsvReader(reader, config))
+            {
+                csv.Read();
+                csv.ReadHeader();
 
+                while (csv.Read())
+                {
+                    genreDatList.Add(csv.GetRecord<GenreDat>());
+                    //genreStringSet.Add(csv.GetField("genre"));
+                    Genre newGenre = new Genre(csv.GetField("genre"));
+                    genreSet.Add(newGenre);
+                }
+            }
+
+            //List<string> genreStringList = genreStringSet.ToList();
+            List<Genre> genreList = genreSet.ToList();
+
+            using (var context = new MovieContext(contextOptions))
+            {
+                context.Database.EnsureCreated();
+
+                using (var transaction = context.Database.BeginTransaction())
+                {
+                    //context.BulkInsertOrUpdate(genreStringList);
+                    // https://github.com/borisdj/EFCore.BulkExtensions
+                    context.BulkInsert(genreList, new BulkConfig { SetOutputIdentity = true });
+                    transaction.Commit();
+                }
+
+                // get back the list of auto-generated IDs and genre names
+                // Yes, I could have just generated the IDs myself but whatever
+                context.BulkRead(genreList);
+            }
+
+            // use dictionary/hashtable for fast lookup
+            Dictionary<string, int> genreDict = new Dictionary<string, int>();
+            foreach (var genre in genreList)
+            {
+                genreDict.Add(genre.GenreName, genre.GenreId);
+            }
+
+            List<MovieGenre> movieGenreList = new List<MovieGenre>();
+            foreach (var movieGenreDat in genreDatList)
+            {
+                MovieGenre movieGenre = new MovieGenre();
+                movieGenre.MovieId = movieGenreDat.MovieId;
+                movieGenre.GenreId = genreDict[movieGenreDat.GenreName];
+                movieGenreList.Add(movieGenre);
+            }
+
+            using (var context = new MovieContext(contextOptions))
+            {
+                context.Database.EnsureCreated();
+
+                using (var transaction = context.Database.BeginTransaction())
+                {
+                    context.BulkInsert(movieGenreList);
+                    transaction.Commit();
+                }
+
+            }
         }
+
+        // TODO: row-by-row CSV parsing
 
         /// <summary>
-        /// Reads entire CSV file into memory
+        /// Reads entire CSV file into memory and returns a list
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="csvFilepath"></param>
         /// <param name="delimiter"></param>
-        /// <returns></returns>
+        /// <returns></returns
         private static List<T> csvParsingAll<T>(string csvFilepath, string delimiter)
         {
             List<T> newList;
@@ -122,11 +193,10 @@ namespace Importer
             return newList;
         }
 
-        private static void importMovieDat(string movieDat, string connString, DbContextOptions<MovieContext> contextOptions)
+        private static void loadMovieDat(string movieDat, string connString, DbContextOptions<MovieContext> contextOptions)
         {
             List<Movie> movies;
 
-            // TODO: asynchronous CSV parsing
             movies = csvParsingAll<Movie>(movieDat, "\t");
             //var config = new CsvConfiguration(CultureInfo.InvariantCulture)
             //{
@@ -148,7 +218,7 @@ namespace Importer
 
                 using (var transaction = context.Database.BeginTransaction())
                 {
-                    context.BulkInsertOrUpdate(movies);
+                    context.BulkInsert(movies);
                     transaction.Commit();
                 }
             }
