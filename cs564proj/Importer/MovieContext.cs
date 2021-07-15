@@ -43,6 +43,10 @@ namespace Importer
                 .HasKey(m => new { m.UserId, m.MovieId, m.TagId });
             modelBuilder.Entity<UserRating>()
                 .HasKey(m => new { m.UserId, m.MovieId });
+            modelBuilder.Entity<Directs>()
+                .HasKey(m => new { m.MovieId, m.CastCrewId });
+            modelBuilder.Entity<ActsIn>()
+                .HasKey(m => new { m.MovieId, m.CastCrewId });
         }
 
         public DbSet<Movie> Movie { get; set; }
@@ -52,5 +56,7 @@ namespace Importer
         public DbSet<UserTag> UserTag { get; set; }
         public DbSet<UserRating> UserRating { get; set; }
         public DbSet<User> User { get; set; }
+        public DbSet<Directs> Directs { get; set; }
+        public DbSet<ActsIn> ActsIn { get; set; }
     }
 }

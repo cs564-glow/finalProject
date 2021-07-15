@@ -88,7 +88,7 @@ namespace Importer
             var directorDat = Path.Combine(datasetFolder, "movie_directors.dat");
 
             // load data
-            LoadMovieDat(movieDat, contextOptions);
+            LoadAllDatAsIs<Movie>(movieDat, contextOptions);
             TransformLoadGenreDat(genreDat, contextOptions);
             LoadTagDat(tagsDat, contextOptions);
 
@@ -96,8 +96,38 @@ namespace Importer
             userSet.UnionWith(LoadUserRatingDat(userRatingDat, contextOptions));
             GenerateLoadUserData(userSet, contextOptions);
 
-            TransformLoadActorDirectorDat(directorDat, actorDat, contextOptions);
+            // TODO: implement original CastCrew relational schema
+            //TransformLoadActorDirectorDat(directorDat, actorDat, contextOptions);
+            LoadAllDatAsIs<Directs>(directorDat, contextOptions);
+            LoadAllDatAsIs<ActsIn>(actorDat, contextOptions);
         }
+
+
+        private static void LoadAllDatAsIs<T>(string dat, DbContextOptions<MovieContext> contextOptions) where T : class
+        {
+            var parsedValsList = CsvParsingAll<T>(dat, "\t");
+            using var context = new MovieContext(contextOptions);
+            using var transaction = context.Database.BeginTransaction();
+            context.BulkInsert(parsedValsList);
+            transaction.Commit();
+        }
+
+        //private static void LoadActorDat(string actorDat, DbContextOptions<MovieContext> contextOptions)
+        //{
+        //    var directors = CsvParsingAll<Movie>(actorDat, "\t");
+
+        //    // SQLite Bulk Import
+        //    // https://github.com/borisdj/EFCore.BulkExtensions
+        //    using var context = new MovieContext(contextOptions);
+        //    using var transaction = context.Database.BeginTransaction();
+        //    context.BulkInsert(directors);
+        //    transaction.Commit();
+        //}
+
+        //private static void LoadDirectorDat(string directorDat, DbContextOptions<MovieContext> contextOptions)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
         private static void GenerateLoadUserData(HashSet<User> userSet, DbContextOptions<MovieContext> contextOptions)
         {
@@ -149,7 +179,7 @@ namespace Importer
             transaction.Commit();
         }
 
-        // TODO: Use reflection to make generic
+        // TODO: Use reflection to make generic with ParseUserRatingOrTagDat
         private static (List<T> actorDirectorList, HashSet<User> castCrewSet) ParseActorDirectorDat<T>(string dat, string delimiter)
         {
             var actorDirectorList = new List<T>();
@@ -287,7 +317,8 @@ namespace Importer
         {
             var config = new CsvConfiguration(CultureInfo.InvariantCulture)
             {
-                Delimiter = delimiter
+                Delimiter = delimiter,
+                Mode = CsvMode.NoEscape
             };
             using var reader = new StreamReader(csvFilepath);
             using var csv = new CsvReader(reader, config);
