@@ -1,8 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
+// ReSharper disable UnusedMember.Global
 
 namespace Importer
 {
-    class MovieContext : DbContext
+    public class MovieContext : DbContext
     {
         //public MovieContext()
         //{
@@ -38,11 +39,18 @@ namespace Importer
         {
             modelBuilder.Entity<MovieGenre>()
                 .HasKey(m => new { m.MovieId, m.GenreId });
+            modelBuilder.Entity<UserTag>()
+                .HasKey(m => new { m.UserId, m.MovieId, m.TagId });
+            modelBuilder.Entity<UserRating>()
+                .HasKey(m => new { m.UserId, m.MovieId });
         }
 
         public DbSet<Movie> Movie { get; set; }
         public DbSet<Genre> Genre { get; set; }
         public DbSet<MovieGenre> MovieGenre { get; set; }
-
+        public DbSet<Tag> Tag { get; set; }
+        public DbSet<UserTag> UserTag { get; set; }
+        public DbSet<UserRating> UserRating { get; set; }
+        public DbSet<User> User { get; set; }
     }
 }

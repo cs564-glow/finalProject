@@ -78,15 +78,129 @@ namespace Importer
                 context.Database.EnsureCreated();
             }
 
-            // CSV parsing
-            var userTagsDat = Path.Combine(datasetFolder, "user_taggedmovies-timestamps.dat");
+            // dat files
+            var userTagDat = Path.Combine(datasetFolder, "user_taggedmovies-timestamps.dat");
             var tagsDat = Path.Combine(datasetFolder, "tags.dat");
-            var userRatingsDat = Path.Combine(datasetFolder, "user_ratedmovies-timestamps.dat");
+            var userRatingDat = Path.Combine(datasetFolder, "user_ratedmovies-timestamps.dat");
             var movieDat = Path.Combine(datasetFolder, "movies.dat");
             var genreDat = Path.Combine(datasetFolder, "movie_genres.dat");
+            var actorDat = Path.Combine(datasetFolder, "movie_actors.dat");
+            var directorDat = Path.Combine(datasetFolder, "movie_directors.dat");
 
+            // load data
             LoadMovieDat(movieDat, contextOptions);
             TransformLoadGenreDat(genreDat, contextOptions);
+            LoadTagDat(tagsDat, contextOptions);
+
+            var userSet = LoadUserTagsDat(userTagDat, contextOptions);
+            userSet.UnionWith(LoadUserRatingDat(userRatingDat, contextOptions));
+            GenerateLoadUserData(userSet, contextOptions);
+
+            TransformLoadActorDirectorDat(directorDat, actorDat, contextOptions);
+        }
+
+        private static void GenerateLoadUserData(HashSet<User> userSet, DbContextOptions<MovieContext> contextOptions)
+        {
+            // TODO: generate random username and password data
+            //foreach (var user in userSet)
+            //{
+
+            //}
+            using var context = new MovieContext(contextOptions);
+            using var transaction = context.Database.BeginTransaction();
+            context.BulkInsert(userSet.ToList());
+            transaction.Commit();
+        }
+
+        private static void TransformLoadActorDirectorDat(string directorDat, string actorDat, DbContextOptions<MovieContext> contextOptions)
+        {
+            throw new NotImplementedException();
+        }
+
+        private static HashSet<User> LoadUserRatingDat(string userRatingDat, DbContextOptions<MovieContext> contextOptions)
+        {
+            var (userRatings, userSet) = ParseUserRatingOrTagDat<UserRating>(userRatingDat, "\t");
+            using var context = new MovieContext(contextOptions);
+            using var transaction = context.Database.BeginTransaction();
+            context.BulkInsert(userRatings);
+            transaction.Commit();
+
+            return userSet;
+        }
+
+        private static HashSet<User> LoadUserTagsDat(string userTagsDat, DbContextOptions<MovieContext> contextOptions)
+        {
+            var (userTags, userSet) = ParseUserRatingOrTagDat<UserTag>(userTagsDat, "\t");
+            using var context = new MovieContext(contextOptions);
+            using var transaction = context.Database.BeginTransaction();
+            context.BulkInsert(userTags);
+            transaction.Commit();
+
+            return userSet;
+        }
+
+        private static void LoadTagDat(string tagsDat, DbContextOptions<MovieContext> contextOptions)
+        {
+            if (contextOptions == null) throw new ArgumentNullException(nameof(contextOptions));
+            var tags = CsvParsingAll<Tag>(tagsDat, "\t");
+            using var context = new MovieContext(contextOptions);
+            using var transaction = context.Database.BeginTransaction();
+            context.BulkInsert(tags);
+            transaction.Commit();
+        }
+
+        // TODO: Use reflection to make generic
+        private static (List<T> actorDirectorList, HashSet<User> castCrewSet) ParseActorDirectorDat<T>(string dat, string delimiter)
+        {
+            var actorDirectorList = new List<T>();
+            var castCrewSet = new HashSet<User>();
+
+            // CSV Parsing
+            var config = new CsvConfiguration(CultureInfo.InvariantCulture)
+            {
+                Delimiter = delimiter
+            };
+            using (var reader = new StreamReader(dat))
+            using (var csv = new CsvReader(reader, config))
+            {
+                csv.Read();
+                csv.ReadHeader();
+
+                while (csv.Read())
+                {
+                    actorDirectorList.Add(csv.GetRecord<T>());
+                    castCrewSet.Add(new User(csv.GetField<long>("userID")));
+                }
+            }
+
+            return (actorDirectorList, castCrewSet);
+        }
+
+        // TODO: Use reflection to make the userSet generic. This can be reused for loading genres, directors, and actors as well.
+        private static (List<T> userTagOrRatingList, HashSet<User> userSet) ParseUserRatingOrTagDat<T>(string dat, string delimiter)
+        {
+            var userTagOrRatingList = new List<T>();
+            var userSet = new HashSet<User>();
+
+            // CSV Parsing
+            var config = new CsvConfiguration(CultureInfo.InvariantCulture)
+            {
+                Delimiter = delimiter
+            };
+            using (var reader = new StreamReader(dat))
+            using (var csv = new CsvReader(reader, config))
+            {
+                csv.Read();
+                csv.ReadHeader();
+
+                while (csv.Read())
+                {
+                    userTagOrRatingList.Add(csv.GetRecord<T>());
+                    userSet.Add(new User(csv.GetField<long>("userID")));
+                }
+            }
+
+            return (userTagOrRatingList, userSet);
         }
 
         /// <summary>
@@ -124,16 +238,12 @@ namespace Importer
             var genreList = genreSet.ToList();
             using (var context = new MovieContext(contextOptions))
             {
-                context.Database.EnsureCreated();
-
-                using (var transaction = context.Database.BeginTransaction())
-                {
-                    // https://github.com/borisdj/EFCore.BulkExtensions
-                    // Quote - "SetOutputIdentity have purpose only when PK has Identity (usually int type with AutoIncrement),
-                    // while if PK is Guid(sequential) created in Application there is no need for them."
-                    context.BulkInsert(genreList, new BulkConfig { SetOutputIdentity = true });
-                    transaction.Commit();
-                }
+                using var transaction = context.Database.BeginTransaction();
+                // https://github.com/borisdj/EFCore.BulkExtensions
+                // Quote - "SetOutputIdentity have purpose only when PK has Identity (usually int type with AutoIncrement),
+                // while if PK is Guid(sequential) created in Application there is no need for them."
+                context.BulkInsert(genreList, new BulkConfig { SetOutputIdentity = true });
+                transaction.Commit();
 
                 // Get back the list of auto-generated IDs and genre names
                 // Yes, I could have just generated the IDs myself but...whatever I wanted to try autoincrement
@@ -160,14 +270,9 @@ namespace Importer
             // MovieGenre Import
             using (var context = new MovieContext(contextOptions))
             {
-                context.Database.EnsureCreated();
-
-                using (var transaction = context.Database.BeginTransaction())
-                {
-                    context.BulkInsert(movieGenreList);
-                    transaction.Commit();
-                }
-
+                using var transaction = context.Database.BeginTransaction();
+                context.BulkInsert(movieGenreList);
+                transaction.Commit();
             }
         }
 
@@ -200,8 +305,6 @@ namespace Importer
             // SQLite Bulk Import
             // https://github.com/borisdj/EFCore.BulkExtensions
             using var context = new MovieContext(contextOptions);
-            context.Database.EnsureCreated();
-
             using var transaction = context.Database.BeginTransaction();
             context.BulkInsert(movies);
             transaction.Commit();
