@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Globalization;
-using Microsoft.Data.Sqlite;
+//using Microsoft.Data.Sqlite;
 using CsvHelper;
 using CsvHelper.Configuration;
 using Microsoft.EntityFrameworkCore;
@@ -12,28 +12,28 @@ using EFCore.BulkExtensions;
 namespace Importer
 {
     /// <summary>
-    /// Usage: Importer -i <path to dataset> [-x]
+    /// Usage: Importer -i &lt;path to dataset&gt; [-x]
     /// Pass -x to overwrite existing db
     /// </summary>
-    class Program
+    internal class Program
     {
         // C:\ProgramData or /usr/share
-        public static string appData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
-        public static string cs564proj = Path.Combine(appData, "cs564proj");
-        static void Main(string[] args)
+        private static readonly string AppData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
+        private static readonly string Cs564Proj = Path.Combine(AppData, "cs564proj");
+        private static void Main(string[] args)
         {
-            string movieDbFilepath = Path.Combine(cs564proj, "movie.db");
-            string connString = "Data Source=" + movieDbFilepath;
+            var movieDbFilepath = Path.Combine(Cs564Proj, "movie.db");
+            var connString = "Data Source=" + movieDbFilepath;
             // "\\hello-" + DateTime.Now.ToString("o").Replace(":", ".") + ".db";
-            bool shouldDeleteExisting = false;
+            var shouldDeleteExisting = false;
             string datasetFolder = null;
 
             // Command-line parsing
             if (args.Length != 2 || args.Length != 3)
             {
-                for (int i = 0; i < args.Length; i++)
+                for (var i = 0; i < args.Length; i++)
                 {
-                    string arg = args[i];
+                    var arg = args[i];
                     if (arg.Equals("-i"))
                     {
                         datasetFolder = args[++i];
@@ -50,17 +50,17 @@ namespace Importer
             }
 
             // bad arguments
-            if (datasetFolder.Equals("") || datasetFolder is null)
+            if (datasetFolder is null || datasetFolder.Equals(""))
             {
                 // https://docs.microsoft.com/en-us/dotnet/api/system.argumentexception?view=net-5.0#examples
-                throw new ArgumentNullException("Error: Enter an input folder containing dataset after -i");
+                throw new ArgumentNullException(nameof(datasetFolder));
             }
             if (!Directory.Exists(datasetFolder))
             {
                 throw new ArgumentException("Error: user-specified dataset folder does not exist");
             }
 
-            Directory.CreateDirectory(cs564proj);
+            Directory.CreateDirectory(Cs564Proj);
 
             // delete existing db
             if (File.Exists(movieDbFilepath) && shouldDeleteExisting)
@@ -79,14 +79,14 @@ namespace Importer
             }
 
             // CSV parsing
-            string userTagsDat = Path.Combine(datasetFolder, "user_taggedmovies-timestamps.dat");
-            string tagsDat = Path.Combine(datasetFolder, "tags.dat");
-            string userRatingsDat = Path.Combine(datasetFolder, "user_ratedmovies-timestamps.dat");
-            string movieDat = Path.Combine(datasetFolder, "movies.dat");
-            string genreDat = Path.Combine(datasetFolder, "movie_genres.dat");
+            var userTagsDat = Path.Combine(datasetFolder, "user_taggedmovies-timestamps.dat");
+            var tagsDat = Path.Combine(datasetFolder, "tags.dat");
+            var userRatingsDat = Path.Combine(datasetFolder, "user_ratedmovies-timestamps.dat");
+            var movieDat = Path.Combine(datasetFolder, "movies.dat");
+            var genreDat = Path.Combine(datasetFolder, "movie_genres.dat");
 
-            loadMovieDat(movieDat, connString, contextOptions);
-            transformLoadGenreDat(genreDat, connString, contextOptions);
+            LoadMovieDat(movieDat, contextOptions);
+            TransformLoadGenreDat(genreDat, contextOptions);
         }
 
         /// <summary>
@@ -94,12 +94,11 @@ namespace Importer
         /// Could break up by transforming and loading in smaller batches.
         /// </summary>
         /// <param name="genreDat"></param>
-        /// <param name="connString"></param>
         /// <param name="contextOptions"></param>
-        private static void transformLoadGenreDat(string genreDat, string connString, DbContextOptions<MovieContext> contextOptions)
+        private static void TransformLoadGenreDat(string genreDat, DbContextOptions<MovieContext> contextOptions)
         {
-            HashSet<Genre> genreSet = new HashSet<Genre>();
-            List<GenreDat> genreDatList = new List<GenreDat>();
+            var genreSet = new HashSet<Genre>();
+            var genreDatList = new List<GenreDat>();
 
             // CSV Parsing
             var config = new CsvConfiguration(CultureInfo.InvariantCulture)
@@ -116,13 +115,13 @@ namespace Importer
                 {
                     genreDatList.Add(csv.GetRecord<GenreDat>());
 
-                    Genre newGenre = new Genre(csv.GetField("genre"));
+                    var newGenre = new Genre(csv.GetField("genre"));
                     genreSet.Add(newGenre);
                 }
             }
 
             // Genre Category Import
-            List<Genre> genreList = genreSet.ToList();
+            var genreList = genreSet.ToList();
             using (var context = new MovieContext(contextOptions))
             {
                 context.Database.EnsureCreated();
@@ -143,17 +142,18 @@ namespace Importer
 
             // MovieGenre Transform
             // Use dictionary/hashtable for fast lookup
-            Dictionary<string, int> genreDict = new Dictionary<string, int>();
+            var genreDict = new Dictionary<string, int>();
             foreach (var genre in genreList)
             {
                 genreDict.Add(genre.GenreName, genre.GenreId);
             }
-            List<MovieGenre> movieGenreList = new List<MovieGenre>();
+            var movieGenreList = new List<MovieGenre>();
             foreach (var movieGenreDat in genreDatList)
             {
-                MovieGenre movieGenre = new MovieGenre();
-                movieGenre.MovieId = movieGenreDat.MovieId;
-                movieGenre.GenreId = genreDict[movieGenreDat.GenreName];
+                var movieGenre = new MovieGenre
+                {
+                    MovieId = movieGenreDat.MovieId, GenreId = genreDict[movieGenreDat.GenreName]
+                };
                 movieGenreList.Add(movieGenre);
             }
 
@@ -177,57 +177,47 @@ namespace Importer
         /// <typeparam name="T"></typeparam>
         /// <param name="csvFilepath"></param>
         /// <param name="delimiter"></param>
-        /// <returns></returns
-        private static List<T> csvParsingAll<T>(string csvFilepath, string delimiter)
+        /// <returns>List of csv-parsed rows</returns>
+        private static List<T> CsvParsingAll<T>(string csvFilepath, string delimiter)
         {
-            List<T> newList;
-
             var config = new CsvConfiguration(CultureInfo.InvariantCulture)
             {
                 Delimiter = delimiter
             };
-            using (var reader = new StreamReader(csvFilepath))
-            using (var csv = new CsvReader(reader, config))
-            {
-                csv.Context.TypeConverterCache.AddConverter<double?>(new NullableDoubleConverter());
-                csv.Context.TypeConverterCache.AddConverter<int>(new NullableIntConverter());
-                newList = csv.GetRecords<T>().ToList();
-            }
+            using var reader = new StreamReader(csvFilepath);
+            using var csv = new CsvReader(reader, config);
+            csv.Context.TypeConverterCache.AddConverter<double?>(new NullableDoubleConverter());
+            csv.Context.TypeConverterCache.AddConverter<int>(new NullableIntConverter());
+            var newList = csv.GetRecords<T>().ToList();
 
             return newList;
         }
 
-        private static void loadMovieDat(string movieDat, string connString, DbContextOptions<MovieContext> contextOptions)
+        private static void LoadMovieDat(string movieDat, DbContextOptions<MovieContext> contextOptions)
         {
-            List<Movie> movies;
-
-            movies = csvParsingAll<Movie>(movieDat, "\t");
+            var movies = CsvParsingAll<Movie>(movieDat, "\t");
 
             // SQLite Bulk Import
             // https://github.com/borisdj/EFCore.BulkExtensions
-            using (var context = new MovieContext(contextOptions))
-            {
-                context.Database.EnsureCreated();
+            using var context = new MovieContext(contextOptions);
+            context.Database.EnsureCreated();
 
-                using (var transaction = context.Database.BeginTransaction())
-                {
-                    context.BulkInsert(movies);
-                    transaction.Commit();
-                }
-            }
+            using var transaction = context.Database.BeginTransaction();
+            context.BulkInsert(movies);
+            transaction.Commit();
         }
 
+/*
         /// <summary>
         /// DEPRECATED in favor of EFCore built-in functionality
         /// </summary>
-        static void createMovieTableManual()
+        private static void CreateMovieTableManual()
         {
-            using (SqliteConnection connection = new SqliteConnection("Data Source=blahblah"))
-            {
-                connection.Open();
+            using var connection = new SqliteConnection("Data Source=blahblah");
+            connection.Open();
 
-                SqliteCommand createMovieTableCmd = connection.CreateCommand();
-                createMovieTableCmd.CommandText = @"CREATE TABLE IF NOT EXISTS Movie (
+            var createMovieTableCmd = connection.CreateCommand();
+            createMovieTableCmd.CommandText = @"CREATE TABLE IF NOT EXISTS Movie (
 MovieId INTEGER PRIMARY KEY,
 Title TEXT,
 ImdbId TEXT,
@@ -236,9 +226,9 @@ RtId TEXT,
 RtAllCriticsRating REAL,
 RtAllCriticsNumReviews INTEGER
 );";
-                createMovieTableCmd.ExecuteNonQuery();
-            }
+            createMovieTableCmd.ExecuteNonQuery();
         }
+*/
     }
 
 }
