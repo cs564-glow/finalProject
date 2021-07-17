@@ -20,8 +20,7 @@ namespace LetterBoxDClone.Pages.Shared
             var command = connection.CreateCommand();
             command.CommandText = query;
 
-            using var reader = command.ExecuteReader();
-
+            using SqliteDataReader reader = command.ExecuteReader();
             reader.Read();
             T instance = function(reader);
 
@@ -36,7 +35,7 @@ namespace LetterBoxDClone.Pages.Shared
             var command = connection.CreateCommand();
             command.CommandText = query;
 
-            using var reader = command.ExecuteReader();
+            using SqliteDataReader reader = command.ExecuteReader();
             List<T> returnList = new List<T>();
             while (reader.Read())
             {

@@ -13,6 +13,7 @@ namespace LetterBoxDClone.Pages
     public class MoviesModel : PageModel
     {
 
+        [BindProperty(SupportsGet =true)]
         public string MovieId { get; set; }
         public Movie Movie { get; set; }
         public List<string> castAndCrew { get; set; }
