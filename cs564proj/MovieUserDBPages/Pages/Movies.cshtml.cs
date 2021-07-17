@@ -13,16 +13,13 @@ namespace LetterBoxDClone.Pages
     public class MoviesModel : PageModel
     {
 
-        [BindProperty(SupportsGet = true)]
         public string MovieId { get; set; }
-
         public Movie Movie { get; set; }
         public List<string> castAndCrew { get; set; }
 
-        public const string IMDB_URL_TEMPLATE = "https://www.imdb.com/title/tt";
-
         public void OnGet()
         {
+            //TODO: handle nulls
             Movie = GetSingleMovieByKey(MovieId);
             castAndCrew = GeMovieCastAndCrew(MovieId);
         }
@@ -36,7 +33,6 @@ namespace LetterBoxDClone.Pages
                  WHERE MovieId = {MovieId}
                  ";
 
-            //TODO: handle nulls
             Movie Movie = Connection.GetSingleRow<Movie>(query, GetMovieData);
 
             return Movie;

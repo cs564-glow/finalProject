@@ -9,7 +9,7 @@ namespace LetterBoxDClone.Pages.Shared
 {
     public class Connection
     {
-        //replace with path to your database
+        //TODO: replace with path to your database
         private const string PATH_TO_DATABASE = "Data Source=/Users/Nugi/Downloads/hetrec2011-movielens-2k-v2/movie.db";
 
         public static T GetSingleRow<T>(string query, Func<SqliteDataReader, T> function)
@@ -21,13 +21,9 @@ namespace LetterBoxDClone.Pages.Shared
             command.CommandText = query;
 
             using var reader = command.ExecuteReader();
-            T instance = default;
-            while (reader.Read())
-            {
-                instance = function(reader);
 
-                return instance;
-            }
+            reader.Read();
+            T instance = function(reader);
 
             return instance;
         }
