@@ -2,11 +2,11 @@
 using CsvHelper.Configuration;
 using CsvHelper.TypeConversion;
 
-/// <summary>
-/// in our data set, \N is used to indicate null data.
-/// </summary>
 namespace Importer
 {
+    /// <summary>
+    /// in our data set, \N is used to indicate null data.
+    /// </summary>
     public class NullableDoubleConverter : DoubleConverter
     {
         public override object ConvertFromString(string text, IReaderRow row, MemberMapData memberMapData)
