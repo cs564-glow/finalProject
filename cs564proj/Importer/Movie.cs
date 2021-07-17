@@ -1,17 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CsvHelper.Configuration;
-using CsvHelper.Configuration.Attributes;
-using Microsoft.EntityFrameworkCore;
+﻿using CsvHelper.Configuration.Attributes;
+using System.ComponentModel.DataAnnotations;
 
 namespace Importer
 {
     public class Movie
     {
-        [Name("id")]
+        [Name("id"), Key]
         public int MovieId { get; set; }
         [Name("title")]
         public string Title { get; set; }
@@ -55,13 +49,5 @@ namespace Importer
         //public string RtAudienceScore { get; set; }
         //[Ignore]
         //public string RtPictureUrl { get; set; }
-    }
-
-    public sealed class MovieMap : ClassMap<Movie>
-    {
-        public MovieMap()
-        {
-            Map(m => m.ToString().Replace("\\N", ""));
-        }
     }
 }
