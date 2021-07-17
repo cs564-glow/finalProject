@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace Importer
+﻿namespace Importer
 {
     public class MovieGenre
     {
