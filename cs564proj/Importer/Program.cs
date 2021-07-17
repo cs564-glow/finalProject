@@ -7,7 +7,8 @@ using System.Text;
 using CsvHelper;
 using CsvHelper.Configuration;
 using EFCore.BulkExtensions;
-using Microsoft.EntityFrameworkCore; //using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.Sqlite;
 
 namespace Importer
 {
@@ -87,20 +88,22 @@ namespace Importer
             var actorDat = Path.Combine(datasetFolder, "movie_actors.dat");
             var directorDat = Path.Combine(datasetFolder, "movie_directors.dat");
 
-            // load data
+            // Load data
             LoadAllDatSimple<Movie>(movieDat, contextOptions);
             TransformLoadGenreDat(genreDat, contextOptions);
-            LoadTagDat(tagsDat, contextOptions);
+            LoadAllDatSimple<Tag>(tagsDat, contextOptions);
+            //LoadTagDat(tagsDat, contextOptions);
 
+            // Transform
             var (userTagList, userSet) = ParseUserRatingOrTagDat<UserTag>(userTagDat, "\t");
             var (userRatingList, newUserSet) = ParseUserRatingOrTagDat<UserRating>(userRatingDat, "\t");
             userSet.UnionWith(newUserSet);
+            // Load
             LoadList(userTagList, contextOptions);
             LoadList(userRatingList, contextOptions);
             GenerateLoadUserData(userSet, contextOptions);
 
             var (actorList, castCrewSet) = ParseActorDirectorDat<ActsIn>(actorDat, "\t");
-            LoadSet(castCrewSet, contextOptions);
             var (directorList, otherCastCrewSet) = ParseActorDirectorDat<Directs>(directorDat, "\t");
             castCrewSet.UnionWith(otherCastCrewSet);
             // Testing
@@ -115,54 +118,74 @@ namespace Importer
             //    csv.WriteRecords(castCrewSet);
             //}
 
-            var castCrewList = castCrewSet.ToList();
-            LoadList(castCrewList, contextOptions);
-            //LoadSet(castCrewSet, contextOptions);
-            //LoadCastCrewSet(castCrewSet, contextOptions);
+            //var castCrewList = castCrewSet.ToList();
+            //LoadCastCrewManual(castCrewSet, connString);
+            //LoadList(castCrewList, contextOptions);
+            LoadSet(castCrewSet, contextOptions);
             LoadList(directorList, contextOptions);
             LoadList(actorList, contextOptions);
         }
 
+        // CURRENTLY UNUSED
+        /*private static void LoadCastCrewManual(HashSet<CastCrew> castCrewSet, string connString)
+        {
+            // https://docs.microsoft.com/en-us/dotnet/standard/data/sqlite/bulk-insert
+            using var connection = new SqliteConnection(connString);
+            connection.Open();
+            using var transaction = connection.BeginTransaction();
+            var command = connection.CreateCommand();
+            command.CommandText =
+                @"
+            INSERT INTO CastCrew(CastCrewId, Name)
+            VALUES ($CastCrewId, $Name)
+        ";
+
+            var castCrewIdParam = command.CreateParameter();
+            castCrewIdParam.ParameterName = "$CastCrewId";
+            command.Parameters.Add(castCrewIdParam);
+
+            var nameParam = command.CreateParameter();
+            nameParam.ParameterName = "$Name";
+            command.Parameters.Add(nameParam);
+
+            // Insert a lot of data
+            foreach (var castCrew in castCrewSet)
+            {
+                castCrewIdParam.Value = castCrew.CastCrewId;
+                nameParam.Value = castCrew.Name;
+                command.ExecuteNonQuery();
+            }
+
+            transaction.Commit();
+        }*/
+
         private static void LoadAllDatSimple<T>(string dat, DbContextOptions<MovieContext> contextOptions) where T : class
         {
             var parsedValsList = CsvParsingAll<T>(dat, "\t");
-            using var context = new MovieContext(contextOptions);
-            using var transaction = context.Database.BeginTransaction();
-            context.BulkInsert(parsedValsList);
-            transaction.Commit();
+            LoadList(parsedValsList, contextOptions);
+            //using var context = new MovieContext(contextOptions);
+            //using var transaction = context.Database.BeginTransaction();
+            //context.BulkInsert(parsedValsList);
+            //transaction.Commit();
         }
 
-        //private static void LoadActorDat(string actorDat, DbContextOptions<MovieContext> contextOptions)
-        //{
-        //    var directors = CsvParsingAll<Movie>(actorDat, "\t");
-
-        //    // SQLite Bulk Import
-        //    // https://github.com/borisdj/EFCore.BulkExtensions
-        //    using var context = new MovieContext(contextOptions);
-        //    using var transaction = context.Database.BeginTransaction();
-        //    context.BulkInsert(directors);
-        //    transaction.Commit();
-        //}
-
-        //private static void LoadDirectorDat(string directorDat, DbContextOptions<MovieContext> contextOptions)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        private static void LoadSet<T>(HashSet<T> entitySet, DbContextOptions<MovieContext> contextOptions) where T : class
+        private static void LoadSet<T>(IEnumerable<T> entitySet, DbContextOptions<MovieContext> contextOptions) where T : class
         {
-            // TODO: reuse this for the other places where there is a generic set to add to list
-            using var context = new MovieContext(contextOptions);
-            using var transaction = context.Database.BeginTransaction();
-            context.BulkInsert(entitySet.ToList());
-            transaction.Commit();
+            // TODO: reuse this for the other places where there is a generic set to load
+            var entityList = entitySet.ToList();
+            LoadList(entityList, contextOptions);
+            //using var context = new MovieContext(contextOptions);
+            //using var transaction = context.Database.BeginTransaction();
+            //context.BulkInsert(entitySet.ToList(), new BulkConfig { BatchSize = 10000 });
+            //transaction.Commit();
         }
+
+        // REMOVE
         //private static void LoadCastCrewSet(HashSet<CastCrew> entitySet, DbContextOptions<MovieContext> contextOptions)
         //{
-        //    // TODO: reuse this for the other places where there is a generic set to add to list
         //    using var context = new MovieContext(contextOptions);
         //    using var transaction = context.Database.BeginTransaction();
-        //    context.BulkInsert(entitySet.ToList());
+        //    context.BulkInsertOrUpdate(entitySet.ToList());
         //    transaction.Commit();
         //}
 
@@ -173,10 +196,7 @@ namespace Importer
             //{
 
             //}
-            using var context = new MovieContext(contextOptions);
-            using var transaction = context.Database.BeginTransaction();
-            context.BulkInsert(userSet.ToList());
-            transaction.Commit();
+            LoadSet(userSet, contextOptions);
         }
 
         private static void LoadList<T>(IList<T> entityList, DbContextOptions<MovieContext> contextOptions) where T : class
@@ -188,15 +208,15 @@ namespace Importer
             transaction.Commit();
         }
 
-        private static void LoadTagDat(string tagsDat, DbContextOptions<MovieContext> contextOptions)
-        {
-            if (contextOptions == null) throw new ArgumentNullException(nameof(contextOptions));
-            var tags = CsvParsingAll<Tag>(tagsDat, "\t");
-            using var context = new MovieContext(contextOptions);
-            using var transaction = context.Database.BeginTransaction();
-            context.BulkInsert(tags);
-            transaction.Commit();
-        }
+        // REMOVE
+        //private static void LoadTagDat(string tagsDat, DbContextOptions<MovieContext> contextOptions)
+        //{
+        //    var tags = CsvParsingAll<Tag>(tagsDat, "\t");
+        //    using var context = new MovieContext(contextOptions);
+        //    using var transaction = context.Database.BeginTransaction();
+        //    context.BulkInsert(tags);
+        //    transaction.Commit();
+        //}
 
         // TODO: Use reflection to make generic with ParseUserRatingOrTagDat
         private static (List<T> actorDirectorList, HashSet<CastCrew> castCrewSet) ParseActorDirectorDat<T>(string dat, string delimiter)
@@ -389,19 +409,19 @@ namespace Importer
             return newList;
         }
 
-/*
-        private static void LoadMovieDat(string movieDat, DbContextOptions<MovieContext> contextOptions)
-        {
-            var movies = CsvParsingAll<Movie>(movieDat, "\t");
+        /*
+                private static void LoadMovieDat(string movieDat, DbContextOptions<MovieContext> contextOptions)
+                {
+                    var movies = CsvParsingAll<Movie>(movieDat, "\t");
 
-            // SQLite Bulk Import
-            // https://github.com/borisdj/EFCore.BulkExtensions
-            using var context = new MovieContext(contextOptions);
-            using var transaction = context.Database.BeginTransaction();
-            context.BulkInsert(movies);
-            transaction.Commit();
-        }
-*/
+                    // SQLite Bulk Import
+                    // https://github.com/borisdj/EFCore.BulkExtensions
+                    using var context = new MovieContext(contextOptions);
+                    using var transaction = context.Database.BeginTransaction();
+                    context.BulkInsert(movies);
+                    transaction.Commit();
+                }
+        */
 
         /*
                 /// <summary>
