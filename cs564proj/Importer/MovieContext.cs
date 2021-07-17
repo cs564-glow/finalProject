@@ -58,5 +58,6 @@ namespace Importer
         public DbSet<User> User { get; set; }
         public DbSet<Directs> Directs { get; set; }
         public DbSet<ActsIn> ActsIn { get; set; }
+        public DbSet<CastCrew> CastCrew { get; set; }
     }
 }
