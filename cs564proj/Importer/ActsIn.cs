@@ -1,13 +1,20 @@
-﻿using CsvHelper.Configuration.Attributes;
+﻿// TODO: remove redundancy between actors and directors. Implement as we intended from checkpoint 2
 
-// TODO: remove redundancy between actors and directors. Implement as we intended from checkpoint 2
+using System.ComponentModel.DataAnnotations;
+
 namespace Importer
 {
     public class ActsIn
     {
-        [Name("movieID")] public int MovieId { get; set; }
-        [Name("actorID")] public string CastCrewId { get; set; }
-        [Name("actorName")] public string ActorName { get; set; }
-        [Name("ranking")] public int Ranking { get; set; }
+        public int MovieId { get; set; }
+        public string CastCrewId { get; set; }
+        public int Billing { get; set; }
+
+        public ActsIn(int movieId, string castCrewId, int billing)
+        {
+            this.MovieId = movieId;
+            this.CastCrewId = castCrewId;
+            this.Billing = billing;
+        }
     }
 }
