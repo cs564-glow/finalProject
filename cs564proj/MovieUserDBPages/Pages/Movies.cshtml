@@ -31,7 +31,7 @@
                         <!-- Post title-->
                         <h1 class="fw-bolder mb-1">@Model.Movie.Title</h1>
                         <!-- Post meta content-->
-                        <div class="text-muted fst-italic mb-2">@Model.Movie.Year by Steve McQueen (hardcoded for now)</div>
+                        <div class="text-muted fst-italic mb-2">@Model.Movie.Year by @Model.Director.Name</div>
                         <!-- Genre -->
                         <div class="row">
                             <div class="col-sm-1">
@@ -41,7 +41,7 @@
                                 <div>
                                     @foreach (var genre in Model.genres)
                                     {
-                                        <a class="badge badge-light text-decoration-none link-light" href="#!">@genre</a>
+                                        <a class="badge badge-light text-decoration-none link-light" href="#!">@genre.GenreName</a>
                                     }
                                 </div>
                             </div>
@@ -54,7 +54,7 @@
                             <div class="col-sm-11">
                                 @foreach (var tag in Model.mostAppliedTags)
                                 {
-                                    <a class="badge badge-secondary text-decoration-none link-light" href="#!">@tag</a>
+                                    <a class="badge badge-secondary text-decoration-none link-light" href="#!">@tag.Name</a>
                                 }
                             </div>
                         </div>
@@ -70,7 +70,7 @@
                                         <ul class="list-group list-group-flush mb-0">
                                             @foreach (var crew in Model.castAndCrew)
                                             {
-                                                <li class="list-group-item"><a href="#!">@crew</a></li>
+                                                <li class="list-group-item"><a href="#!">@crew.Name</a></li>
                                             }
                                         </ul>
                                     </div>
@@ -131,7 +131,7 @@
                     <div class="card-header">Metadata</div>
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-sm-12">Produced in Canada</div>
+                            <div class="col-sm-12">Produced in @Model.countryProduced</div>
                         </div>
                         <div class="row">
                             <div class="col-sm-12">
@@ -147,7 +147,7 @@
                 </div>
 
                 <div class="card mb-4">
-                    <div class="card-header">Simmilar Movies</div>
+                    <div class="card-header">Similar Movies</div>
                     <div class="card-body">
                         <div class="row">
                             <div class="col-sm-12">
