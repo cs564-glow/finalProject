@@ -113,12 +113,14 @@ namespace Importer
             BulkInsertList(directorList, contextOptions);
             BulkInsertList(actorList, contextOptions);
 
-            // Transform
+            // Extract
             var (filmLocationList, countrySet) = ParseCountryAndLocation<FilmLocation>(filmLocationDat, "\t");
             var (countryProducedList, otherCountrySet) = ParseCountryAndLocation<CountryProduced>(countryProducedDat, "\t");
             countrySet.UnionWith(otherCountrySet);
-            // Load
+            // Transform
             BulkInsertSet(countrySet, contextOptions);
+
+            // Load
             BulkInsertList(filmLocationList, contextOptions);
             BulkUpdateCountryProducedManual(countryProducedList, connString);
         }
@@ -229,10 +231,10 @@ namespace Importer
             if (countryProducedDatList.Count > 0)
             {
 
-                var returnList = countryProducedDatList.Select(locationDat => (T)(object)new CountryProduced
+                var returnList = countryProducedDatList.Select(countryProducedDat => (T)(object)new CountryProduced
                 {
-                    MovieId = locationDat.MovieId,
-                    CountryId = countryDict[locationDat.Country]
+                    MovieId = countryProducedDat.MovieId,
+                    CountryId = countryDict[countryProducedDat.Country]
                 })
                     .ToList();
                 return (returnList, countrySet);
@@ -240,13 +242,6 @@ namespace Importer
 
             if (filmLocationDatList.Count > 0)
             {
-                //var filmLocationList = filmLocationDatList.Select(locationDat => new FilmLocation { MovieId = locationDat.MovieId, CountryId = countryDict[locationDat.Country], State = locationDat.State, City = locationDat.City, StreetAddress = locationDat.StreetAddress });
-                //var returnList = filmLocationList.ToList<T>();
-                /*var returnList = new List<T>();
-                foreach (var filmLocationDat in filmLocationDatList)
-                {
-                    returnList.Add((T)(object)new FilmLocation { MovieId = filmLocationDat.MovieId, CountryId = countryDict[filmLocationDat.Country], State = filmLocationDat.State, City = filmLocationDat.City, StreetAddress = filmLocationDat.StreetAddress });
-                }*/
                 var returnList = filmLocationDatList.Select(filmLocationDat => (T)(object)new FilmLocation
                 {
                     MovieId = filmLocationDat.MovieId,

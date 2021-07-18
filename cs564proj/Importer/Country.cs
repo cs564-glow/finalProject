@@ -6,14 +6,11 @@ namespace Importer
 {
     public class Country : IEquatable<Country>
     {
-        private static int _id = 0;
         [Key] public int CountryId { get; set; }
         public string Name { get; init; }
 
         public Country(string name)
-        {
-            // https://stackoverflow.com/a/154803
-            CountryId = Interlocked.Increment(ref _id);
+        { 
             this.Name = name;
         }
 
