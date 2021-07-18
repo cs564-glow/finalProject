@@ -13,13 +13,16 @@ using Microsoft.EntityFrameworkCore;
 namespace Importer
 {
     /// <summary>
-    /// Usage: Importer -i &lt;path to dataset&gt; [-x]
+    /// Usage: Importer -i &lt;path to dataset&gt; [-x] [-d] &lt;path to db&gt;
+    /// Default movie.db location is on the desktop in cs564proj
     /// Pass -x to overwrite existing db
+    /// Pass -d and a folder to change the default movie.db location
     /// </summary>
     internal class Program
     {
-        // C:\ProgramData or /usr/share
-        private static readonly string AppData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
+        // Environment.SpecialFolder.CommonApplicationData = C:\ProgramData or /usr/share
+        // Desktop = C:\Users\john\Desktop or /Users/john/Desktop
+        private static readonly string AppData = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
         private static readonly string Cs564Proj = Path.Combine(AppData, "cs564proj");
         private static void Main(string[] args)
         {
@@ -30,7 +33,7 @@ namespace Importer
             string datasetFolder = null;
 
             // Command-line parsing
-            if (args.Length != 2 || args.Length != 3)
+            if (args.Length >= 2 && args.Length <= 5)
             {
                 for (var i = 0; i < args.Length; i++)
                 {
@@ -43,11 +46,16 @@ namespace Importer
                     {
                         shouldDeleteExisting = true;
                     }
+                    else if (arg.Equals("-d"))
+                    {
+                        movieDbFilepath = Path.Combine(args[++i], "movie.db");
+                        connString = "Data Source=" + movieDbFilepath;
+                    }
                 }
             }
             else
             {
-                Console.WriteLine("Usage: Importer -i <path to dataset> [-x] (-x to overwrite existing db)");
+                Console.WriteLine("Usage: Importer -i <path to dataset> [-x] (-x to overwrite existing db) [-d] <change default movie.db location>");
             }
 
             // bad arguments
