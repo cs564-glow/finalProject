@@ -24,6 +24,8 @@ namespace Importer
         public double? RtAllCriticsRating { get; set; }
         [Name("rtAllCriticsNumReviews")]
         public int? RtAllCriticsNumReviews { get; set; }
+        [Ignore]
+        public int CountryId { get; set; }
 #nullable disable
         //[Ignore]
         //public string RtAllNumFresh { get; set; }
