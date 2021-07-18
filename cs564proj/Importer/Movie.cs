@@ -25,7 +25,7 @@ namespace Importer
         [Name("rtAllCriticsNumReviews")]
         public int? RtAllCriticsNumReviews { get; set; }
         [Ignore]
-        public int CountryId { get; set; }
+        public int? CountryId { get; set; }
 #nullable disable
         //[Ignore]
         //public string RtAllNumFresh { get; set; }

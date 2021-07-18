@@ -90,7 +90,7 @@ namespace Importer
             var filmLocationDat = Path.Combine(datasetFolder, "movie_locations.dat");
             var countryProducedDat = Path.Combine(datasetFolder, "movie_countries.dat");
 
-            // Transform and Load
+            //// Transform and Load
             LoadAllDatSimple<Movie>(movieDat, contextOptions);
             TransformLoadGenreDat(genreDat, contextOptions);
             LoadAllDatSimple<Tag>(tagsDat, contextOptions);
@@ -114,15 +114,45 @@ namespace Importer
             BulkInsertList(actorList, contextOptions);
 
             // Extract
-            var (filmLocationList, countrySet) = ParseCountryAndLocation<FilmLocation>(filmLocationDat, "\t");
-            var (countryProducedList, otherCountrySet) = ParseCountryAndLocation<CountryProduced>(countryProducedDat, "\t");
+            var (filmLocationDatList, countrySet) = ParseCountryAndLocation<FilmLocationDat>(filmLocationDat, "\t");
+            var (countryProducedDatList, otherCountrySet) = ParseCountryAndLocation<CountryProducedDat>(countryProducedDat, "\t");
             countrySet.UnionWith(otherCountrySet);
             // Transform
             BulkInsertSet(countrySet, contextOptions);
-
+            Dictionary<string, int> countryDict;
+            using (var context = new MovieContext(contextOptions))
+            {
+                countryDict = context.Country.ToDictionary(c => c.Name, c => c.CountryId);
+            }
+            var filmLocationList = TransformFilmLocation(filmLocationDatList, countryDict);
+            var countryProducedList = TransformCountryProduced(countryProducedDatList, countryDict);
             // Load
             BulkInsertList(filmLocationList, contextOptions);
             BulkUpdateCountryProducedManual(countryProducedList, connString);
+        }
+
+        private static List<FilmLocation> TransformFilmLocation(List<FilmLocationDat> filmLocationDatList, Dictionary<string, int> countryDict)
+        {
+            var returnList = filmLocationDatList.Select(filmLocationDat => new FilmLocation
+            {
+                MovieId = filmLocationDat.MovieId,
+                CountryId = filmLocationDat.Country != null && !filmLocationDat.Country.Equals("") ? countryDict[filmLocationDat.Country] : null,
+                State = filmLocationDat.State,
+                City = filmLocationDat.City,
+                StreetAddress = filmLocationDat.StreetAddress
+            })
+                .ToList();
+            return returnList;
+        }
+        private static List<CountryProduced> TransformCountryProduced(List<CountryProducedDat> countryProducedDatList, Dictionary<string, int> countryDict)
+        {
+            var returnList = countryProducedDatList.Select(countryProducedDat => new CountryProduced
+            {
+                MovieId = countryProducedDat.MovieId,
+                CountryId = countryProducedDat.Country != null && !countryProducedDat.Country.Equals("") ? countryDict[countryProducedDat.Country] : null
+            })
+                .ToList();
+            return returnList;
         }
 
         private static void BulkUpdateCountryProducedManual(IEnumerable<CountryProduced> countryProducedList, string connString)
@@ -150,6 +180,10 @@ namespace Importer
             // Insert a lot of data
             foreach (var countryProduced in countryProducedList)
             {
+                if (countryProduced.CountryId is null)
+                {
+                    continue;
+                }
                 movieIdParam.Value = countryProduced.MovieId;
                 countryIdParam.Value = countryProduced.CountryId;
                 command.ExecuteNonQuery();
@@ -205,57 +239,30 @@ namespace Importer
             csv.Read();
             csv.ReadHeader();
 
-            var countryProducedDatList = new List<CountryProducedDat>();
-            var filmLocationDatList = new List<FilmLocationDat>();
+            var returnList = new List<T>();
 
             while (csv.Read())
             {
                 string countryName;
 
-                if (typeof(T) == typeof(CountryProduced))
+                if (typeof(T) == typeof(CountryProducedDat))
                 {
                     countryName = csv.GetField("country");
-                    countryProducedDatList.Add(new CountryProducedDat(csv.GetField<int>("movieID"), countryName));
+                    returnList.Add((T)(object)new CountryProducedDat(csv.GetField<int>("movieID"), countryName));
                 }
                 else // Film Location
                 {
                     countryName = csv.GetField("location1");
-                    filmLocationDatList.Add(csv.GetRecord<FilmLocationDat>());
+                    returnList.Add((T)(object)csv.GetRecord<FilmLocationDat>());
                 }
 
-                countrySet.Add(new Country(countryName));
-            }
-
-            var countryDict = countrySet.ToDictionary(country => country.Name, country => country.CountryId);
-
-            if (countryProducedDatList.Count > 0)
-            {
-
-                var returnList = countryProducedDatList.Select(countryProducedDat => (T)(object)new CountryProduced
+                if (countryName is not null && !(countryName.Equals("")))
                 {
-                    MovieId = countryProducedDat.MovieId,
-                    CountryId = countryDict[countryProducedDat.Country]
-                })
-                    .ToList();
-                return (returnList, countrySet);
+                    countrySet.Add(new Country(countryName));
+                }
             }
 
-            if (filmLocationDatList.Count > 0)
-            {
-                var returnList = filmLocationDatList.Select(filmLocationDat => (T)(object)new FilmLocation
-                {
-                    MovieId = filmLocationDat.MovieId,
-                    CountryId = countryDict[filmLocationDat.Country],
-                    State = filmLocationDat.State,
-                    City = filmLocationDat.City,
-                    StreetAddress = filmLocationDat.StreetAddress
-                })
-                    .ToList();
-                return (returnList, countrySet);
-            }
-
-            return (null, null);
-
+            return (returnList, countrySet);
         }
 
         // TODO: Use reflection to make generic with ParseUserRatingOrTagDat
@@ -407,7 +414,7 @@ namespace Importer
             var genreDict = genreList.ToDictionary(genre => genre.GenreName, genre => genre.GenreId);
             var movieGenreList = genreDatList.Select(movieGenreDat => new MovieGenre
             {
-                MovieId = movieGenreDat.MovieId, 
+                MovieId = movieGenreDat.MovieId,
                 GenreId = genreDict[movieGenreDat.GenreName]
             }).ToList();
 
