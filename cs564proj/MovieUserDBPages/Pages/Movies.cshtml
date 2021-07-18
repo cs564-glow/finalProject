@@ -2,7 +2,7 @@
 @model LetterBoxDClone.Pages.MoviesModel
 
 @{
-    ViewData["Title"] = "Test Movie";
+    ViewData["Title"] = Model.Movie.Title;
 }
 
 <!DOCTYPE html>
@@ -32,28 +32,55 @@
                         <h1 class="fw-bolder mb-1">@Model.Movie.Title</h1>
                         <!-- Post meta content-->
                         <div class="text-muted fst-italic mb-2">@Model.Movie.Year by Steve McQueen (hardcoded for now)</div>
-                        <!-- Post categories-->
-                        <a class="badge bg-secondary text-decoration-none link-light" href="#!">popular tag1</a>
-                        <a class="badge bg-secondary text-decoration-none link-light" href="#!">populat tag2</a>
-                    </header>
-
-                    <div class="card mb-4">
-                        <div class="card-header">Cast and Crew</div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-sm-12">
-                                    <ul class="list-group list-group-flush mb-0">
-                                        @foreach (var crew in Model.castAndCrew)
-                                        {
-                                            <li class="list-group-item"><a href="#!">@crew</a></li>
-                                        }
-                                    </ul>
+                        <!-- Genre -->
+                        <div class="row">
+                            <div class="col-sm-1">
+                                <span>Genres: </span>
+                            </div>
+                            <div class="col-sm-11">
+                                <div>
+                                    @foreach (var genre in Model.genres)
+                                    {
+                                        <a class="badge badge-light text-decoration-none link-light" href="#!">@genre</a>
+                                    }
                                 </div>
                             </div>
                         </div>
-                    </div>
+                        <!-- Post categories-->
+                        <div class="row">
+                            <div class="col-sm-1">
+                                <span>Tags: </span>
+                            </div>
+                            <div class="col-sm-11">
+                                @foreach (var tag in Model.mostAppliedTags)
+                                {
+                                    <a class="badge badge-secondary text-decoration-none link-light" href="#!">@tag</a>
+                                }
+                            </div>
+                        </div>
+                        @*<a class="badge bg-secondary text-decoration-none link-light" href="#!">popular tag1</a>
+            <a class="badge bg-secondary text-decoration-none link-light" href="#!">populat tag2</a>
+        </header>*@
 
-                </article>
+                        <div class="card mb-4">
+                            <div class="card-header">Cast and Crew</div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <ul class="list-group list-group-flush mb-0">
+                                            @foreach (var crew in Model.castAndCrew)
+                                            {
+                                                <li class="list-group-item"><a href="#!">@crew</a></li>
+                                            }
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </header>
+
+</article>
                 <!-- Comments section-->
             </div>
             <!-- Side widgets-->
@@ -118,10 +145,26 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="card mb-4">
+                    <div class="card-header">Simmilar Movies</div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <ul class="list-group list-group-flush mb-0">
+                                    @foreach (var movie in Model.similarMovies)
+                                    {
+                                        <li class="list-group-item"><a href="https://localhost:5001/Movies?movieID=@movie.MovieId">@movie.Title (@movie.Year)</a></li>
+                                    }
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
         </div>
-    </div>
     </div>
     <!-- Bootstrap core JS-->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
