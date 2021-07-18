@@ -1,22 +1,25 @@
 ﻿using CsvHelper.Configuration.Attributes;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Importer
 {
     public class Movie
     {
-        [Name("id"), Key]
+        [Name("id"), Key, DatabaseGenerated(DatabaseGeneratedOption.None)]
         public int MovieId { get; set; }
         [Name("title")]
         public string Title { get; set; }
-        [Name("imdbID")]
-        public string ImdbId { get; set; }
         //[Ignore]
         //public string SpanishTitle { get; set; }
         //[Ignore]
         //public string ImdbPictureUrl { get; set; }
         [Name("year")]
         public string Year { get; set; }
+        [Ignore]
+        public int? CountryId { get; set; }
+        [Name("imdbID")]
+        public string ImdbId { get; set; }
         [Name("rtID")]
         public string RtId { get; set; }
         [Name("rtAllCriticsRating")]
@@ -24,8 +27,6 @@ namespace Importer
         public double? RtAllCriticsRating { get; set; }
         [Name("rtAllCriticsNumReviews")]
         public int? RtAllCriticsNumReviews { get; set; }
-        [Ignore]
-        public int? CountryId { get; set; }
 #nullable disable
         //[Ignore]
         //public string RtAllNumFresh { get; set; }

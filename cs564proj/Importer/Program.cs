@@ -92,7 +92,7 @@ namespace Importer
 
             //// Transform and Load
             LoadAllDatSimple<Movie>(movieDat, contextOptions);
-            TransformLoadGenreDat(genreDat, contextOptions);
+            ParseGenreDat(genreDat, contextOptions);
             LoadAllDatSimple<Tag>(tagsDat, contextOptions);
 
             // Transform
@@ -200,7 +200,6 @@ namespace Importer
 
         private static void BulkInsertSet<T>(IEnumerable<T> entitySet, DbContextOptions<MovieContext> contextOptions) where T : class
         {
-            // TODO: reuse this for the other places where there is a generic set to load
             var entityList = entitySet.ToList();
             BulkInsertList(entityList, contextOptions);
         }
@@ -350,7 +349,7 @@ namespace Importer
         /// </summary>
         /// <param name="genreDat"></param>
         /// <param name="contextOptions"></param>
-        private static void TransformLoadGenreDat(string genreDat, DbContextOptions<MovieContext> contextOptions)
+        private static void ParseGenreDat(string genreDat, DbContextOptions<MovieContext> contextOptions)
         {
             var genreSet = new HashSet<Genre>();
             var genreDatList = new List<GenreDat>();
