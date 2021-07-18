@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
-using Importer;
 using Microsoft.Data.Sqlite;
 
 namespace LetterBoxDClone.Pages.Shared
