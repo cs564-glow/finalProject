@@ -13,22 +13,26 @@ namespace LetterBoxDClone.Pages
     public class MoviesModel : PageModel
     {
 
-        [BindProperty(SupportsGet =true)]
+        [BindProperty(SupportsGet = true)]
         public string MovieId { get; set; }
         public Movie Movie { get; set; }
-        public List<string> castAndCrew { get; set; }
-        public List<string> mostAppliedTags { get; set; }
-        public List<string> genres { get; set; }
+        public CastCrew Director { get; set; }
+        public List<CastCrew> castAndCrew { get; set; }
+        public List<Tag> mostAppliedTags { get; set; }
+        public List<Genre> genres { get; set; }
         public List<Movie> similarMovies { get; set; }
+        public string countryProduced { get; set; }
 
         public void OnGet()
         {
             //TODO: handle nulls
             Movie = GetSingleMovieByKey(MovieId);
+            Director = GetDirectorByMovieKey(MovieId);
             castAndCrew = GeMovieCastAndCrewByKey(MovieId);
             mostAppliedTags = GetMostAppliedTagsByKey(MovieId);
             genres = GetGenresByKey(MovieId);
             similarMovies = GetSimilarMovies(MovieId);
+            countryProduced = "placeholder"; //GetCountryProducedByMovieKey(MovieId);
         }
 
         public static Movie GetSingleMovieByKey(string MovieId)
@@ -51,38 +55,54 @@ namespace LetterBoxDClone.Pages
 
             movie.MovieId = reader.GetInt32(0);
             movie.Title = reader.GetString(1);
-            movie.ImdbId = reader.GetString(2);
-            movie.Year = reader.GetString(3);
-            movie.RtId = reader.GetString(4);
+            movie.Year = reader.GetString(2);
+            movie.ImdbId = reader.GetString(4);
+            movie.RtId = reader.GetString(5);
 
             return movie;
         }
 
-        public static List<string> GeMovieCastAndCrewByKey(string MovieId)
+        public static CastCrew GetDirectorByMovieKey(string MovieId)
         {
             string query =
                 $@"
-                SELECT *
-                FROM ActsIn
-                WHERE MovieId = {MovieId}
-                ORDER BY Ranking
+                SELECT cc.CastCrewId, cc.Name
+                FROM Directs AS d
+                NATURAL JOIN CastCrew AS cc
+                WHERE d.MovieId = {MovieId}
                 ";
 
-            List<string> castAndCrew = Connection.GetMultipleRows<string>(query, GetCrewDataFromReader);
+            CastCrew Director = Connection.GetSingleRow(query, GetCrewDataFromReader);
+
+            return Director;
+        }
+
+        public static List<CastCrew> GeMovieCastAndCrewByKey(string MovieId)
+        {
+            string query =
+                $@"
+                SELECT cc.CastCrewId, cc.Name
+                FROM ActsIn AS ai
+                NATURAL JOIN CastCrew AS cc
+                WHERE ai.MovieId = {MovieId}
+                ORDER BY ai.Billing
+                ";
+
+            List<CastCrew> castAndCrew = Connection.GetMultipleRows<CastCrew>(query, GetCrewDataFromReader);
 
             return castAndCrew;
         }
 
-        public static string GetCrewDataFromReader(SqliteDataReader reader)
+        public static CastCrew GetCrewDataFromReader(SqliteDataReader reader)
         {
-            return reader.GetString(2);
+            return new CastCrew(reader.GetString(0), reader.GetString(1));
         }
 
-        public static List<string> GetMostAppliedTagsByKey(string MovieId)
+        public static List<Tag> GetMostAppliedTagsByKey(string MovieId)
         {
             string query =
                 $@"
-                SELECT t.Name
+                SELECT t.TagId, t.Name
                 FROM UserTag AS ut
                 NATURAL JOIN Tag AS t
                 WHERE ut.MovieId = {MovieId}
@@ -91,46 +111,55 @@ namespace LetterBoxDClone.Pages
                 LIMIT 5
                 ";
 
-            List<string> mostAppliedTags = Connection.GetMultipleRows<string>(query, GetMostAppliedTagsFromReader);
+            List<Tag> mostAppliedTags = Connection.GetMultipleRows<Tag>(query, GetMostAppliedTagsFromReader);
 
             return mostAppliedTags;
         }
 
-        public static string GetMostAppliedTagsFromReader(SqliteDataReader reader)
+        public static Tag GetMostAppliedTagsFromReader(SqliteDataReader reader)
         {
-            return reader.GetString(0);
+            Tag tag = new Tag();
+
+            tag.TagId = reader.GetInt32(0);
+            tag.Name = reader.GetString(1);
+
+            return tag;
         }
 
-        public static List<string> GetGenresByKey(string MovieId)
+        public static List<Genre> GetGenresByKey(string MovieId)
         {
             string query =
                 $@"
-                SELECT g.GenreName
+                SELECT g.GenreId, g.GenreName
                 FROM MovieGenre AS mg
                 NATURAL JOIN Genre AS g
                 WHERE mg.MovieId = {MovieId}
                 ";
 
-            List<string> genres = Connection.GetMultipleRows<string>(query, GetGenresFromReader);
+            List<Genre> genres = Connection.GetMultipleRows<Genre>(query, GetGenresFromReader);
 
             return genres;
         }
 
-        public static string GetGenresFromReader(SqliteDataReader reader)
+        public static Genre GetGenresFromReader(SqliteDataReader reader)
         {
-            return reader.GetString(0);
+            Genre genre = new Genre(reader.GetString(1));
+
+            genre.GenreId = reader.GetInt32(0);
+
+            return genre;
         }
 
         public List<Movie> GetSimilarMovies(string MovieId)
         {
-            //TODO: check this query after movie key thing has been fixed. Right now it doesn't make any sense
             string query =
                 $@"
                 SELECT
                         m1.MovieId as MovieId,
                         m1.Title as Title,
-                        m1.ImdbId as ImdbId,
                         m1.Year as Year,
+                        m1.Year as Year,
+                        m1.ImdbId as ImdbId,
                         m1.RtId as RtId
                 FROM Movie as m1
                 NATURAL JOIN   (SELECT ut.MovieID
@@ -145,16 +174,32 @@ namespace LetterBoxDClone.Pages
                                 GROUP BY ut.MovieId, ut.TagID
                                 ORDER BY count(*) DESC
                                 LIMIT 5) similarMovies
-                WHERE m1.MovieId <> {MovieId}"; 
+                WHERE m1.MovieId <> {MovieId}
+                "; 
 
             List<Movie> similarMovies = Connection.GetMultipleRows(query, GetMovieDataFromReader);
 
-            foreach (Movie movie in similarMovies)
-            {
-                Console.WriteLine(movie.Title);
-            }
-
             return similarMovies;
+        }
+
+        public static string GetCountryProducedByMovieKey(string MovieId)
+        {
+            string query =
+                $@"
+                SELECT c.Name
+                FROM CountryProduced AS cp
+                NATURAL JOIN Country AS c
+                WHERE cp.MovieId = {MovieId}
+                ";
+
+            string CountryProduced = GetSingleRow(query, GetCountryFromReader);
+
+            return CountryProduced;
+        }
+
+        public static string GetCountryFromReader(SqliteDataReader reader)
+        {
+            return reader.GetString(0);
         }
     }
 }
