@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Globalization;
-//using Microsoft.Data.Sqlite;
+using System.Text;
 using CsvHelper;
 using CsvHelper.Configuration;
-using Microsoft.EntityFrameworkCore;
 using EFCore.BulkExtensions;
+using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
 
 namespace Importer
 {
@@ -50,7 +51,7 @@ namespace Importer
             }
 
             // bad arguments
-            if (datasetFolder is null || datasetFolder.Equals(""))
+            if (datasetFolder is null or "")
             {
                 // https://docs.microsoft.com/en-us/dotnet/api/system.argumentexception?view=net-5.0#examples
                 throw new ArgumentNullException(nameof(datasetFolder));
@@ -78,7 +79,7 @@ namespace Importer
                 context.Database.EnsureCreated();
             }
 
-            // dat files
+            // Dat files
             var userTagDat = Path.Combine(datasetFolder, "user_taggedmovies-timestamps.dat");
             var tagsDat = Path.Combine(datasetFolder, "tags.dat");
             var userRatingDat = Path.Combine(datasetFolder, "user_ratedmovies-timestamps.dat");
@@ -86,48 +87,122 @@ namespace Importer
             var genreDat = Path.Combine(datasetFolder, "movie_genres.dat");
             var actorDat = Path.Combine(datasetFolder, "movie_actors.dat");
             var directorDat = Path.Combine(datasetFolder, "movie_directors.dat");
+            var filmLocationDat = Path.Combine(datasetFolder, "movie_locations.dat");
+            var countryProducedDat = Path.Combine(datasetFolder, "movie_countries.dat");
 
-            // load data
-            LoadAllDatAsIs<Movie>(movieDat, contextOptions);
-            TransformLoadGenreDat(genreDat, contextOptions);
-            LoadTagDat(tagsDat, contextOptions);
+            //// Transform and Load
+            LoadAllDatSimple<Movie>(movieDat, contextOptions);
+            ParseGenreDat(genreDat, contextOptions);
+            LoadAllDatSimple<Tag>(tagsDat, contextOptions);
 
-            var userSet = LoadUserTagsDat(userTagDat, contextOptions);
-            userSet.UnionWith(LoadUserRatingDat(userRatingDat, contextOptions));
+            // Transform
+            var (userTagList, userSet) = ParseUserRatingOrTagDat<UserTag>(userTagDat, "\t");
+            var (userRatingList, newUserSet) = ParseUserRatingOrTagDat<UserRating>(userRatingDat, "\t");
+            userSet.UnionWith(newUserSet);
+            // Load
+            BulkInsertList(userTagList, contextOptions);
+            BulkInsertList(userRatingList, contextOptions);
             GenerateLoadUserData(userSet, contextOptions);
 
-            // TODO: implement original CastCrew relational schema
-            //TransformLoadActorDirectorDat(directorDat, actorDat, contextOptions);
-            LoadAllDatAsIs<Directs>(directorDat, contextOptions);
-            LoadAllDatAsIs<ActsIn>(actorDat, contextOptions);
+            // Transform
+            var (actorList, castCrewSet) = ParseActorDirectorDat<ActsIn>(actorDat, "\t");
+            var (directorList, otherCastCrewSet) = ParseActorDirectorDat<Directs>(directorDat, "\t");
+            castCrewSet.UnionWith(otherCastCrewSet);
+            // Load
+            BulkInsertSet(castCrewSet, contextOptions);
+            BulkInsertList(directorList, contextOptions);
+            BulkInsertList(actorList, contextOptions);
+
+            // Extract
+            var (filmLocationDatList, countrySet) = ParseCountryAndLocation<FilmLocationDat>(filmLocationDat, "\t");
+            var (countryProducedDatList, otherCountrySet) = ParseCountryAndLocation<CountryProducedDat>(countryProducedDat, "\t");
+            countrySet.UnionWith(otherCountrySet);
+            // Transform
+            BulkInsertSet(countrySet, contextOptions);
+            Dictionary<string, int> countryDict;
+            using (var context = new MovieContext(contextOptions))
+            {
+                countryDict = context.Country.ToDictionary(c => c.Name, c => c.CountryId);
+            }
+            var filmLocationList = TransformFilmLocation(filmLocationDatList, countryDict);
+            var countryProducedList = TransformCountryProduced(countryProducedDatList, countryDict);
+            // Load
+            BulkInsertList(filmLocationList, contextOptions);
+            BulkUpdateCountryProducedManual(countryProducedList, connString);
         }
 
-
-        private static void LoadAllDatAsIs<T>(string dat, DbContextOptions<MovieContext> contextOptions) where T : class
+        private static List<FilmLocation> TransformFilmLocation(List<FilmLocationDat> filmLocationDatList, Dictionary<string, int> countryDict)
         {
-            var parsedValsList = CsvParsingAll<T>(dat, "\t");
-            using var context = new MovieContext(contextOptions);
-            using var transaction = context.Database.BeginTransaction();
-            context.BulkInsert(parsedValsList);
+            var returnList = filmLocationDatList.Select(filmLocationDat => new FilmLocation
+            {
+                MovieId = filmLocationDat.MovieId,
+                CountryId = filmLocationDat.Country != null && !filmLocationDat.Country.Equals("") ? countryDict[filmLocationDat.Country] : null,
+                State = filmLocationDat.State,
+                City = filmLocationDat.City,
+                StreetAddress = filmLocationDat.StreetAddress
+            })
+                .ToList();
+            return returnList;
+        }
+        private static List<CountryProduced> TransformCountryProduced(List<CountryProducedDat> countryProducedDatList, Dictionary<string, int> countryDict)
+        {
+            var returnList = countryProducedDatList.Select(countryProducedDat => new CountryProduced
+            {
+                MovieId = countryProducedDat.MovieId,
+                CountryId = countryProducedDat.Country != null && !countryProducedDat.Country.Equals("") ? countryDict[countryProducedDat.Country] : null
+            })
+                .ToList();
+            return returnList;
+        }
+
+        private static void BulkUpdateCountryProducedManual(IEnumerable<CountryProduced> countryProducedList, string connString)
+        {
+            // https://docs.microsoft.com/en-us/dotnet/standard/data/sqlite/bulk-insert
+            using var connection = new SqliteConnection(connString);
+            connection.Open();
+            using var transaction = connection.BeginTransaction();
+            var command = connection.CreateCommand();
+            command.CommandText =
+                @"
+            UPDATE Movie
+            SET CountryId = $CountryId
+            WHERE MovieId = $MovieId
+        ";
+
+            var movieIdParam = command.CreateParameter();
+            movieIdParam.ParameterName = "$MovieId";
+            command.Parameters.Add(movieIdParam);
+
+            var countryIdParam = command.CreateParameter();
+            countryIdParam.ParameterName = "$CountryId";
+            command.Parameters.Add(countryIdParam);
+
+            // Insert a lot of data
+            foreach (var countryProduced in countryProducedList)
+            {
+                if (countryProduced.CountryId is null)
+                {
+                    continue;
+                }
+                movieIdParam.Value = countryProduced.MovieId;
+                countryIdParam.Value = countryProduced.CountryId;
+                command.ExecuteNonQuery();
+            }
+
             transaction.Commit();
         }
 
-        //private static void LoadActorDat(string actorDat, DbContextOptions<MovieContext> contextOptions)
-        //{
-        //    var directors = CsvParsingAll<Movie>(actorDat, "\t");
+        private static void LoadAllDatSimple<T>(string dat, DbContextOptions<MovieContext> contextOptions) where T : class
+        {
+            var parsedValsList = CsvParsingAll<T>(dat, "\t");
+            BulkInsertList(parsedValsList, contextOptions);
+        }
 
-        //    // SQLite Bulk Import
-        //    // https://github.com/borisdj/EFCore.BulkExtensions
-        //    using var context = new MovieContext(contextOptions);
-        //    using var transaction = context.Database.BeginTransaction();
-        //    context.BulkInsert(directors);
-        //    transaction.Commit();
-        //}
-
-        //private static void LoadDirectorDat(string directorDat, DbContextOptions<MovieContext> contextOptions)
-        //{
-        //    throw new NotImplementedException();
-        //}
+        private static void BulkInsertSet<T>(IEnumerable<T> entitySet, DbContextOptions<MovieContext> contextOptions) where T : class
+        {
+            var entityList = entitySet.ToList();
+            BulkInsertList(entityList, contextOptions);
+        }
 
         private static void GenerateLoadUserData(HashSet<User> userSet, DbContextOptions<MovieContext> contextOptions)
         {
@@ -136,71 +211,107 @@ namespace Importer
             //{
 
             //}
+            BulkInsertSet(userSet, contextOptions);
+        }
+
+        private static void BulkInsertList<T>(IList<T> entityList, DbContextOptions<MovieContext> contextOptions) where T : class
+        {
             using var context = new MovieContext(contextOptions);
             using var transaction = context.Database.BeginTransaction();
-            context.BulkInsert(userSet.ToList());
+            context.BulkInsert(entityList);
             transaction.Commit();
         }
 
-        private static void TransformLoadActorDirectorDat(string directorDat, string actorDat, DbContextOptions<MovieContext> contextOptions)
+        // TODO: duplicative with User parsing and actor/director parsing
+        private static (List<T> locationList, HashSet<Country> countrySet) ParseCountryAndLocation<T>(string dat, string delimiter)
         {
-            throw new NotImplementedException();
-        }
+            var countrySet = new HashSet<Country>();
 
-        private static HashSet<User> LoadUserRatingDat(string userRatingDat, DbContextOptions<MovieContext> contextOptions)
-        {
-            var (userRatings, userSet) = ParseUserRatingOrTagDat<UserRating>(userRatingDat, "\t");
-            using var context = new MovieContext(contextOptions);
-            using var transaction = context.Database.BeginTransaction();
-            context.BulkInsert(userRatings);
-            transaction.Commit();
+            var config = new CsvConfiguration(CultureInfo.InvariantCulture)
+            {
+                Delimiter = delimiter,
+                Mode = CsvMode.NoEscape
+            };
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            using var reader = new StreamReader(dat, Encoding.GetEncoding(1252));
+            using var csv = new CsvReader(reader, config);
+            csv.Read();
+            csv.ReadHeader();
 
-            return userSet;
-        }
+            var returnList = new List<T>();
 
-        private static HashSet<User> LoadUserTagsDat(string userTagsDat, DbContextOptions<MovieContext> contextOptions)
-        {
-            var (userTags, userSet) = ParseUserRatingOrTagDat<UserTag>(userTagsDat, "\t");
-            using var context = new MovieContext(contextOptions);
-            using var transaction = context.Database.BeginTransaction();
-            context.BulkInsert(userTags);
-            transaction.Commit();
+            while (csv.Read())
+            {
+                string countryName;
 
-            return userSet;
-        }
+                if (typeof(T) == typeof(CountryProducedDat))
+                {
+                    countryName = csv.GetField("country");
+                    returnList.Add((T)(object)new CountryProducedDat(csv.GetField<int>("movieID"), countryName));
+                }
+                else // Film Location
+                {
+                    countryName = csv.GetField("location1");
+                    returnList.Add((T)(object)csv.GetRecord<FilmLocationDat>());
+                }
 
-        private static void LoadTagDat(string tagsDat, DbContextOptions<MovieContext> contextOptions)
-        {
-            if (contextOptions == null) throw new ArgumentNullException(nameof(contextOptions));
-            var tags = CsvParsingAll<Tag>(tagsDat, "\t");
-            using var context = new MovieContext(contextOptions);
-            using var transaction = context.Database.BeginTransaction();
-            context.BulkInsert(tags);
-            transaction.Commit();
+                if (countryName is not null && !(countryName.Equals("")))
+                {
+                    countrySet.Add(new Country(countryName));
+                }
+            }
+
+            return (returnList, countrySet);
         }
 
         // TODO: Use reflection to make generic with ParseUserRatingOrTagDat
-        private static (List<T> actorDirectorList, HashSet<User> castCrewSet) ParseActorDirectorDat<T>(string dat, string delimiter)
+        private static (List<T> actorDirectorList, HashSet<CastCrew> castCrewSet) ParseActorDirectorDat<T>(string dat, string delimiter)
         {
             var actorDirectorList = new List<T>();
-            var castCrewSet = new HashSet<User>();
+            var castCrewSet = new HashSet<CastCrew>();
 
-            // CSV Parsing
             var config = new CsvConfiguration(CultureInfo.InvariantCulture)
             {
-                Delimiter = delimiter
+                Delimiter = delimiter,
+                Mode = CsvMode.NoEscape
             };
-            using (var reader = new StreamReader(dat))
-            using (var csv = new CsvReader(reader, config))
-            {
-                csv.Read();
-                csv.ReadHeader();
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            using var reader = new StreamReader(dat, Encoding.GetEncoding(1252));
+            using var csv = new CsvReader(reader, config);
+            csv.Read();
+            csv.ReadHeader();
 
-                while (csv.Read())
+            while (csv.Read())
+            {
+                // this seems messy
+                string castCrewId;
+                string name;
+                var movieId = csv.GetField<int>("movieID");
+                var newItem = default(T);
+                CastCrew newCastCrew = null;
+
+                if (typeof(T) == typeof(ActsIn))
                 {
-                    actorDirectorList.Add(csv.GetRecord<T>());
-                    castCrewSet.Add(new User(csv.GetField<long>("userID")));
+                    castCrewId = csv.GetField("actorID").Trim();
+                    name = csv.GetField("actorName");
+                    var billing = csv.GetField<int>("ranking");
+
+                    newItem = (T)(object)new ActsIn(movieId, castCrewId, billing);
+                    newCastCrew = new CastCrew(castCrewId, name);
                 }
+
+                if (typeof(T) == typeof(Directs))
+                {
+                    castCrewId = csv.GetField<string>("directorID").Trim();
+                    name = csv.GetField("directorName");
+
+                    newItem = (T)(object)new Directs(movieId, castCrewId);
+                    newCastCrew = new CastCrew(castCrewId, name);
+                }
+
+                actorDirectorList.Add(newItem);
+                castCrewSet.Add(newCastCrew);
+
             }
 
             return (actorDirectorList, castCrewSet);
@@ -217,17 +328,16 @@ namespace Importer
             {
                 Delimiter = delimiter
             };
-            using (var reader = new StreamReader(dat))
-            using (var csv = new CsvReader(reader, config))
-            {
-                csv.Read();
-                csv.ReadHeader();
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            using var reader = new StreamReader(dat, Encoding.GetEncoding(1252));
+            using var csv = new CsvReader(reader, config);
+            csv.Read();
+            csv.ReadHeader();
 
-                while (csv.Read())
-                {
-                    userTagOrRatingList.Add(csv.GetRecord<T>());
-                    userSet.Add(new User(csv.GetField<long>("userID")));
-                }
+            while (csv.Read())
+            {
+                userTagOrRatingList.Add(csv.GetRecord<T>());
+                userSet.Add(new User(csv.GetField<long>("userID")));
             }
 
             return (userTagOrRatingList, userSet);
@@ -239,7 +349,7 @@ namespace Importer
         /// </summary>
         /// <param name="genreDat"></param>
         /// <param name="contextOptions"></param>
-        private static void TransformLoadGenreDat(string genreDat, DbContextOptions<MovieContext> contextOptions)
+        private static void ParseGenreDat(string genreDat, DbContextOptions<MovieContext> contextOptions)
         {
             var genreSet = new HashSet<Genre>();
             var genreDatList = new List<GenreDat>();
@@ -249,7 +359,8 @@ namespace Importer
             {
                 Delimiter = "\t"
             };
-            using (var reader = new StreamReader(genreDat))
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            using var reader = new StreamReader(genreDat, Encoding.GetEncoding(1252));
             using (var csv = new CsvReader(reader, config))
             {
                 csv.Read();
@@ -282,20 +393,29 @@ namespace Importer
 
             // MovieGenre Transform
             // Use dictionary/hashtable for fast lookup
-            var genreDict = new Dictionary<string, int>();
-            foreach (var genre in genreList)
+            //var genreDict = new Dictionary<string, int>();
+            //foreach (var genre in genreList)
+            //{
+            //    genreDict.Add(genre.GenreName, genre.GenreId);
+            //}
+
+            //var movieGenreList = new List<MovieGenre>();
+            //foreach (var movieGenreDat in genreDatList)
+            //{
+            //    var movieGenre = new MovieGenre
+            //    {
+            //        MovieId = movieGenreDat.MovieId,
+            //        GenreId = genreDict[movieGenreDat.GenreName]
+            //    };
+            //    movieGenreList.Add(movieGenre);
+            //}
+
+            var genreDict = genreList.ToDictionary(genre => genre.GenreName, genre => genre.GenreId);
+            var movieGenreList = genreDatList.Select(movieGenreDat => new MovieGenre
             {
-                genreDict.Add(genre.GenreName, genre.GenreId);
-            }
-            var movieGenreList = new List<MovieGenre>();
-            foreach (var movieGenreDat in genreDatList)
-            {
-                var movieGenre = new MovieGenre
-                {
-                    MovieId = movieGenreDat.MovieId, GenreId = genreDict[movieGenreDat.GenreName]
-                };
-                movieGenreList.Add(movieGenre);
-            }
+                MovieId = movieGenreDat.MovieId,
+                GenreId = genreDict[movieGenreDat.GenreName]
+            }).ToList();
 
             // MovieGenre Import
             using (var context = new MovieContext(contextOptions))
@@ -320,7 +440,8 @@ namespace Importer
                 Delimiter = delimiter,
                 Mode = CsvMode.NoEscape
             };
-            using var reader = new StreamReader(csvFilepath);
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            using var reader = new StreamReader(csvFilepath, Encoding.GetEncoding(1252));
             using var csv = new CsvReader(reader, config);
             csv.Context.TypeConverterCache.AddConverter<double?>(new NullableDoubleConverter());
             csv.Context.TypeConverterCache.AddConverter<int>(new NullableIntConverter());
@@ -329,40 +450,75 @@ namespace Importer
             return newList;
         }
 
-        private static void LoadMovieDat(string movieDat, DbContextOptions<MovieContext> contextOptions)
-        {
-            var movies = CsvParsingAll<Movie>(movieDat, "\t");
+        // CURRENTLY UNUSED
+        /*
+                private static void LoadMovieDat(string movieDat, DbContextOptions<MovieContext> contextOptions)
+                {
+                    var movies = CsvParsingAll<Movie>(movieDat, "\t");
 
-            // SQLite Bulk Import
-            // https://github.com/borisdj/EFCore.BulkExtensions
-            using var context = new MovieContext(contextOptions);
-            using var transaction = context.Database.BeginTransaction();
-            context.BulkInsert(movies);
-            transaction.Commit();
-        }
+                    // SQLite Bulk Import
+                    // https://github.com/borisdj/EFCore.BulkExtensions
+                    using var context = new MovieContext(contextOptions);
+                    using var transaction = context.Database.BeginTransaction();
+                    context.BulkInsert(movies);
+                    transaction.Commit();
+                }
+        */
 
-/*
-        /// <summary>
-        /// DEPRECATED in favor of EFCore built-in functionality
-        /// </summary>
-        private static void CreateMovieTableManual()
+        /*
+                /// <summary>
+                /// DEPRECATED in favor of EFCore built-in functionality
+                /// </summary>
+                private static void CreateMovieTableManual()
+                {
+                    using var connection = new SqliteConnection("Data Source=blahblah");
+                    connection.Open();
+
+                    var createMovieTableCmd = connection.CreateCommand();
+                    createMovieTableCmd.CommandText = @"CREATE TABLE IF NOT EXISTS Movie (
+        MovieId INTEGER PRIMARY KEY,
+        Title TEXT,
+        ImdbId TEXT,
+        Year INTEGER,
+        RtId TEXT,
+        RtAllCriticsRating REAL,
+        RtAllCriticsNumReviews INTEGER
+        );";
+                    createMovieTableCmd.ExecuteNonQuery();
+                }
+        */
+
+        // CURRENTLY UNUSED
+        /*private static void LoadCastCrewManual(HashSet<CastCrew> castCrewSet, string connString)
         {
-            using var connection = new SqliteConnection("Data Source=blahblah");
+            // https://docs.microsoft.com/en-us/dotnet/standard/data/sqlite/bulk-insert
+            using var connection = new SqliteConnection(connString);
             connection.Open();
+            using var transaction = connection.BeginTransaction();
+            var command = connection.CreateCommand();
+            command.CommandText =
+                @"
+            INSERT INTO CastCrew(CastCrewId, Name)
+            VALUES ($CastCrewId, $Name)
+        ";
 
-            var createMovieTableCmd = connection.CreateCommand();
-            createMovieTableCmd.CommandText = @"CREATE TABLE IF NOT EXISTS Movie (
-MovieId INTEGER PRIMARY KEY,
-Title TEXT,
-ImdbId TEXT,
-Year INTEGER,
-RtId TEXT,
-RtAllCriticsRating REAL,
-RtAllCriticsNumReviews INTEGER
-);";
-            createMovieTableCmd.ExecuteNonQuery();
-        }
-*/
+            var castCrewIdParam = command.CreateParameter();
+            castCrewIdParam.ParameterName = "$CastCrewId";
+            command.Parameters.Add(castCrewIdParam);
+
+            var nameParam = command.CreateParameter();
+            nameParam.ParameterName = "$Name";
+            command.Parameters.Add(nameParam);
+
+            // Insert a lot of data
+            foreach (var castCrew in castCrewSet)
+            {
+                castCrewIdParam.Value = castCrew.CastCrewId;
+                nameParam.Value = castCrew.Name;
+                command.ExecuteNonQuery();
+            }
+
+            transaction.Commit();
+        }*/
     }
-
 }

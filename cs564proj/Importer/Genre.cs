@@ -9,7 +9,7 @@ namespace Importer
     {
         [Key]
         public int GenreId { get; set; }
-        public string GenreName { get; set; }
+        public string GenreName { get; init; }
 
         public Genre() { }
 

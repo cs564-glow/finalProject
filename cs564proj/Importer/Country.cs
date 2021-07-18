@@ -1,26 +1,24 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-//using System.ComponentModel.DataAnnotations.Schema;
+using System.Threading;
 
 namespace Importer
 {
-    public class CastCrew : IEquatable<CastCrew>
+    public class Country : IEquatable<Country>
     {
-        [Key]
-        public string CastCrewId { get; init; }
-        public string Name { get; set; }
+        [Key] public int CountryId { get; set; }
+        public string Name { get; init; }
 
-        public CastCrew(string castCrewId, string name)
-        {
-            this.CastCrewId = castCrewId;
+        public Country(string name)
+        { 
             this.Name = name;
         }
 
-        public bool Equals(CastCrew other)
+        public bool Equals(Country other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return CastCrewId == other.CastCrewId;
+            return Name == other.Name;
         }
 
         public override bool Equals(object obj)
@@ -28,13 +26,12 @@ namespace Importer
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((CastCrew) obj);
+            return Equals((Country) obj);
         }
 
         public override int GetHashCode()
         {
-            return (CastCrewId != null ? CastCrewId.GetHashCode() : 0);
-            //return CastCrewId.GetHashCode();
+            return (Name != null ? Name.GetHashCode() : 0);
         }
     }
 }
