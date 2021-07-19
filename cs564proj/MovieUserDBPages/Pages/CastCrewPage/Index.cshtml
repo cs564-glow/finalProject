@@ -1,0 +1,57 @@
+﻿@page
+@model LetterBoxDClone.Pages.CastCrewPage.IndexModel
+
+@{
+    ViewData["Title"] = "Cast & Crew Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-page="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                <a asp-page="./Index">
+                    @Html.DisplayNameFor(model => model.CastCrew[0].Name)
+                </a>
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.CastCrew)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    <a asp-page="./Edit" asp-route-id="@item.CastCrewId">Edit</a> |
+                    <a asp-page="./Details" asp-route-id="@item.CastCrewId">Details</a> |
+                    <a asp-page="./Delete" asp-route-id="@item.CastCrewId">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@{
+    var prevDisabled = !Model.CastCrew.HasPreviousPage ? "disabled" : "";
+    var nextDisabled = !Model.CastCrew.HasNextPage ? "disabled" : "";
+}
+
+
+
+<a asp-page="./Index"
+   asp-route-pageIndex="@(Model.CastCrew.PageIndex - 1)"
+   class="btn btn-primary @prevDisabled">
+    Previous
+</a>
+<a asp-page="./Index"
+   asp-route-pageIndex="@(Model.CastCrew.PageIndex + 1)"
+   class="btn btn-primary @nextDisabled">
+    Next
+</a>

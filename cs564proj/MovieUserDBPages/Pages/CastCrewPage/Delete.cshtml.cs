@@ -1,19 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using DataLibrary;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
-using DataLibrary;
 
-namespace LetterBoxDClone.Pages.CastCrewDetail
+namespace LetterBoxDClone.Pages.CastCrewPage
 {
     public class DeleteModel : PageModel
     {
-        private readonly DataLibrary.MovieContext _context;
+        private readonly MovieContext _context;
 
-        public DeleteModel(DataLibrary.MovieContext context)
+        public DeleteModel(MovieContext context)
         {
             _context = context;
         }
