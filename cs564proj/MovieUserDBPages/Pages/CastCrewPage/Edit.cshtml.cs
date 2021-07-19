@@ -1,20 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
+using DataLibrary;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using DataLibrary;
 
-namespace LetterBoxDClone.Pages.CastCrewDetail
+namespace LetterBoxDClone.Pages.CastCrewPage
 {
     public class EditModel : PageModel
     {
-        private readonly DataLibrary.MovieContext _context;
+        private readonly MovieContext _context;
 
-        public EditModel(DataLibrary.MovieContext context)
+        public EditModel(MovieContext context)
         {
             _context = context;
         }

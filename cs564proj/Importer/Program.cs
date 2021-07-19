@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using CsvHelper;
 using CsvHelper.Configuration;
@@ -100,7 +101,7 @@ namespace Importer
             var countryProducedDat = Path.Combine(datasetFolder, "movie_countries.dat");
 
             //// Transform and Load
-            LoadAllDatSimple<Movie>(movieDat, contextOptions);
+            var movieDatList = LoadAllDatSimple<Movie>(movieDat, contextOptions);
             ParseGenreDat(genreDat, contextOptions);
             LoadAllDatSimple<Tag>(tagsDat, contextOptions);
 
@@ -111,7 +112,8 @@ namespace Importer
             // Load
             BulkInsertList(userTagList, contextOptions);
             BulkInsertList(userRatingList, contextOptions);
-            GenerateLoadUserData(userSet, contextOptions);
+            var generatedUserSet = GenerateUserData(userSet, userRatingList, movieDatList);
+            BulkInsertSet(generatedUserSet, contextOptions);
 
             // Transform
             var (actorList, castCrewSet) = ParseActorDirectorDat<ActsIn>(actorDat, "\t");
@@ -203,10 +205,12 @@ namespace Importer
             transaction.Commit();
         }
 
-        private static void LoadAllDatSimple<T>(string dat, DbContextOptions<MovieContext> contextOptions) where T : class
+        private static List<T> LoadAllDatSimple<T>(string dat, DbContextOptions<MovieContext> contextOptions) where T : class
         {
             var parsedValsList = CsvParsingAll<T>(dat, "\t");
             BulkInsertList(parsedValsList, contextOptions);
+
+            return parsedValsList;
         }
 
         private static void BulkInsertSet<T>(IEnumerable<T> entitySet, DbContextOptions<MovieContext> contextOptions) where T : class
@@ -215,14 +219,34 @@ namespace Importer
             BulkInsertList(entityList, contextOptions);
         }
 
-        private static void GenerateLoadUserData(HashSet<User> userSet, DbContextOptions<MovieContext> contextOptions)
+        private static HashSet<User> GenerateUserData(HashSet<User> userSet, List<UserRating> userRatingList, List<Movie> movieDatList)
         {
-            // TODO: generate random username and password data
+            //using var context = new MovieContext(contextOptions);
+            // Generate username and password data by reading from database - SLOW!!!
             //foreach (var user in userSet)
             //{
-
+            //    var firstMovieId = context.UserRating.First(rating => rating.UserId == user.UserId).MovieId;
+            //    var firstMovieTitle = TrimAllWithInplaceCharArray(context.Movie.Find(firstMovieId).Title);
+            //    user.Username = firstMovieTitle + "Lover" + user.UserId;
+            //    user.Password = firstMovieTitle + "123";
             //}
-            BulkInsertSet(userSet, contextOptions);
+            // Generate username and password data from memory - FAST!!! as long as we have enough memory
+            var movieDict = movieDatList.ToDictionary(m => m.MovieId, m => m.Title);
+            var rand = new Random(123);
+
+            foreach (var user in userSet)
+            {
+                //var firstMovieId = userRatingList.Select(rating => rating.UserId == user.UserId).ElementAt(rand.Next());
+                var movieList = (from rating in userRatingList
+                                 where rating.UserId == user.UserId
+                                 select rating.MovieId).ToArray();
+                var randMovieId = movieList[rand.Next(movieList.Count())];
+                var randMovieTitle = TrimAllWithInplaceCharArray(movieDict[randMovieId]);
+                user.Username = randMovieTitle + "Lover" + user.UserId;
+                user.Password = randMovieTitle + "123";
+            }
+
+            return userSet;
         }
 
         private static void BulkInsertList<T>(IList<T> entityList, DbContextOptions<MovieContext> contextOptions) where T : class
@@ -263,7 +287,10 @@ namespace Importer
                 else // Film Location
                 {
                     countryName = csv.GetField("location1");
-                    returnList.Add((T)(object)csv.GetRecord<FilmLocationDat>());
+                    if (countryName is not null && !(countryName.Equals("")))
+                    {
+                        returnList.Add((T)(object)csv.GetRecord<FilmLocationDat>());
+                    }
                 }
 
                 if (countryName is not null && !(countryName.Equals("")))
@@ -459,6 +486,77 @@ namespace Importer
             var newList = csv.GetRecords<T>().ToList();
 
             return newList;
+        }
+
+        private static string TrimAllWithInplaceCharArray(string str)
+        {
+            var len = str.Length;
+            var src = str.ToCharArray();
+            int dstIdx = 0;
+            for (int i = 0; i < len; i++)
+            {
+                var ch = src[i];
+                if (!IsWhiteSpaceOrPunctuation(ch))
+                    src[dstIdx++] = ch;
+            }
+            return new string(src, 0, dstIdx);
+        }
+
+        // https://stackoverflow.com/a/37347881
+        // https://www.codeproject.com/Articles/1014073/Fastest-method-to-remove-all-whitespace-from-Strin
+        // whitespace detection method: very fast, a lot faster than Char.IsWhiteSpace
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] // if it's not inlined then it will be slow!!!
+        private static bool IsWhiteSpaceOrPunctuation(char ch)
+        {
+            // this is surprisingly faster than the equivalent if statement
+            switch (ch)
+            {
+                case '\u0009':
+                case '\u000A':
+                case '\u000B':
+                case '\u000C':
+                case '\u000D':
+                case '\u0020':
+                case '\u0085':
+                case '\u00A0':
+                case '\u1680':
+                case '\u2000':
+                case '\u2001':
+                case '\u2002':
+                case '\u2003':
+                case '\u2004':
+                case '\u2005':
+                case '\u2006':
+                case '\u2007':
+                case '\u2008':
+                case '\u2009':
+                case '\u200A':
+                case '\u2028':
+                case '\u2029':
+                case '\u202F':
+                case '\u205F':
+                case '\u3000':
+                // look up other punctuation and remove
+                // https://www.fileformat.info/info/unicode/category/Po/list.htm
+                case '\x3A': // colon
+                case '\u0021': // exclamation
+                case '\u0022': // quotation
+                case '\u0023': // number sign
+                case '\u0025': // percent
+                case '\u0026': // ampersand
+                case '\u0027': // apostrophe
+                case '\u002A': // asterisk
+                case '\u002C': // comma
+                case '\u002E': // full stop
+                case '\u002F': // solidus
+                case '\u003B': // semicolon
+                case '\u003F': // question mark
+                case '\u0040': // @
+                case '\u005C': // REVERSE SOLIDUS
+                    return true;
+                default:
+                    return false;
+            }
         }
 
         // CURRENTLY UNUSED
