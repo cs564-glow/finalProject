@@ -1,12 +1,12 @@
 ﻿using CsvHelper.Configuration.Attributes;
 
-namespace Importer
+namespace DataLibrary
 {
-    public class UserTag
+    public class UserRating
     {
         [Name("userID")] public int UserId { get; set; }
         [Name("movieID")] public int MovieId { get; set; }
-        [Name("tagID")] public int TagId { get; set; }
+        [Name("rating")] public double Rating { get; set; }
         [Name("timestamp")] public ulong Timestamp { get; set; }
     }
 }

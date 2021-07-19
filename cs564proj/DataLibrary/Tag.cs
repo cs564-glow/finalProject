@@ -2,7 +2,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using CsvHelper.Configuration.Attributes;
 
-namespace Importer
+namespace DataLibrary
 {
     public class Tag
     {

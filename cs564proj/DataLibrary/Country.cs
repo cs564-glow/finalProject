@@ -1,8 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-using System.Threading;
 
-namespace Importer
+namespace DataLibrary
 {
     public class Country : IEquatable<Country>
     {

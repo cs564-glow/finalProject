@@ -1,8 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-//using Microsoft.EntityFrameworkCore;
 
-namespace Importer
+namespace DataLibrary
 {
     //[Index(nameof(GenreName))]
     public class Genre : IEquatable<Genre>
