@@ -1,0 +1,36 @@
+﻿@page
+@model LetterBoxDClone.Pages.CastCrewDetail.IndexModel
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-page="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.CastCrew[0].Name)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model.CastCrew) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                <a asp-page="./Edit" asp-route-id="@item.CastCrewId">Edit</a> |
+                <a asp-page="./Details" asp-route-id="@item.CastCrewId">Details</a> |
+                <a asp-page="./Delete" asp-route-id="@item.CastCrewId">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

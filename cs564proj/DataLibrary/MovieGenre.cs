@@ -1,4 +1,4 @@
-﻿namespace Importer
+﻿namespace DataLibrary
 {
     public class MovieGenre
     {

@@ -1,8 +1,4 @@
-﻿// TODO: remove redundancy between actors and directors. Implement as we intended from checkpoint 2
-
-using System.ComponentModel.DataAnnotations;
-
-namespace Importer
+﻿namespace DataLibrary
 {
     public class ActsIn
     {

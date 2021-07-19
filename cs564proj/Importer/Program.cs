@@ -9,6 +9,7 @@ using CsvHelper.Configuration;
 using EFCore.BulkExtensions;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using DataLibrary;
 
 namespace Importer
 {
@@ -22,7 +23,7 @@ namespace Importer
     {
         // Environment.SpecialFolder.CommonApplicationData = C:\ProgramData or /usr/share
         // Desktop = C:\Users\john\Desktop or /Users/john/Desktop
-        private static readonly string AppData = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+        private static readonly string AppData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
         private static readonly string Cs564Proj = Path.Combine(AppData, "cs564proj");
         private static void Main(string[] args)
         {
@@ -59,7 +60,7 @@ namespace Importer
             }
 
             // bad arguments
-            if (datasetFolder is null or "")
+            if (datasetFolder is null || datasetFolder.Equals(""))
             {
                 // https://docs.microsoft.com/en-us/dotnet/api/system.argumentexception?view=net-5.0#examples
                 throw new ArgumentNullException(nameof(datasetFolder));
@@ -137,6 +138,8 @@ namespace Importer
             // Load
             BulkInsertList(filmLocationList, contextOptions);
             BulkUpdateCountryProducedManual(countryProducedList, connString);
+
+            //
         }
 
         private static List<FilmLocation> TransformFilmLocation(List<FilmLocationDat> filmLocationDatList, Dictionary<string, int> countryDict)

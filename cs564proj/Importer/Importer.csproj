@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Models\" />
+    <ProjectReference Include="..\DataLibrary\DataLibrary.csproj" />
   </ItemGroup>
 
 </Project>

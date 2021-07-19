@@ -1,5 +1,4 @@
-﻿// TODO: remove redundancy between actors and directors. Implement as we intended from checkpoint 2
-namespace Importer
+﻿namespace DataLibrary
 {
     public class Directs
     {
