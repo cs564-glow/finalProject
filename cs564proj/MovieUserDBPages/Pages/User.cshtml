@@ -1,12 +1,40 @@
 ﻿@page
 @model LetterBoxDClone.Pages.UserModel
+
 @{
-    ViewData["Title"] = "duser";
+    
+    ViewData["Title"] = "User 75";
+    string userNameQueryString = "SELECT Username FROM User WHERE UserId = 75";
+    // var db = Database.open();
+    string moviesSeenQueryString = "SELECT Title, Year, Rating" +
+                                "FROM Movie, UserRating" +
+                                "WHERE UserRating.UserId = 75 AND UserRating.MovieId = Movie.MovieId" +
+                                "ORDER BY Rating Desc" ;
+    int? curMovieId = null;
+    string tagByMovieStringIncomplete = "SELECT Name" +
+                            "FROM UserTag, Tag, Movie" +
+                            "WHERE UserTag.UserId = 75 AND UserTag.TagId = Tag.TagId AND Movie.MovieId = ";
+    string moviesYouMightLikeString = "SELECT DISTINCT Title, Year, DirectorName" +
+                            "FROM Movie, Directs, MovieGenre" +
+                            "WHERE Movie.MovieId = MovieGenre.MovieId AND Movie.MovieId = Directs.MovieId" +
+                            "AND RtAllCriticsRating > 7.5 AND MovieGenre.GenreId IN" +
+                            "(SELECT GenreId" +
+                            "FROM UserRating, MovieGenre" +
+                            "WHERE UserId = 75 and MovieGenre.MovieId = UserRating.MovieId" +
+                            "GROUP BY GenreId" +
+                            "HAVING AVG(Rating) > (SELECT AVG(Rating)" +
+                            "FROM UserRating" +
+                            "WHERE UserId = 75)) AND Movie.MovieId NOT IN" +
+                            "(SELECT Movie.MovieId" +
+                            "FROM Movie, UserRating" +
+                            "WHERE UserRating.UserId = 75 AND UserRating.MovieId = Movie.MovieId)" +
+                            "ORDER BY RtAllCriticsRating DESC" +
+                            "LIMIT 5";
+
 }
 
 <div class="text-left">
     <h1 class="display-4">Duser</h1>
-    <p><b>Dummy User</b></p>
 </div>
 <h6>Movies You've Seen</h6>
 <table class="table">
@@ -15,7 +43,6 @@
             <th>
                 Title
             </th>
-
             <th>
                 Release Year
             </th>
@@ -55,7 +82,6 @@
             <th>
                 Title
             </th>
-
             <th>
                 Release Year
             </th>
@@ -80,41 +106,4 @@
         </tr>
     </tbody>
 </table>
-<h6>Movies You're Friends Have Seen</h6>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                Title
-            </th>
-            <th>
-                Release Year
-            </th>
-            <th>
-                Friend Username
-            </th>
-            <th>
-                Your Friend's Rating
-            </th>
-        </tr>
-    </thead>
-    <tbody>
-        <!--Really this will use a loop and probably sql query of some sort?,
-            see Index.cshtml from Razer tutorial-->
-        <tr>
-            <td>
-                <a href="#!">Saving Private Ryan</a>
-            </td>
-            <td>
-                1998
-            </td>
-            <td>
-                <a href=#!>othuser</a>
-            </td>
-            <td>
-                3.5
-            </td>
 
-        </tr>
-    </tbody>
-</table>
