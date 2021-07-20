@@ -8,8 +8,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+
+using DataLibrary;
 using Microsoft.EntityFrameworkCore;
-// using Importer; 
 
 namespace LetterBoxDClone
 {
@@ -26,7 +27,8 @@ namespace LetterBoxDClone
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddRazorPages();
-            services.AddDbContext<Importer.MovieContext>(options => options.UseSqlite(Configuration.GetConnectionString("Importer.MovieContext")));
+            services.AddDbContext<MovieContext>(option =>
+                option.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

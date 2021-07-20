@@ -1,15 +1,14 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
-//using Microsoft.EntityFrameworkCore;
 
-namespace Importer
+namespace DataLibrary
 {
     //[Index(nameof(GenreName))]
     public class Genre : IEquatable<Genre>
     {
         [Key]
         public int GenreId { get; set; }
-        public string GenreName { get; set; }
+        public string GenreName { get; init; }
 
         public Genre() { }
 

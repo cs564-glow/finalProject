@@ -1,9 +1,8 @@
 ﻿using CsvHelper.Configuration.Attributes;
 
-// TODO: remove redundancy between actors and directors. Implement as we intended from checkpoint 2
 namespace Importer
 {
-    public class Directs
+    public class DirectorDat
     {
         [Name("movieID")]
         public int MovieId { get; set; }

@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 // ReSharper disable UnusedMember.Global
 
-namespace Importer
+namespace DataLibrary
 {
     public class MovieContext : DbContext
     {
@@ -48,7 +48,6 @@ namespace Importer
             modelBuilder.Entity<ActsIn>()
                 .HasKey(m => new { m.MovieId, m.CastCrewId });
         }
-
         public DbSet<Movie> Movie { get; set; }
         public DbSet<Genre> Genre { get; set; }
         public DbSet<MovieGenre> MovieGenre { get; set; }
@@ -58,5 +57,8 @@ namespace Importer
         public DbSet<User> User { get; set; }
         public DbSet<Directs> Directs { get; set; }
         public DbSet<ActsIn> ActsIn { get; set; }
+        public DbSet<CastCrew> CastCrew { get; set; }
+        public DbSet<Country> Country { get; set; }
+        public DbSet<FilmLocation> FilmLocation{ get; set; }
     }
 }

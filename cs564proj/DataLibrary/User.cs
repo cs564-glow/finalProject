@@ -1,14 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Importer
+namespace DataLibrary
 {
     public class User : IEquatable<User>
     {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.None)]
-        public long UserId { get; set; }
+        public long UserId { get; init; }
         public string Username { get; set; }
         public string Password { get; set; }
 
