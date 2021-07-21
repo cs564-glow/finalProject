@@ -16,8 +16,7 @@ namespace LetterBoxDClone.Pages.CastCrewPage
         {
             _context = context;
         }
-
-        //public CastCrewDetailData CastCrewData { get; set; }
+        
         public CastCrew CastCrew { get; set; }
         public ActsIn ActsIn { get; set; }
 
@@ -28,29 +27,20 @@ namespace LetterBoxDClone.Pages.CastCrewPage
                 return NotFound();
             }
 
-            // default scaffolding - UNUSED
-            //CastCrew = await _context.CastCrew.FirstOrDefaultAsync(m => m.CastCrewId == id);
-
-            //if (CastCrew == null)
-            //{
-            //return NotFound();
-            //}
             // https://docs.microsoft.com/en-us/aspnet/core/data/ef-rp/read-related-data?view=aspnetcore-5.0&tabs=visual-studio#scaffold-instructor-pages
-            //CastCrewDetailData CastCrewData = new CastCrewDetailData();
+            // chaining: https://stackoverflow.com/a/30081625
             CastCrew = await _context.CastCrew
                 .Include(m => m.ActingRoles)
-                .ThenInclude(m => m.Movie)
+                    .ThenInclude(m => m.Movie)
                 .Include(m => m.DirectingCredits)
-                .ThenInclude(m => m.Movie)
+                    .ThenInclude(m => m.Movie)
+                .AsNoTracking()
                 .FirstOrDefaultAsync(m => m.CastCrewId == id);
 
             if (CastCrew == null)
             {
                 return NotFound();
             }
-
-            //CastCrewData.ActsIn = CastCrew.ActingRoles;
-            //CastCrewData.Movie = 
 
             return Page();
         }

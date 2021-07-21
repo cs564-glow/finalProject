@@ -1,5 +1,4 @@
 ﻿@page "{id?}"
-@using Microsoft.CodeAnalysis.CSharp.Syntax
 @model LetterBoxDClone.Pages.CastCrewPage.DetailsModel
 
 @{
@@ -23,9 +22,9 @@
     </div>*@
 
  @*https://docs.microsoft.com/en-us/aspnet/core/data/ef-rp/read-related-data?view=aspnetcore-5.0&tabs=visual-studio#update-the-instructors-index-page*@
-@if (Model.CastCrew.ActingRoles != null)
+@if (Model.CastCrew.ActingRoles != null && Model.CastCrew.ActingRoles.Count > 0)
 {
-    <h3>Actor</h3>
+    <h3>Actor <small class="text-muted">(@Model.CastCrew.ActingRoles.Count Credits)</small></h3>
     <table class="table">
         <thead>
         <tr>
@@ -41,7 +40,7 @@
         {
     <tr class="table">
         <td>
-            @role.Movie.Title
+            <a asp-page="/Movies/Detail" asp-route-movieId="@role.Movie.MovieId">@role.Movie.Title</a>
         </td>
         <td>
             @role.Billing
@@ -50,8 +49,9 @@
         }
     </table>
 }
-else if (Model.CastCrew.DirectingCredits != null){
-    <h3>Director</h3>
+@if (Model.CastCrew.DirectingCredits != null && Model.CastCrew.DirectingCredits.Count > 0)
+{
+    <h3>Director <small class="text-muted">(@Model.CastCrew.DirectingCredits.Count credits)</small></h3>
     <table class="table">
         <thead>
         <tr>
@@ -64,15 +64,17 @@ else if (Model.CastCrew.DirectingCredits != null){
         {
             <tr class="table">
                 <td>
-                    @role.Movie.Title
+                    <a asp-page="/Movies/Detail" asp-route-movieId="@role.Movie.MovieId">@role.Movie.Title</a>
                 </td>
             </tr>
         }
     </table>
 }
-else
+@if ((Model.CastCrew.DirectingCredits is null && Model.CastCrew.ActingRoles is null)
+    || ((Model.CastCrew.DirectingCredits is not null && Model.CastCrew.ActingRoles is not null) 
+    && (Model.CastCrew.ActingRoles.Count == 0 && Model.CastCrew.DirectingCredits.Count == 0)))
 {
-    <p>This person has no known roles!</p>
+    <p>This person has no known acting or directing credits.</p>
 }
 <div>
     <a asp-page="./Edit" asp-route-id="@Model.CastCrew.CastCrewId">Edit</a> |
