@@ -2,108 +2,90 @@
 @model LetterBoxDClone.Pages.UserModel
 
 @{
-    
-    ViewData["Title"] = "User 75";
-    string userNameQueryString = "SELECT Username FROM User WHERE UserId = 75";
-    // var db = Database.open();
-    string moviesSeenQueryString = "SELECT Title, Year, Rating" +
-                                "FROM Movie, UserRating" +
-                                "WHERE UserRating.UserId = 75 AND UserRating.MovieId = Movie.MovieId" +
-                                "ORDER BY Rating Desc" ;
-    int? curMovieId = null;
-    string tagByMovieStringIncomplete = "SELECT Name" +
-                            "FROM UserTag, Tag, Movie" +
-                            "WHERE UserTag.UserId = 75 AND UserTag.TagId = Tag.TagId AND Movie.MovieId = ";
-    string moviesYouMightLikeString = "SELECT DISTINCT Title, Year, DirectorName" +
-                            "FROM Movie, Directs, MovieGenre" +
-                            "WHERE Movie.MovieId = MovieGenre.MovieId AND Movie.MovieId = Directs.MovieId" +
-                            "AND RtAllCriticsRating > 7.5 AND MovieGenre.GenreId IN" +
-                            "(SELECT GenreId" +
-                            "FROM UserRating, MovieGenre" +
-                            "WHERE UserId = 75 and MovieGenre.MovieId = UserRating.MovieId" +
-                            "GROUP BY GenreId" +
-                            "HAVING AVG(Rating) > (SELECT AVG(Rating)" +
-                            "FROM UserRating" +
-                            "WHERE UserId = 75)) AND Movie.MovieId NOT IN" +
-                            "(SELECT Movie.MovieId" +
-                            "FROM Movie, UserRating" +
-                            "WHERE UserRating.UserId = 75 AND UserRating.MovieId = Movie.MovieId)" +
-                            "ORDER BY RtAllCriticsRating DESC" +
-                            "LIMIT 5";
 
+	ViewData["Title"] = Model.User.Username;
 }
 
 <div class="text-left">
-    <h1 class="display-4">Duser</h1>
+	<h1 class="fw-bolder mb-1">@Model.User.Username</h1>
 </div>
-<h6>Movies You've Seen</h6>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                Title
-            </th>
-            <th>
-                Release Year
-            </th>
-            <th>
-                Your Rating
-            </th>
-            <th>
-                Your tags
-            </th>
-        </tr>
-    </thead>
-    <tbody>
-        <!--Really this will use a loop and probably sql query of some sort?,
-            see Index.cshtml from Razer tutorial-->
-        <tr>
-            <td>
-                <a href="#!">The Dark Knight</a>
-            </td>
-            <td>
-                2008
-            </td>
-            <td>
-                4.5
-            </td>
-            <td>
-                <a class="badge bg-secondary text-decoration-none link-light" href="#!">batman</a>
-                <a class="badge bg-secondary text-decoration-none link-light" href="#!">action</a>
-                <a class="badge bg-secondary text-decoration-none link-light" href="#!">superhero</a>
-            </td>
-        </tr>
-    </tbody>
-</table>
-<h6>Movies You Might Like</h6>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                Title
-            </th>
-            <th>
-                Release Year
-            </th>
-            <th>
-                Directed by
-            </th>
-        </tr>
-    </thead>
-    <tbody>
-        <!--Really this will use a loop and probably sql query of some sort?,
-            see Index.cshtml from Razer tutorial-->
-        <tr>
-            <td>
-                <a href="#!">Black Widow</a>
-            </td>
-            <td>
-                2021
-            </td>
-            <td>
-                <a href="#!">Cate Shortland</a>
-            </td>
-        </tr>
-    </tbody>
-</table>
-
+<div class="card mb-4">
+	<div class="card-header">Movies You've Seen</div>
+	<div class="card-body">
+		<div class="row">
+			<div class="col-sm-12">
+				<table class="table">
+					<thead>
+						<tr>
+							<th>
+								Title
+							</th>
+							<th>
+								Release Year
+							</th>
+							<th>
+								Your Rating
+							</th>
+						</tr>
+					</thead>
+					<tbody>
+						@foreach (var movieSeen in Model.moviesSeen)
+						{
+							<tr>
+								<td>
+									<a href="/Movies/Detail?movieId=@movieSeen.movie.MovieId">@movieSeen.movie.Title</a>
+								</td>
+								<td>
+									@movieSeen.movie.Year
+								</td>
+								<td contenteditable="true" type="number" title="Change your rating for @movieSeen.movie.Title">
+									@movieSeen.rating.Rating
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="card mb-4">
+	<div class="card-header">Movies You Might Like</div>
+	<div class="card-body">
+		<div class="row">
+			<div class="col-sm-12">
+				<table class="table">
+					<thead>
+						<tr>
+							<th>
+								Title
+							</th>
+							<th>
+								Release Year
+							</th>
+							<th>
+								Directed By
+							</th>
+						</tr>
+					</thead>
+					<tbody>
+						@foreach (var movieMightLike in Model.moviesMightLike)
+						{
+							<tr>
+								<td>
+									<a href="/Movies/Detail?movieId=@movieMightLike.movie.MovieId">@movieMightLike.movie.Title</a>
+								</td>
+								<td>
+									@movieMightLike.movie.Year
+								</td>
+								<td>
+									<a href="/CastCrewPage/Detail?CastCrewId=@movieMightLike.director.CastCrewId">@movieMightLike.director.Name</a>
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
