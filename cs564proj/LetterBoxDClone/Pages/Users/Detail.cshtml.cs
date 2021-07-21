@@ -9,10 +9,12 @@ using LetterBoxDClone.Pages.Shared;
 using static LetterBoxDClone.Pages.Shared.Connection;
 using Microsoft.Data.Sqlite;
 
+
 namespace LetterBoxDClone.Pages
 {
     public class UserModel : PageModel
     {
+
         [BindProperty(SupportsGet = true)]
         public string UserId { get; set; }
         public User User{ get; set; }
@@ -26,7 +28,7 @@ namespace LetterBoxDClone.Pages
         }
 
         public static User GetSingleUserByKey(string UserId)
-		{
+		    {
             string query =
                 $@"
                  SELECT *
@@ -36,20 +38,20 @@ namespace LetterBoxDClone.Pages
             User User = Connection.GetSingleRow<User>(query, GetUserDataFromReader);
 
             return User;
-		}
+		    }
 
         public static User GetUserDataFromReader(SqliteDataReader reader)
-		{
+		    {
             User user = new User(reader.GetInt64(0));
 
             user.Username = reader.GetString(1);
             user.Password = reader.GetString(2);
 
             return user;
-		}
+		    }
 
         public static List<SeenMovieData> GetMoviesSeen(string UserId)
-		{
+		    {
             string query =
                 $@"
                  SELECT m.movieId, m.Title, m.Year, ur.Rating
@@ -60,10 +62,10 @@ namespace LetterBoxDClone.Pages
             List<SeenMovieData> movieList = Connection.GetMultipleRows(query, GetSeenMoviesDataFromReader);
             // PaginatedList<SeenMovieData> paginatedMovieList = new PaginatedList<SeenMovieData>(movieList, movieList.Count, 1, 10);
             return movieList;
-		}
+	    	}
 
         public static SeenMovieData GetSeenMoviesDataFromReader(SqliteDataReader reader)
-		{
+		    {
             SeenMovieData smd = new SeenMovieData();
             
             Movie movie = new Movie();
@@ -77,10 +79,10 @@ namespace LetterBoxDClone.Pages
             smd.rating = ur;
 
             return smd;
-		}
+		    }
 
         public static List<MightLikeMovieData> GetMoviesMightLike(string UserId)
-		{
+		    {
             string query =
                 $@"
                 SELECT DISTINCT m1.movieId, m1.Title, m1.Year, d1.CastCrewId, cc1.Name
@@ -106,10 +108,10 @@ namespace LetterBoxDClone.Pages
 
             List<MightLikeMovieData> mightLikeList = GetMultipleRows(query, GetMoviesMightLikeFromReader);
             return mightLikeList;
-		}
+		    }
 
         public static MightLikeMovieData GetMoviesMightLikeFromReader(SqliteDataReader reader)
-		{
+		    {
             Movie movie = new Movie();
             movie.MovieId = reader.GetInt32(0);
             movie.Title = reader.GetString(1);
@@ -120,6 +122,6 @@ namespace LetterBoxDClone.Pages
             mightLike.movie = movie;
             mightLike.director = director;
             return mightLike;
-		}
+		    }
     }
 }
