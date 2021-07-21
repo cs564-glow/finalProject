@@ -46,7 +46,16 @@ namespace DataLibrary
             modelBuilder.Entity<Directs>()
                 .HasKey(m => new { m.MovieId, m.CastCrewId });
             modelBuilder.Entity<ActsIn>()
-                .HasKey(m => new { m.MovieId, m.CastCrewId });
+                .HasKey(m => new {m.MovieId, m.CastCrewId});
+            // https://docs.microsoft.com/en-us/ef/core/modeling/relationships?tabs=fluent-api%2Cfluent-api-simple-key%2Csimple-key#indirect-many-to-many-relationships
+            modelBuilder.Entity<ActsIn>()
+                .HasOne(acts => acts.CastCrew)
+                .WithMany(a => a.ActsInRoles)
+                .HasForeignKey(acts => acts.CastCrewId);
+            modelBuilder.Entity<ActsIn>()
+                .HasOne(mv => mv.Movie)
+                .WithMany(m => m.ActsInRoles)
+                .HasForeignKey(m => m.MovieId);
         }
         public DbSet<Movie> Movie { get; set; }
         public DbSet<Genre> Genre { get; set; }

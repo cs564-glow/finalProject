@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace DataLibrary
@@ -8,6 +9,7 @@ namespace DataLibrary
         [Key]
         public string CastCrewId { get; init; }
         public string Name { get; set; }
+        public List<ActsIn> ActsInRoles { get; set; }
 
         public CastCrew(string castCrewId, string name)
         {
