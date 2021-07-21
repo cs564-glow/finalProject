@@ -38,7 +38,9 @@ namespace LetterBoxDClone.Pages.CastCrewPage
             // https://docs.microsoft.com/en-us/aspnet/core/data/ef-rp/read-related-data?view=aspnetcore-5.0&tabs=visual-studio#scaffold-instructor-pages
             //CastCrewDetailData CastCrewData = new CastCrewDetailData();
             CastCrew = await _context.CastCrew
-                .Include(m => m.ActsInRoles)
+                .Include(m => m.ActingRoles)
+                .ThenInclude(m => m.Movie)
+                .Include(m => m.DirectingCredits)
                 .ThenInclude(m => m.Movie)
                 .FirstOrDefaultAsync(m => m.CastCrewId == id);
 
@@ -47,7 +49,7 @@ namespace LetterBoxDClone.Pages.CastCrewPage
                 return NotFound();
             }
 
-            //CastCrewData.ActsIn = CastCrew.ActsInRoles;
+            //CastCrewData.ActsIn = CastCrew.ActingRoles;
             //CastCrewData.Movie = 
 
             return Page();

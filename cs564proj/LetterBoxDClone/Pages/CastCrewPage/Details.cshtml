@@ -23,9 +23,9 @@
     </div>*@
 
  @*https://docs.microsoft.com/en-us/aspnet/core/data/ef-rp/read-related-data?view=aspnetcore-5.0&tabs=visual-studio#update-the-instructors-index-page*@
-<h2>Roles</h2>
-@if (Model.CastCrew.ActsInRoles != null)
+@if (Model.CastCrew.ActingRoles != null)
 {
+    <h3>Actor</h3>
     <table class="table">
         <thead>
         <tr>
@@ -37,7 +37,7 @@
             </th>
         </tr>
         </thead>
-        @foreach (var role in Model.CastCrew.ActsInRoles)
+        @foreach (var role in Model.CastCrew.ActingRoles)
         {
     <tr class="table">
         <td>
@@ -47,6 +47,26 @@
             @role.Billing
         </td>
     </tr>
+        }
+    </table>
+}
+else if (Model.CastCrew.DirectingCredits != null){
+    <h3>Director</h3>
+    <table class="table">
+        <thead>
+        <tr>
+            <th>
+                Movie
+            </th>
+        </tr>
+        </thead>
+        @foreach (var role in Model.CastCrew.DirectingCredits)
+        {
+            <tr class="table">
+                <td>
+                    @role.Movie.Title
+                </td>
+            </tr>
         }
     </table>
 }

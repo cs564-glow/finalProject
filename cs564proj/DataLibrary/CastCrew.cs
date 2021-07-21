@@ -9,7 +9,8 @@ namespace DataLibrary
         [Key]
         public string CastCrewId { get; init; }
         public string Name { get; set; }
-        public List<ActsIn> ActsInRoles { get; set; }
+        public List<ActsIn> ActingRoles { get; set; }
+        public List<Directs> DirectingCredits { get; set; }
 
         public CastCrew(string castCrewId, string name)
         {

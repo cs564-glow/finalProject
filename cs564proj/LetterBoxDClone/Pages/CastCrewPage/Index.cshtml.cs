@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace LetterBoxDClone.Pages.CastCrewPage
 {
+    // Sorting: https://docs.microsoft.com/en-us/aspnet/core/data/ef-rp/sort-filter-page?view=aspnetcore-5.0#add-sorting
     public class IndexModel : PageModel
     {
         private readonly MovieContext _context;
@@ -18,12 +19,14 @@ namespace LetterBoxDClone.Pages.CastCrewPage
             _configuration = configuration;
         }
 
+        public string NameSort { get; set; }
+
         public PaginatedList<CastCrew> CastCrew { get; set; }
 
         //public IList<CastCrew> CastCrew { get;set; }
 
         //public async Task OnGetAsync()
-        public async Task OnGetAsync(int? pageIndex)
+        public async Task OnGetAsync(string sortOrder, int? pageIndex)
         {
             //CastCrew = await _context.CastCrew.ToListAsync();
             //pageIndex = 1;

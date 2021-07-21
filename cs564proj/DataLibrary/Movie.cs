@@ -29,7 +29,8 @@ namespace DataLibrary
         [Name("rtAllCriticsNumReviews")]
         public int? RtAllCriticsNumReviews { get; set; }
 #nullable disable
-        public List<ActsIn> ActsInRoles { get; set; }
+        public List<ActsIn> MovieActors { get; set; }
+        public List<Directs> MovieDirectors { get; set; }
         //[Ignore]
         //public string RtAllNumFresh { get; set; }
         //[Ignore]
