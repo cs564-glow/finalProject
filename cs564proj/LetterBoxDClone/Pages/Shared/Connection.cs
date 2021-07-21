@@ -8,7 +8,11 @@ namespace LetterBoxDClone.Pages.Shared
     public class Connection
     {
         //TODO: replace with path to your database
+<<<<<<< HEAD:cs564proj/MovieUserDBPages/Pages/Shared/Connection.cs
         // private const string PATH_TO_DATABASE = "Data Source=/Users/Nugi/Downloads/hetrec2011-movielens-2k-v2/movie.db";
+=======
+        //private const string PATH_TO_DATABASE = "Data Source=/Users/Nugi/Downloads/hetrec2011-movielens-2k-v2/movie.db";
+>>>>>>> 0695d3c28f069cb83b6264872dcb9da85abe3ba8:cs564proj/LetterBoxDClone/Pages/Shared/Connection.cs
         private const string PATH_TO_DATABASE = "Data Source=C:\\ProgramData\\cs564proj\\movie.db";
 
         public static T GetSingleRow<T>(string query, Func<SqliteDataReader, T> function)
