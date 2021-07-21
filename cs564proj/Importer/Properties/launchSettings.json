@@ -2,7 +2,7 @@
   "profiles": {
     "Importer": {
       "commandName": "Project",
-      "commandLineArgs": "-i \"C:\\Users\\kevin\\source\\repos\\finalProject\\testFiles\\hetrec2011-movielens-2k-v2\" -x"
+      "commandLineArgs": "-i \"C:\\Users\\kboening\\source\\repos\\finalProject\\testFiles\\hetrec2011-movielens-2k-v2\" -x"
     }
   }
 }
