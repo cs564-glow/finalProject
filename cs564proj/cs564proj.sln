@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.31410.357
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Importer", "Importer\Importer.csproj", "{2B0431C9-28EB-4F76-9F0B-501448F8F70D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LetterBoxDClone", "MovieUserDBPages\LetterBoxDClone.csproj", "{8683ED71-BAE9-40C1-8F7A-09F97B4C7E37}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LetterBoxDClone", "LetterBoxDClone\LetterBoxDClone.csproj", "{8683ED71-BAE9-40C1-8F7A-09F97B4C7E37}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataLibrary", "DataLibrary\DataLibrary.csproj", "{EC6DE909-E90C-4F8B-A02F-31235C7C86BD}"
 EndProject
