@@ -1,5 +1,7 @@
-﻿using System;
+
+using System;
 using System.Linq;
+
 using System.Threading.Tasks;
 using DataLibrary;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -8,8 +10,10 @@ using Microsoft.Extensions.Configuration;
 
 namespace LetterBoxDClone.Pages.CastCrewPage
 {
+
     // Sorting: https://docs.microsoft.com/en-us/aspnet/core/data/ef-rp/sort-filter-page?view=aspnetcore-5.0#add-sorting
     // Filtering: https://docs.microsoft.com/en-us/aspnet/core/data/ef-rp/sort-filter-page?view=aspnetcore-5.0#add-filtering
+
     public class IndexModel : PageModel
     {
         private readonly MovieContext _context;
@@ -20,6 +24,7 @@ namespace LetterBoxDClone.Pages.CastCrewPage
             _context = context;
             _configuration = configuration;
         }
+
 
         public string NameSort { get; set; }
         public string CurrentFilter { get; set; }
@@ -44,6 +49,7 @@ namespace LetterBoxDClone.Pages.CastCrewPage
             IQueryable<CastCrew> castCrewIq = from c in _context.CastCrew
                                               select c;
 
+
             if (!string.IsNullOrEmpty(searchString))
             {
                 // case sensitivity: https://docs.microsoft.com/en-us/aspnet/core/data/ef-rp/sort-filter-page?view=aspnetcore-5.0#iqueryable-vs-ienumerable
@@ -63,6 +69,7 @@ namespace LetterBoxDClone.Pages.CastCrewPage
             var pageSize = _configuration.GetValue("PageSize", 10);
             CastCrew = await PaginatedList<CastCrew>.CreateAsync(
                 castCrewIq.AsNoTracking(), pageIndex ?? 1, pageSize);
+
 
 
         }

@@ -27,6 +27,7 @@ namespace LetterBoxDClone.Pages.CastCrewPage
                 return NotFound();
             }
 
+
             // https://docs.microsoft.com/en-us/aspnet/core/data/ef-rp/read-related-data?view=aspnetcore-5.0&tabs=visual-studio#scaffold-instructor-pages
             // chaining: https://stackoverflow.com/a/30081625
             CastCrew = await _context.CastCrew
@@ -36,6 +37,7 @@ namespace LetterBoxDClone.Pages.CastCrewPage
                     .ThenInclude(m => m.Movie)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(m => m.CastCrewId == id);
+
 
             if (CastCrew == null)
             {

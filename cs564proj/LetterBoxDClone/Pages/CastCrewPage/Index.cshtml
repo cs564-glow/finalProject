@@ -5,7 +5,9 @@
     ViewData["Title"] = "Cast & Crew Index";
 }
 
+
 <h1>@ViewData["Title"]</h1>
+
 
 <p>
     <a asp-page="Create">Create New</a>
@@ -22,10 +24,12 @@
     </div>
 </form>
 
+
 <table class="table">
     <thead>
         <tr>
             <th>
+
                 <a asp-page="./Index" asp-route-sortOrder="@Model.NameSort">
                     @Html.DisplayNameFor(model => model.CastCrew[0].Name)
                 </a>
@@ -68,6 +72,7 @@
    asp-route-sortOrder="@Model.CurrentSort"
    asp-route-pageIndex="@(Model.CastCrew.PageIndex + 1)"
    asp-route-currentFilter="@Model.CurrentFilter"
+
    class="btn btn-primary @nextDisabled">
     Next
 </a>
