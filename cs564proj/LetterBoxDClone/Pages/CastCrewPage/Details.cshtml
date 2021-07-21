@@ -1,9 +1,11 @@
-﻿@page "{id?}"
+@page "{id?}"
+
 @model LetterBoxDClone.Pages.CastCrewPage.DetailsModel
 
 @{
     ViewData["Title"] = "Details";
 }
+
 
 
 @*<h1>Details</h1>*@
@@ -77,6 +79,7 @@
 {
     <p>This person has no known acting or directing credits.</p>
 }
+
 
 <div>
     <a asp-page="./Edit" asp-route-id="@Model.CastCrew.CastCrewId">Edit</a> |
