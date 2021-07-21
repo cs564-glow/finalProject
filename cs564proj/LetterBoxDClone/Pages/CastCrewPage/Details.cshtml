@@ -1,24 +1,83 @@
-﻿@page
+﻿@page "{id?}"
 @model LetterBoxDClone.Pages.CastCrewPage.DetailsModel
 
 @{
     ViewData["Title"] = "Details";
 }
 
-<h1>Details</h1>
 
-<div>
-    <h4>CastCrew</h4>
-    <hr />
-    <dl class="row">
-        <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.CastCrew.Name)
-        </dt>
-        <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.CastCrew.Name)
-        </dd>
-    </dl>
-</div>
+@*<h1>Details</h1>*@
+<h1>@Model.CastCrew.Name</h1>
+
+@*<div>
+        <h4>CastCrew</h4>
+        <hr />
+        <dl class="row">
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.CastCrew.Name)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.CastCrew.Name)
+            </dd>
+        </dl>
+    </div>*@
+
+ @*https://docs.microsoft.com/en-us/aspnet/core/data/ef-rp/read-related-data?view=aspnetcore-5.0&tabs=visual-studio#update-the-instructors-index-page*@
+@if (Model.CastCrew.ActingRoles != null && Model.CastCrew.ActingRoles.Count > 0)
+{
+    <h3>Actor <small class="text-muted">(@Model.CastCrew.ActingRoles.Count Credits)</small></h3>
+    <table class="table">
+        <thead>
+        <tr>
+            <th>
+                Movie
+            </th>
+            <th>
+                Billing
+            </th>
+        </tr>
+        </thead>
+        @foreach (var role in Model.CastCrew.ActingRoles)
+        {
+    <tr class="table">
+        <td>
+            <a asp-page="/Movies/Detail" asp-route-movieId="@role.Movie.MovieId">@role.Movie.Title</a>
+        </td>
+        <td>
+            @role.Billing
+        </td>
+    </tr>
+        }
+    </table>
+}
+@if (Model.CastCrew.DirectingCredits != null && Model.CastCrew.DirectingCredits.Count > 0)
+{
+    <h3>Director <small class="text-muted">(@Model.CastCrew.DirectingCredits.Count credits)</small></h3>
+    <table class="table">
+        <thead>
+        <tr>
+            <th>
+                Movie
+            </th>
+        </tr>
+        </thead>
+        @foreach (var role in Model.CastCrew.DirectingCredits)
+        {
+            <tr class="table">
+                <td>
+                    <a asp-page="/Movies/Detail" asp-route-movieId="@role.Movie.MovieId">@role.Movie.Title</a>
+                </td>
+            </tr>
+        }
+    </table>
+}
+@if ((Model.CastCrew.DirectingCredits is null && Model.CastCrew.ActingRoles is null)
+    || ((Model.CastCrew.DirectingCredits is not null && Model.CastCrew.ActingRoles is not null) 
+    && (Model.CastCrew.ActingRoles.Count == 0 && Model.CastCrew.DirectingCredits.Count == 0)))
+{
+    <p>This person has no known acting or directing credits.</p>
+}
+
 <div>
     <a asp-page="./Edit" asp-route-id="@Model.CastCrew.CastCrewId">Edit</a> |
     <a asp-page="./Index">Back to List</a>
