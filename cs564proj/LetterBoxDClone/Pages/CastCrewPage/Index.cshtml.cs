@@ -1,8 +1,6 @@
 
-
 using System;
 using System.Linq;
-
 
 using System.Threading.Tasks;
 using DataLibrary;
@@ -13,10 +11,8 @@ using Microsoft.Extensions.Configuration;
 namespace LetterBoxDClone.Pages.CastCrewPage
 {
 
-
     // Sorting: https://docs.microsoft.com/en-us/aspnet/core/data/ef-rp/sort-filter-page?view=aspnetcore-5.0#add-sorting
     // Filtering: https://docs.microsoft.com/en-us/aspnet/core/data/ef-rp/sort-filter-page?view=aspnetcore-5.0#add-filtering
-
 
     public class IndexModel : PageModel
     {
@@ -50,10 +46,8 @@ namespace LetterBoxDClone.Pages.CastCrewPage
             }
             CurrentFilter = searchString;
 
-
             IQueryable<CastCrew> castCrewIq = from c in _context.CastCrew
                                               select c;
-
 
 
             if (!string.IsNullOrEmpty(searchString))
