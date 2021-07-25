@@ -20,12 +20,25 @@ namespace LetterBoxDClone.Pages
         public User User { get; set; }
         public List<SeenMovieData> moviesSeen { get; set; }
         public List<MightLikeMovieData> moviesMightLike { get; set; }
+
         public void OnGet()
         {
             User = GetSingleUserByKey(UserId);
             moviesSeen = GetMoviesSeen(UserId);
             moviesMightLike = GetMoviesMightLike(UserId);
         }
+
+        public int SetRatingByKey(string UserId, int MovieId, double rating)
+		{
+            DateTime origin = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
+            string query =
+                $@"UPDATE UserRating
+                   SET Rating = {rating}, Timestamp = {(int)(DateTime.Now.ToUniversalTime() - origin).TotalSeconds}
+                   WHERE UserId = {UserId} AND MovieId = {MovieId}";
+            Console.WriteLine((int)(DateTime.Now.ToUniversalTime() - origin).TotalSeconds);
+            return Connection.SetSingleRow(query);
+		}
 
         public static User GetSingleUserByKey(string UserId)
         {
