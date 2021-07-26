@@ -1,9 +1,17 @@
 ﻿@page
 @model LetterBoxDClone.Pages.UserModel
 
-@{
-
+@{ 
+	
 	ViewData["Title"] = Model.User.Username;
+
+	@functions{
+
+		public void OnPostUpdateRating(int movieId, double rating)
+		{
+			Model.SetRatingByKey(Model.UserId, movieId, rating);
+		}
+	}
 }
 
 <body>
@@ -34,29 +42,21 @@
 
 							@foreach (var movieSeen in Model.moviesSeen)
 							{
-								<tr id="@movieSeen.movie.MovieId">
-									<td>
-										<a href="/Movies/Detail?movieId=@movieSeen.movie.MovieId">@movieSeen.movie.Title</a>
-									</td>
-									<td>
-										@movieSeen.movie.Year
-									</td>
-									<td id="rating_@Model.User.UserId@movieSeen.movie.MovieId" contenteditable="true" title="Edit your rating for @movieSeen.movie.Title">
-										@movieSeen.rating.Rating
-									</td>
-									<td>
-										<button id="button_@Model.User.UserId@movieSeen.movie.MovieId" class="btn btn-primary">
-											Update Rating
-										</button>
-										<script>
-											var button = document.getElementById("button_@Model.User.UserId@movieSeen.movie.MovieId").addEventListener('click', function ()
-											{
-												@movieSeen.rating.Rating = document.getElementById("rating_@Model.User.UserId@movieSeen.movie.MovieId").innerText;
-												@Model.SetRatingByKey(Model.UserId, movieSeen.movie.MovieId, movieSeen.rating.Rating);
-			.								});
-										</script>
-									</td>
-								</tr>
+							<tr id="@movieSeen.movie.MovieId">
+								<td>
+									<a href="/Movies/Detail?movieId=@movieSeen.movie.MovieId">@movieSeen.movie.Title</a>
+								</td>
+								<td>
+									@movieSeen.movie.Year
+								</td>
+								<td>
+									<form action="updaterating" method="post">
+										<input type="number" name="rating" value="@movieSeen.rating.Rating"/>
+										<input type="hidden" name="movieId" value="@movieSeen.movie.MovieId"/>
+										<button class="btn btn-primary">Update Rating</button>
+									</form>
+								</td>
+							</tr>
 							}
 						</tbody>
 					</table>

@@ -14,7 +14,6 @@ namespace LetterBoxDClone.Pages
 {
     public class UserModel : PageModel
     {
-
         [BindProperty(SupportsGet = true)]
         public string UserId { get; set; }
         public User User { get; set; }
@@ -28,15 +27,21 @@ namespace LetterBoxDClone.Pages
             moviesMightLike = GetMoviesMightLike(UserId);
         }
 
+        /*public async Task OnPostButton()
+		{
+            int rowCountChanged = SetRatingByKey(UserId, MovieId, rating)
+		}*/
+
         public int SetRatingByKey(string UserId, int MovieId, double rating)
 		{
             DateTime origin = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            uint timestamp= (uint)(DateTime.Now.ToUniversalTime() - origin).TotalSeconds;
 
             string query =
                 $@"UPDATE UserRating
-                   SET Rating = {rating}, Timestamp = {(int)(DateTime.Now.ToUniversalTime() - origin).TotalSeconds}
+                   SET Rating = {rating}, Timestamp = {timestamp}
                    WHERE UserId = {UserId} AND MovieId = {MovieId}";
-            Console.WriteLine((int)(DateTime.Now.ToUniversalTime() - origin).TotalSeconds);
+            Console.WriteLine(timestamp);
             return Connection.SetSingleRow(query);
 		}
 
