@@ -16,13 +16,13 @@ namespace LetterBoxDClone.Pages
     {
         [BindProperty(SupportsGet = true)]
         public string UserId { get; set; }
-        public User User { get; set; }
+        public User User1 { get; set; }
         public List<SeenMovieData> moviesSeen { get; set; }
         public List<MightLikeMovieData> moviesMightLike { get; set; }
 
         public void OnGet()
         {
-            User = GetSingleUserByKey(UserId);
+            User1 = GetSingleUserByKey(UserId);
             moviesSeen = GetMoviesSeen(UserId);
             moviesMightLike = GetMoviesMightLike(UserId);
         }

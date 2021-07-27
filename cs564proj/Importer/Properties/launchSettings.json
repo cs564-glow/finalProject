@@ -1,11 +1,12 @@
 {
-    "profiles": {
-        "Importer": {
-            "commandName": "Project",
-            "Garrett": {
-                "commandName": "Project",
-                "commandLineArgs": "-i \"W:\\source\\repos\\finalProject\\testFiles\\hetrec2011-movielens-2k-v2\" -x"
-            }
-        }
+  "profiles": {
+    "Importer": {
+      "commandName": "Project",
+      "commandLineArgs": "-i \"C:\\sourcecode\\finalProject\\testFiles\\hetrec2011-movielens-2k-v2\" -x",
+      "Garrett": {
+        "commandName": "Project",
+        "commandLineArgs": "-i \"C:\\sourcecode\\finalProject\\testFiles\\hetrec2011-movielens-2k-v2\" -x"
+      }
     }
+  }
 }
