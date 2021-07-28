@@ -1,18 +1,9 @@
 ﻿@page
-@model LetterBoxDClone.Pages.UserModel
+@model LetterBoxDClone.Pages.Users.DetailsModel
 
-@{ 
-	// using System.Web;
+@{
+
 	ViewData["Title"] = Model.User1.Username;
-
-	@functions{
-		
-		public ActionResult OnPostUpdateRating(int movieId, double rating)
-		{
-			Model.SetRatingByKey(Model.UserId, movieId, rating);
-			return View(Model);
-		}
-	}
 }
 
 <body>
@@ -52,10 +43,11 @@
 									@movieSeen.movie.Year
 								</td>
 								<td>
-									<form asp-route-userId="@Model.UserId" method="post">
+									<form method="post">
 										<input type="number" step="0.5" min="0" max="5" name="rating" value="@movieSeen.rating.Rating"/>
 										<input type="hidden" name="movieId" value="@movieSeen.movie.MovieId"/>
-										<input type="submit" class="btn btn-primary" name="Update Rating"/>
+										<input type="hidden" name="userId" value="@Model.id"/>
+										<input type="submit" class="btn btn-primary" value="Update Rating" asp-page-handler="UpdateRating"/>
 									</form>
 								</td>
 							</tr>

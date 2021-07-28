@@ -10,21 +10,21 @@ using static LetterBoxDClone.Pages.Shared.Connection;
 using Microsoft.Data.Sqlite;
 
 
-namespace LetterBoxDClone.Pages
+namespace LetterBoxDClone.Pages.Users
 {
-    public class UserModel : PageModel
+    public class DetailsModel : PageModel
     {
         [BindProperty(SupportsGet = true)]
-        public string UserId { get; set; }
+        public string id { get; set; }
         public User User1 { get; set; }
         public List<SeenMovieData> moviesSeen { get; set; }
         public List<MightLikeMovieData> moviesMightLike { get; set; }
 
         public void OnGet()
         {
-            User1 = GetSingleUserByKey(UserId);
-            moviesSeen = GetMoviesSeen(UserId);
-            moviesMightLike = GetMoviesMightLike(UserId);
+            User1 = GetSingleUserByKey(id);
+            moviesSeen = GetMoviesSeen(id);
+            moviesMightLike = GetMoviesMightLike(id);
         }
 
         /*public async Task OnPostButton()
@@ -32,10 +32,16 @@ namespace LetterBoxDClone.Pages
             int rowCountChanged = SetRatingByKey(UserId, MovieId, rating)
 		}*/
 
+
+        public void OnPostAsyncUpdateRating(string userId, int movieId, double rating)
+        {
+            SetRatingByKey(userId, movieId, rating);
+        }
+
         public int SetRatingByKey(string UserId, int MovieId, double rating)
-		{
+        {
             DateTime origin = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-            uint timestamp= (uint)(DateTime.Now.ToUniversalTime() - origin).TotalSeconds;
+            uint timestamp = (uint)(DateTime.Now.ToUniversalTime() - origin).TotalSeconds;
 
             string query =
                 $@"UPDATE UserRating
@@ -43,7 +49,7 @@ namespace LetterBoxDClone.Pages
                    WHERE UserId = {UserId} AND MovieId = {MovieId}";
             Console.WriteLine(timestamp);
             return Connection.SetSingleRow(query);
-		}
+        }
 
         public static User GetSingleUserByKey(string UserId)
         {
