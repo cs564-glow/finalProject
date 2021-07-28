@@ -28,6 +28,17 @@ namespace LetterBoxDClone.Pages.Shared
             return instance;
         }
 
+        public static int SetSingleRow(string query)
+		{
+            using var connection = new SqliteConnection(PATH_TO_DATABASE);
+            connection.Open();
+
+            var command = connection.CreateCommand();
+            command.CommandText = query;
+
+            return command.ExecuteNonQuery();
+		}
+
         public static List<T> GetMultipleRows<T>(string query, Func<SqliteDataReader, T> function)
         {
             using var connection = new SqliteConnection(PATH_TO_DATABASE);

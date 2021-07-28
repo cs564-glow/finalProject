@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -10,6 +11,8 @@ namespace DataLibrary
         public long UserId { get; init; }
         public string Username { get; set; }
         public string Password { get; set; }
+        public List<UserRating> ratings { get; set; }
+        public List<UserTag> tags { get; set; }
 
         public User(long userId)
         {
