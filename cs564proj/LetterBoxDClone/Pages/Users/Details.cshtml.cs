@@ -33,12 +33,14 @@ namespace LetterBoxDClone.Pages.Users
 		}*/
 
 
-        public void OnPostAsyncUpdateRating(string userId, int movieId, double rating)
+        /*public async Task<IActionResult> OnPostAsyncUpdateRating(string userId, int movieId, double rating)
         {
+            
             SetRatingByKey(userId, movieId, rating);
-        }
+            return Page();
+        }*/
 
-        public int SetRatingByKey(string UserId, int MovieId, double rating)
+        /*public int SetRatingByKey(string UserId, int MovieId, double rating)
         {
             DateTime origin = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
             uint timestamp = (uint)(DateTime.Now.ToUniversalTime() - origin).TotalSeconds;
@@ -49,7 +51,7 @@ namespace LetterBoxDClone.Pages.Users
                    WHERE UserId = {UserId} AND MovieId = {MovieId}";
             Console.WriteLine(timestamp);
             return Connection.SetSingleRow(query);
-        }
+        }*/
 
         public static User GetSingleUserByKey(string UserId)
         {
