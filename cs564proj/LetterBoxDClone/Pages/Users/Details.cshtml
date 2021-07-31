@@ -44,9 +44,11 @@
 								</td>
 								<td>
 									<form method="post">
-										<input type="number" name="rating" value="@movieSeen.rating.Rating" />
-										<input type="hidden" name="movieId" value="@movieSeen.movie.MovieId" />
-										<input type="hidden" name="userId" value="@Model.User1.UserId" />
+										<div class="form-group">
+											<input type="number" name="rating" min="0" max="5" step="0.5" value="@movieSeen.rating.Rating" />
+											<input type="hidden" name="movieId" value="@movieSeen.movie.MovieId" />
+											<input type="hidden" name="userId" value="@Model.User1.UserId" />
+										</div>
 										<button class="btn btn-primary">Update Rating</button>
 									</form>	
 								</td>
@@ -89,6 +91,16 @@
 									</td>
 									<td>
 										<a asp-page="/CastCrewPage/Details" asp-route-id="@movieMightLike.director.CastCrewId">@movieMightLike.director.Name</a>
+									</td>
+									<td>
+										<form method="post">
+											<div class="form-group">
+												<input type="number" name="rating" min="0" max="5" step="0.5" value="" />
+												<input type="hidden" name="movieId" value="@movieMightLike.movie.MovieId" />
+												<input type="hidden" name="userId" value="@Model.User1.UserId" />
+											</div>
+											<button class="btn btn-primary">Watched? Add Rating!</button>
+										</form>
 									</td>
 								</tr>
 							}

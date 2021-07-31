@@ -35,22 +35,37 @@ namespace LetterBoxDClone.Pages.Users
 
         public IActionResult OnPost(string userId, int movieId, double rating)
         {
-            SetRatingByKey(userId, movieId, rating);
-            
+            long timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+            foreach (MightLikeMovieData mvd in GetMoviesMightLike(userId))
+			{
+                if (mvd.movie.MovieId == movieId)
+				{
+                    CreateRatingByKey(userId, movieId, rating, timestamp);
+                    return RedirectToAction("Details", new { id = userId });
+                }
+			}
+            UpdateRatingByKey(userId, movieId, rating, timestamp);
             return RedirectToAction("Details", new { id = userId });
             
         }
 
-        public int SetRatingByKey(string UserId, int MovieId, double rating)
-        {
-            long timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-
+        public int UpdateRatingByKey(string UserId, int MovieId, double rating, long timestamp)
+        {   
+            
             string query =
                 $@"UPDATE UserRating
                    SET Rating = {rating}, Timestamp = {timestamp}
                    WHERE UserId = {UserId} AND MovieId = {MovieId}";
             return Connection.SetSingleRow(query);
         }
+
+        public int CreateRatingByKey(string UserId, int MovieId, double rating, long timestamp)
+		{
+            string query =
+                $@"INSERT INTO UserRating (UserId, MovieId, Rating, Timestamp)
+                VALUES({UserId}, {MovieId}, {rating}, {timestamp})";
+            return Connection.SetSingleRow(query);
+		}
 
         public static User GetSingleUserByKey(string UserId)
         {
