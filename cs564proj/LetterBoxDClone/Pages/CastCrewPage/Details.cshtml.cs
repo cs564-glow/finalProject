@@ -18,7 +18,7 @@ namespace LetterBoxDClone.Pages.CastCrewPage
         }
         
         public CastCrew CastCrew { get; set; }
-        public ActsIn ActsIn { get; set; }
+        // public ActsIn ActsIn { get; set; }
 
         public async Task<IActionResult> OnGetAsync(string id)
         {

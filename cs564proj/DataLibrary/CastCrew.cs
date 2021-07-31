@@ -18,6 +18,11 @@ namespace DataLibrary
             this.Name = name;
         }
 
+        public CastCrew()
+		{
+
+		}
+
         public bool Equals(CastCrew other)
         {
             if (ReferenceEquals(null, other)) return false;

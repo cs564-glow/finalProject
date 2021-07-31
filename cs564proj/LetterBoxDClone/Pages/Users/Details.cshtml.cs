@@ -33,23 +33,39 @@ namespace LetterBoxDClone.Pages.Users
 		}*/
 
 
-        public void OnPostAsyncUpdateRating(string userId, int movieId, double rating)
+        public IActionResult OnPost(string userId, int movieId, double rating)
         {
-            SetRatingByKey(userId, movieId, rating);
+            long timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+            foreach (MightLikeMovieData mvd in GetMoviesMightLike(userId))
+			{
+                if (mvd.movie.MovieId == movieId)
+				{
+                    CreateRatingByKey(userId, movieId, rating, timestamp);
+                    return RedirectToAction("Details", new { id = userId });
+                }
+			}
+            UpdateRatingByKey(userId, movieId, rating, timestamp);
+            return RedirectToAction("Details", new { id = userId });
+            
         }
 
-        public int SetRatingByKey(string UserId, int MovieId, double rating)
-        {
-            DateTime origin = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-            uint timestamp = (uint)(DateTime.Now.ToUniversalTime() - origin).TotalSeconds;
-
+        public int UpdateRatingByKey(string UserId, int MovieId, double rating, long timestamp)
+        {   
+            
             string query =
                 $@"UPDATE UserRating
                    SET Rating = {rating}, Timestamp = {timestamp}
                    WHERE UserId = {UserId} AND MovieId = {MovieId}";
-            Console.WriteLine(timestamp);
             return Connection.SetSingleRow(query);
         }
+
+        public int CreateRatingByKey(string UserId, int MovieId, double rating, long timestamp)
+		{
+            string query =
+                $@"INSERT INTO UserRating (UserId, MovieId, Rating, Timestamp)
+                VALUES({UserId}, {MovieId}, {rating}, {timestamp})";
+            return Connection.SetSingleRow(query);
+		}
 
         public static User GetSingleUserByKey(string UserId)
         {

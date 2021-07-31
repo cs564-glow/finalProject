@@ -20,7 +20,8 @@ namespace LetterBoxDClone.Pages.Users
         }
 
         [BindProperty]
-        public User User { get; set; }
+        public User User1 { get; set; }
+
 
         public async Task<IActionResult> OnGetAsync(long? id)
         {
@@ -29,12 +30,15 @@ namespace LetterBoxDClone.Pages.Users
                 return NotFound();
             }
 
-            User = await _context.User.FirstOrDefaultAsync(m => m.UserId == id);
+            User1 = await _context.User.FirstOrDefaultAsync(m => m.UserId == id);
 
-            if (User == null)
+
+            if (User1 == null)
             {
                 return NotFound();
             }
+            
+
             return Page();
         }
 
@@ -42,12 +46,14 @@ namespace LetterBoxDClone.Pages.Users
         // For more details, see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync()
         {
+            // ur = await _context.UserRating.FirstOrDefaultAsync(m => m.MovieId == )
+            
             if (!ModelState.IsValid)
             {
                 return Page();
             }
-
-            _context.Attach(User).State = EntityState.Modified;
+            
+            _context.Attach(User1).State = EntityState.Modified;
 
             try
             {
@@ -55,7 +61,7 @@ namespace LetterBoxDClone.Pages.Users
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!UserExists(User.UserId))
+                if (!UserExists(User1.UserId))
                 {
                     return NotFound();
                 }
