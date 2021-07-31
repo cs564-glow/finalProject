@@ -33,25 +33,24 @@ namespace LetterBoxDClone.Pages.Users
 		}*/
 
 
-        /*public async Task<IActionResult> OnPostAsyncUpdateRating(string userId, int movieId, double rating)
+        public IActionResult OnPost(string userId, int movieId, double rating)
         {
-            
             SetRatingByKey(userId, movieId, rating);
-            return Page();
-        }*/
+            
+            return RedirectToAction("Details", new { id = userId });
+            
+        }
 
-        /*public int SetRatingByKey(string UserId, int MovieId, double rating)
+        public int SetRatingByKey(string UserId, int MovieId, double rating)
         {
-            DateTime origin = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-            uint timestamp = (uint)(DateTime.Now.ToUniversalTime() - origin).TotalSeconds;
+            long timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
 
             string query =
                 $@"UPDATE UserRating
                    SET Rating = {rating}, Timestamp = {timestamp}
                    WHERE UserId = {UserId} AND MovieId = {MovieId}";
-            Console.WriteLine(timestamp);
             return Connection.SetSingleRow(query);
-        }*/
+        }
 
         public static User GetSingleUserByKey(string UserId)
         {

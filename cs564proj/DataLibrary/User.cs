@@ -14,8 +14,6 @@ namespace DataLibrary
         [Required]
         public string Password { get; set; }
         
-        public List<UserRating> userRatings { get; set; }
-        
 
         public User(long userId)
         {

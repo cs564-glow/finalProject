@@ -29,9 +29,6 @@
 								<th>
 									Your Rating
 								</th>
-								<th>
-									<a asp-page="./Edit" asp-route-id="@Model.User1.UserId">Edit Ratings</a>
-								</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -46,7 +43,12 @@
 									@movieSeen.movie.Year
 								</td>
 								<td>
-									@movieSeen.rating.Rating
+									<form method="post">
+										<input type="number" name="rating" value="@movieSeen.rating.Rating" />
+										<input type="hidden" name="movieId" value="@movieSeen.movie.MovieId" />
+										<input type="hidden" name="userId" value="@Model.User1.UserId" />
+										<button class="btn btn-primary">Update Rating</button>
+									</form>	
 								</td>
 							</tr>
 							}

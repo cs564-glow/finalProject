@@ -19,17 +19,7 @@
                 <input asp-for="User1.Username" class="form-control" />
                 <span asp-validation-for="User1.Username" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label class="control-label">Movie to Re-Rate</label>
-				<select class="form-control" asp-items="@Model.MovieTitleSL">
-					<option value="">-- Select Movie --</option>
-				</select>
-            </div>
-            <div class="form-group">
-                <label class="control-label">Rating</label>
-                <input asp-for="ur.Rating" class="form-control" />
-                <span asp-validation-for="ur.Rating" class="text-danger"></span>
-            </div>
+            <input type="hidden" asp-for="User1.Password" />
             <div class="form-group">
                 <input type="submit" value="Save" class="btn btn-primary" />
             </div>

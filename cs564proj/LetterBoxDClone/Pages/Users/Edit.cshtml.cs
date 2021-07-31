@@ -13,7 +13,6 @@ namespace LetterBoxDClone.Pages.Users
     public class EditModel : PageModel
     {
         private readonly DataLibrary.MovieContext _context;
-        public SelectList MovieTitleSL { get; set; }
 
         public EditModel(DataLibrary.MovieContext context)
         {
@@ -23,7 +22,6 @@ namespace LetterBoxDClone.Pages.Users
         [BindProperty]
         public User User1 { get; set; }
 
-        public UserRating ur { get; set; }
 
         public async Task<IActionResult> OnGetAsync(long? id)
         {
@@ -39,7 +37,7 @@ namespace LetterBoxDClone.Pages.Users
             {
                 return NotFound();
             }
-            PopulateMovieTitleDropDownList(_context);
+            
 
             return Page();
         }
@@ -48,7 +46,7 @@ namespace LetterBoxDClone.Pages.Users
         // For more details, see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync()
         {
-            ur = await _context.UserRating.FirstOrDefaultAsync(m => m.MovieId == )
+            // ur = await _context.UserRating.FirstOrDefaultAsync(m => m.MovieId == )
             
             if (!ModelState.IsValid)
             {
@@ -80,17 +78,5 @@ namespace LetterBoxDClone.Pages.Users
         {
             return _context.User.Any(e => e.UserId == id);
         }
-
-        
-        public void PopulateMovieTitleDropDownList(MovieContext _context, object selectedMovie=null)
-		{
-            var moviesQuery = from ur in _context.UserRating
-                              join m in _context.Movie on ur.MovieId equals m.MovieId
-                              where ur.UserId == User1.UserId
-                              orderby m.Title
-                              select m;
-
-            MovieTitleSL = new SelectList(moviesQuery.AsNoTracking(), "MovieId", "Title", selectedMovie);
-		}
     }
 }
