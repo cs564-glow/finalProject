@@ -41,7 +41,7 @@
                                 <div>
                                     @foreach (var genre in Model.genres)
                                     {
-                                        <a class="badge badge-light text-decoration-none link-light" href="#!">@genre.GenreName</a>
+                                        <a class="badge badge-light text-decoration-none link-light" href="~/Search/AdvancedSearch?Genre=@genre.GenreName">@genre.GenreName</a>
                                     }
                                 </div>
                             </div>
@@ -54,7 +54,7 @@
                             <div class="col-sm-11">
                                 @foreach (var tag in Model.mostAppliedTags)
                                 {
-                                    <a class="badge badge-secondary text-decoration-none link-light" href="#!">@tag.Name</a>
+                                    <a class="badge badge-secondary text-decoration-none link-light" href="~/Search/AdvancedSearch?Tag=@tag.Name">@tag.Name</a>
                                 }
                             </div>
                         </div>
@@ -111,12 +111,14 @@
                     </div>
                 </div>
 
-                    <div class="card mb-4">
-                        <div class="card-header">Metadata</div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-sm-12">Produced in @Model.countryProduced</div>
-                            </div>
+                <div class="card mb-4">
+                    <div class="card-header">Metadata</div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-sm-12">Produced in @Model.countryProduced</div>
+                        </div>
+                        @if (Model.FilmingLocations != null && Model.FilmingLocations.Count > 0)
+                        {
                             <div class="row">
                                 <div class="col-sm-12">
                                     Filmed at:
@@ -128,8 +130,9 @@
                                     </ul>
                                 </div>
                             </div>
-                        </div>
-                    </div
+                        }
+                    </div>
+                </div>
 
             </div>
 
