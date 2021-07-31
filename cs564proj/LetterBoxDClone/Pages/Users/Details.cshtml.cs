@@ -49,6 +49,8 @@ namespace LetterBoxDClone.Pages.Users
             
         }
 
+        
+
         public int UpdateRatingByKey(string UserId, int MovieId, double rating, long timestamp)
         {   
             
@@ -135,7 +137,7 @@ namespace LetterBoxDClone.Pages.Users
                                                                       NATURAL JOIN MovieGenre AS mg2
                                                                       WHERE ur2.UserId = {UserId}
                                                                       GROUP BY mg2.GenreId
-                                                                      HAVING AVG(ur2.Rating) > (SELECT AVG(ur3.Rating)
+                                                                      HAVING AVG(ur2.Rating) >= (SELECT AVG(ur3.Rating)
                                                                                                 FROM UserRating AS ur3 
                                                                                                 NATURAL JOIN Movie AS m3
                                                                                                 WHERE ur3.UserId = {UserId})) 
@@ -144,7 +146,18 @@ namespace LetterBoxDClone.Pages.Users
                                        NATURAL JOIN UserRating AS ur4
                                        WHERE ur4.UserId = {UserId})
                 ORDER BY m1.RtAllCriticsRating DESC
-                LIMIT 5";
+                LIMIT 5"; 
+            if (GetMoviesSeen(UserId).Count == 0)
+			{
+                query =
+                    @$"SELECT m.MovieId, m.Title, m.Year, d.CastCrewId, cc.Name
+                    FROM Movie as m
+                    NATURAL JOIN Directs as d
+                    NATURAL JOIN CastCrew as cc
+                    ORDER BY m.RtAllCriticsRating DESC
+                    LIMIT 5";
+            }
+            
 
             List<MightLikeMovieData> mightLikeList = GetMultipleRows(query, GetMoviesMightLikeFromReader);
             return mightLikeList;
