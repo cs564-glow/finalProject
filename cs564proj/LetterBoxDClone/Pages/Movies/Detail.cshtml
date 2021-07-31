@@ -13,25 +13,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
     <meta name="description" content="" />
     <meta name="author" content="" />
-    <!-- Favicon-->
-    <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
-    <!-- Core theme CSS (includes Bootstrap)-->
-    <link href="css/styles.css" rel="stylesheet" />
 </head>
 
 <body>
     <!-- Page content-->
-    <div class="container mt-5">
+    <div class="container mt-12">
         <div class="row">
-            <div class="col-lg-8">
-                <!-- Post content-->
+
+            <div class="col-lg-7">
+                <!-- Content -->
                 <article>
-                    <!-- Post header-->
+                    <!-- Header-->
                     <header class="mb-4">
-                        <!-- Post title-->
+
+                        <!-- Title-->
                         <h1 class="fw-bolder mb-1">@Model.Movie.Title</h1>
-                        <!-- Post meta content-->
+
+                        <!-- Year and Director-->
                         <div class="text-muted fst-italic mb-2">@Model.Movie.Year by @Model.Director.Name</div>
+
                         <!-- Genre -->
                         <div class="row">
                             <div class="col-sm-1">
@@ -46,7 +46,7 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- Post categories-->
+                        <!-- Most popular tags -->
                         <div class="row">
                             <div class="col-sm-1">
                                 <span>Tags: </span>
@@ -58,17 +58,15 @@
                                 }
                             </div>
                         </div>
-                        @*<a class="badge bg-secondary text-decoration-none link-light" href="#!">popular tag1</a>
-            <a class="badge bg-secondary text-decoration-none link-light" href="#!">populat tag2</a>
-        </header>*@
 
+                        <!-- Cast and Cre-->
                         <div class="card mb-4">
                             <div class="card-header">Cast and Crew</div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-sm-12">
                                         <ul class="list-group list-group-flush mb-0">
-                                            @foreach (var crew in Model.castAndCrew)
+                                            @foreach (var crew in Model.CastAndCrew)
                                             {
                                                 <li class="list-group-item"><a href="#!">@crew.Name</a></li>
                                             }
@@ -80,25 +78,10 @@
 
                     </header>
 
-</article>
-                <!-- Comments section-->
+                </article>
             </div>
             <!-- Side widgets-->
-            <div class="col-lg-4">
-
-                <!-- Search widget-->
-                <!--
-    <div class="card mb-4">
-      <div class="card-header">Search</div>
-      <div class="card-body">
-        <div class="input-group">
-          <input class="form-control" type="text" placeholder="Enter search term..."
-            aria-label="Enter search term..." aria-describedby="button-search" />
-          <button class="btn btn-primary" id="button-search" type="button">Go!</button>
-        </div>
-      </div>
-    </div>
-    -->
+            <div class="col-lg-5">
 
                 <div class="card mb-4">
                     <div class="card-header">Relevant Links</div>
@@ -113,40 +96,6 @@
                 </div>
 
                 <div class="card mb-4">
-                    <div class="card-header">Ratings</div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-sm-12">Average rating of X based on Y ratings</div>
-                        </div>
-                        <div class="row">
-                            <div class="col-sm-12">Your rating: 9</div>
-                        </div>
-                        <div class="row">
-                            <div class="col-sm-12">Change your rating to: 8</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card mb-4">
-                    <div class="card-header">Metadata</div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-sm-12">Produced in @Model.countryProduced</div>
-                        </div>
-                        <div class="row">
-                            <div class="col-sm-12">
-                                Filmed at:
-                                <ul class="list-group list-group-flush mb-0">
-                                    <li class="list-group-item"><a href="#!">Location1</a></li>
-                                    <li class="list-group-item"><a href="#!">Location2</a></li>
-                                    <li class="list-group-item"><a href="#!">Location3</a></li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card mb-4">
                     <div class="card-header">Similar Movies</div>
                     <div class="card-body">
                         <div class="row">
@@ -154,7 +103,7 @@
                                 <ul class="list-group list-group-flush mb-0">
                                     @foreach (var movie in Model.similarMovies)
                                     {
-                                        <li class="list-group-item"><a href="https://localhost:5001/Movies?movieID=@movie.MovieId">@movie.Title (@movie.Year)</a></li>
+                                        <li class="list-group-item"><a href="https://localhost:5001/Movies/Detail?movieID=@movie.MovieId">@movie.Title (@movie.Year)</a></li>
                                     }
                                 </ul>
                             </div>
@@ -162,14 +111,32 @@
                     </div>
                 </div>
 
+                    <div class="card mb-4">
+                        <div class="card-header">Metadata</div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-sm-12">Produced in @Model.countryProduced</div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    Filmed at:
+                                    <ul class="list-group list-group-flush mb-0">
+                                        @foreach (var location in Model.FilmingLocations)
+                                        {
+                                            <li class="list-group-item">@location</li>
+                                        }
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div
+
             </div>
 
         </div>
     </div>
     <!-- Bootstrap core JS-->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Core theme JS-->
-    <script src="js/scripts.js"></script>
 </body>
 
 </html>

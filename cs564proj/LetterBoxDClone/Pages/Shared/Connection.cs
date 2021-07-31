@@ -22,10 +22,13 @@ namespace LetterBoxDClone.Pages.Shared
             command.CommandText = query;
 
             using SqliteDataReader reader = command.ExecuteReader();
-            reader.Read();
-            T instance = function(reader);
+            if (reader.HasRows)
+            {
+                reader.Read();
+                return function(reader);
+            }
 
-            return instance;
+            return default;
         }
 
         public static List<T> GetMultipleRows<T>(string query, Func<SqliteDataReader, T> function)

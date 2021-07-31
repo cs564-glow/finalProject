@@ -1,0 +1,120 @@
+﻿@page
+@model LetterBoxDClone.Pages.Search.AdvancedSearchModel
+
+@{
+    ViewData["Title"] = "Advanced Search";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <link rel="stylesheet" href="~/css/site.css" />
+</head>
+
+<body>
+    <div class="container mt-12">
+
+        <div class="row">
+            <div class="col-lg-12">
+                <h2>Search</h2>
+                <form method="get">
+
+                    <!-- Title, year, genre, tag-->
+                    <div class="row">
+
+                        <div class="col-md-4">
+                            <label for="movieTitle" class="form-label">Movie Title</label>
+                            <input type="text" class="form-control" id="movieTitle" asp-for="MovieTitle">
+                        </div>
+
+                        <div class="col-md-1">
+                            <label for="movieYear" class="form-label">Year</label>
+                            <input type="number" class="form-control" id="movieYear" value="" asp-for="MovieYear">
+                        </div>
+
+                        <div class="col-md-3">
+                            <label for="genre" class="form-label">Genre</label>
+                            <input type="text" class="form-control" id="genre" asp-for="Genre">
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="tag" class="form-label">Tag</label>
+                            <input type="text" class="form-control" id="tag" asp-for="Tag">
+                        </div>
+
+                    </div>
+
+                    <!-- Actor, Director, Production -->
+                    <div class="row">
+
+                        <div class="col-4">
+                            <label for="actor" class="form-label">Actor</label>
+                            <input type="text" class="form-control" id="actor" asp-for="CastCrew">
+                        </div>
+
+                        <div class="col-4">
+                            <label for="director" class="form-label">Director</label>
+                            <input type="text" class="form-control" id="director" asp-for="Director">
+                        </div>
+
+                        <div class="col-4">
+                            <label for="countryProduced" class="form-label">Production Of</label>
+                            <input type="text" class="form-control" id="countryProduced" placeholder="Country" asp-for="CountryProduced">
+                        </div>
+
+                    </div>
+
+                    <!-- Filming location-->
+                    <div class="row">
+
+                        <div class="col-md-4">
+                            <label for="CountryFilmed" class="form-label">Country Filmed In</label>
+                            <input type="text" class="form-control" id="CountryFilmed" asp-for="CountryFilmed">
+                        </div>
+
+                        <div class="col-md-2">
+                            <label for="StateFilmed" class="form-label">State Filmed In</label>
+                            <input type="text" class="form-control" id="StateFilmed" placeholder="Saskatchewan" asp-for="StateFilmed">
+                        </div>
+
+                        <div class="col-md-2">
+                            <label for="CityFilmed" class="form-label">City Filmed In</label>
+                            <input type="text" class="form-control" id="CityFilmed" asp-for="CityFilmed">
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="AddressFilmed" class="form-label">Address Filmed at</label>
+                            <input type="text" class="form-control" id="AddressFilmed" asp-for="AddressFilmed">
+                        </div>
+
+                    </div>
+
+                    <br /><button type="submit" class="btn btn-primary">Search</button>
+                </form>
+            </div>
+        </div>
+        @if (Model.searchResults != null && Model.searchResults.Count > 0)
+        {
+            <br /><br />
+            <div class="row">
+                <div class="col-lg-12">
+                    <h2>@Model.searchResults.Count results:</h2>
+                    <ul class="list-group list-group-flush mb-0">
+
+                        @foreach (var movie in Model.searchResults)
+                        {
+                            <li class="list-group-item"><a href="~/Movies/Detail?movieID=@movie.MovieId">@movie.Title (@movie.Year)</a></li>
+                        }
+                    </ul>
+
+                </div>
+            </div>
+        }
+    </div>
+</body>
+</html>

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Reflection;
+using System.Linq;
+using System.Threading.Tasks;
 using DataLibrary;
 using LetterBoxDClone.Pages.Shared;
 using Microsoft.AspNetCore.Mvc;
@@ -17,22 +18,37 @@ namespace LetterBoxDClone.Pages
         public string MovieId { get; set; }
         public Movie Movie { get; set; }
         public CastCrew Director { get; set; }
-        public List<CastCrew> castAndCrew { get; set; }
+        public List<CastCrew> CastAndCrew { get; set; }
         public List<Tag> mostAppliedTags { get; set; }
         public List<Genre> genres { get; set; }
         public List<Movie> similarMovies { get; set; }
         public string countryProduced { get; set; }
+        public List<string> FilmingLocations { get; set; }
 
-        public void OnGet()
+        public async Task<IActionResult> OnGet()
         {
             //TODO: handle nulls
+            //TODO: recreate the database
+            //TODO: link out to Cast and Crew Properly
+            //TODO: make director name a hyperlink
+            //TODO: clicking on different hyperlinks should take us to search functionality
+            //TODO: Ratings
             Movie = GetSingleMovieByKey(MovieId);
+
+            if (MovieId == null)
+            {
+                return NotFound();
+            }
+
             Director = GetDirectorByMovieKey(MovieId);
-            castAndCrew = GeMovieCastAndCrewByKey(MovieId);
+            CastAndCrew = GeMovieCastAndCrewByKey(MovieId);
             mostAppliedTags = GetMostAppliedTagsByKey(MovieId);
             genres = GetGenresByKey(MovieId);
             similarMovies = GetSimilarMovies(MovieId);
-            countryProduced = "placeholder"; //GetCountryProducedByMovieKey(MovieId);
+            countryProduced = GetCountryProducedByMovieKey(MovieId);
+            FilmingLocations = GetFilmLocationsByMovieKey(MovieId);
+
+            return Page();
         }
 
         public static Movie GetSingleMovieByKey(string MovieId)
@@ -175,7 +191,7 @@ namespace LetterBoxDClone.Pages
                                 ORDER BY count(*) DESC
                                 LIMIT 5) similarMovies
                 WHERE m1.MovieId <> {MovieId}
-                "; 
+                ";
 
             List<Movie> similarMovies = Connection.GetMultipleRows(query, GetMovieDataFromReader);
 
@@ -187,12 +203,12 @@ namespace LetterBoxDClone.Pages
             string query =
                 $@"
                 SELECT c.Name
-                FROM CountryProduced AS cp
+                FROM Movie AS m
                 NATURAL JOIN Country AS c
-                WHERE cp.MovieId = {MovieId}
+                WHERE m.MovieId = {MovieId}
                 ";
 
-            string CountryProduced = GetSingleRow(query, GetCountryFromReader);
+            string CountryProduced = Connection.GetSingleRow(query, GetCountryFromReader);
 
             return CountryProduced;
         }
@@ -201,5 +217,30 @@ namespace LetterBoxDClone.Pages
         {
             return reader.GetString(0);
         }
+
+        public static List<string> GetFilmLocationsByMovieKey(string MovieId)
+        {
+            string query =
+                $@"
+                SELECT fl.StreetAddress, fl.City, fl.State, c.Name
+                FROM FilmLocation AS fl
+                NATURAL JOIN Country AS c
+                WHERE fl.MovieId = {MovieId}";
+
+            List<string> filmingLocations = Connection.GetMultipleRows(query, GetFilmLocationsFromReader);
+
+            return filmingLocations;
+        }
+
+        public static string GetFilmLocationsFromReader(SqliteDataReader reader)
+        {
+            string address = reader.GetString(0);
+            string city = reader.GetString(1);
+            string state = reader.GetString(2);
+            string country = reader.GetString(3);
+
+            return String.Join(", ", new List<string> { address, city, state, country }.Where(s => !string.IsNullOrEmpty(s)));
+        }
+    
     }
 }
