@@ -10,22 +10,64 @@ using static LetterBoxDClone.Pages.Shared.Connection;
 using Microsoft.Data.Sqlite;
 
 
-namespace LetterBoxDClone.Pages
+namespace LetterBoxDClone.Pages.Users
 {
-    public class UserModel : PageModel
+    public class DetailsModel : PageModel
     {
-
         [BindProperty(SupportsGet = true)]
-        public string UserId { get; set; }
-        public User User { get; set; }
+        public string id { get; set; }
+        public User User1 { get; set; }
         public List<SeenMovieData> moviesSeen { get; set; }
         public List<MightLikeMovieData> moviesMightLike { get; set; }
+
         public void OnGet()
         {
-            User = GetSingleUserByKey(UserId);
-            moviesSeen = GetMoviesSeen(UserId);
-            moviesMightLike = GetMoviesMightLike(UserId);
+            User1 = GetSingleUserByKey(id);
+            moviesSeen = GetMoviesSeen(id);
+            moviesMightLike = GetMoviesMightLike(id);
         }
+
+        /*public async Task OnPostButton()
+		{
+            int rowCountChanged = SetRatingByKey(UserId, MovieId, rating)
+		}*/
+
+
+        public IActionResult OnPost(string userId, int movieId, double rating)
+        {
+            long timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
+            foreach (MightLikeMovieData mvd in GetMoviesMightLike(userId))
+			{
+                if (mvd.movie.MovieId == movieId)
+				{
+                    CreateRatingByKey(userId, movieId, rating, timestamp);
+                    return RedirectToAction("Details", new { id = userId });
+                }
+			}
+            UpdateRatingByKey(userId, movieId, rating, timestamp);
+            return RedirectToAction("Details", new { id = userId });
+            
+        }
+
+        
+
+        public int UpdateRatingByKey(string UserId, int MovieId, double rating, long timestamp)
+        {   
+            
+            string query =
+                $@"UPDATE UserRating
+                   SET Rating = {rating}, Timestamp = {timestamp}
+                   WHERE UserId = {UserId} AND MovieId = {MovieId}";
+            return Connection.SetSingleRow(query);
+        }
+
+        public int CreateRatingByKey(string UserId, int MovieId, double rating, long timestamp)
+		{
+            string query =
+                $@"INSERT INTO UserRating (UserId, MovieId, Rating, Timestamp)
+                VALUES({UserId}, {MovieId}, {rating}, {timestamp})";
+            return Connection.SetSingleRow(query);
+		}
 
         public static User GetSingleUserByKey(string UserId)
         {
@@ -95,7 +137,7 @@ namespace LetterBoxDClone.Pages
                                                                       NATURAL JOIN MovieGenre AS mg2
                                                                       WHERE ur2.UserId = {UserId}
                                                                       GROUP BY mg2.GenreId
-                                                                      HAVING AVG(ur2.Rating) > (SELECT AVG(ur3.Rating)
+                                                                      HAVING AVG(ur2.Rating) >= (SELECT AVG(ur3.Rating)
                                                                                                 FROM UserRating AS ur3 
                                                                                                 NATURAL JOIN Movie AS m3
                                                                                                 WHERE ur3.UserId = {UserId})) 
@@ -104,7 +146,18 @@ namespace LetterBoxDClone.Pages
                                        NATURAL JOIN UserRating AS ur4
                                        WHERE ur4.UserId = {UserId})
                 ORDER BY m1.RtAllCriticsRating DESC
-                LIMIT 5";
+                LIMIT 5"; 
+            if (GetMoviesSeen(UserId).Count == 0)
+			{
+                query =
+                    @$"SELECT m.MovieId, m.Title, m.Year, d.CastCrewId, cc.Name
+                    FROM Movie as m
+                    NATURAL JOIN Directs as d
+                    NATURAL JOIN CastCrew as cc
+                    ORDER BY m.RtAllCriticsRating DESC
+                    LIMIT 5";
+            }
+            
 
             List<MightLikeMovieData> mightLikeList = GetMultipleRows(query, GetMoviesMightLikeFromReader);
             return mightLikeList;

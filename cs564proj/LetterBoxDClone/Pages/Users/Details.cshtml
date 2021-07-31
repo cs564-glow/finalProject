@@ -1,0 +1,117 @@
+﻿@page
+@model LetterBoxDClone.Pages.Users.DetailsModel
+
+@{
+
+	ViewData["Title"] = Model.User1.Username;
+}
+
+<body>
+	<iframe name="emptyframe" id="emptyframe" style="display: none;"></iframe>
+
+	<div class="text-left">
+		<h1 class="fw-bolder mb-1">@ViewData["Title"]</h1>
+	</div>
+	<div class="card mb-4">
+		<div class="card-header">Movies You've Seen</div>
+		<div class="card-body">
+			<div class="row">
+				<div class="col-sm-12">
+					<table class="table">
+						<thead>
+							<tr>
+								<th>
+									Title
+								</th>
+								<th>
+									Release Year
+								</th>
+								<th>
+									Your Rating
+								</th>
+							</tr>
+						</thead>
+						<tbody>
+
+							@foreach (var movieSeen in Model.moviesSeen)
+							{
+							<tr id="@movieSeen.movie.MovieId">
+								<td>
+									<a asp-page="/Movies/Detail" asp-route-movieId="@movieSeen.movie.MovieId">@movieSeen.movie.Title</a>
+								</td>
+								<td>
+									@movieSeen.movie.Year
+								</td>
+								<td>
+									<form method="post">
+										<div class="form-group">
+											<input type="number" name="rating" min="0" max="5" step="0.5" value="@movieSeen.rating.Rating" />
+											<input type="hidden" name="movieId" value="@movieSeen.movie.MovieId" />
+											<input type="hidden" name="userId" value="@Model.User1.UserId" />
+										</div>
+										<button class="btn btn-primary" value="UpdateRating">Update Rating</button>
+									</form>	
+								</td>
+							</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="card mb-4">
+		<div class="card-header">Movies You Might Like</div>
+		<div class="card-body">
+			<div class="row">
+				<div class="col-sm-12">
+					<table class="table">
+						<thead>
+							<tr>
+								<th>
+									Title
+								</th>
+								<th>
+									Release Year
+								</th>
+								<th>
+									Directed By
+								</th>
+							</tr>
+						</thead>
+						<tbody>
+							@foreach (var movieMightLike in Model.moviesMightLike)
+							{
+								<tr>
+									<td>
+										<a asp-page="/Movies/Detail" asp-route-movieId="@movieMightLike.movie.MovieId">@movieMightLike.movie.Title</a>
+									</td>
+									<td>
+										@movieMightLike.movie.Year
+									</td>
+									<td>
+										<a asp-page="/CastCrewPage/Details" asp-route-id="@movieMightLike.director.CastCrewId">@movieMightLike.director.Name</a>
+									</td>
+									<td>
+										<form method="post">
+											<div class="form-group">
+												<input type="number" name="rating" min="0" max="5" step="0.5" value="" />
+												<input type="hidden" name="movieId" value="@movieMightLike.movie.MovieId" />
+												<input type="hidden" name="userId" value="@Model.User1.UserId" />
+											</div>
+											<button class="btn btn-primary">Watched? Add Rating!</button>
+										</form>
+									</td>
+								</tr>
+							}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div>
+		<a asp-page="./Edit" asp-route-id="@Model.User1.UserId">Edit</a> |
+		<a asp-page="./Index">Back to List</a>
+	</div>
+</body>

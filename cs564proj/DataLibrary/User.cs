@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -8,13 +9,21 @@ namespace DataLibrary
     {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.None)]
         public long UserId { get; init; }
+        [Required]
         public string Username { get; set; }
+        [Required]
         public string Password { get; set; }
+        
 
         public User(long userId)
         {
             this.UserId = userId;
         }
+
+        public User()
+		{
+
+		}
 
         public bool Equals(User other)
         {
