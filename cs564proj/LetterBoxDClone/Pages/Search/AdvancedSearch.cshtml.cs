@@ -140,6 +140,7 @@ namespace LetterBoxDClone.Pages.Search
                 $@"(
                 SELECT DISTINCT fl.MovieId
                 FROM FilmLocation AS fl
+                NATURAL JOIN Country AS c
                 WHERE c.Name LIKE '%{CountryFilmed}%'
                 )";
 
