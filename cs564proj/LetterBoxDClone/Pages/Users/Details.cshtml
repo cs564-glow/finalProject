@@ -24,9 +24,6 @@
 									Title
 								</th>
 								<th>
-									Release Year
-								</th>
-								<th>
 									Your Rating
 								</th>
 							</tr>
@@ -36,12 +33,9 @@
 							@foreach (var movieSeen in Model.moviesSeen)
 							{
 							<tr id="@movieSeen.movie.MovieId">
-								<td>
-									<a asp-page="/Movies/Details" asp-route-movieId="@movieSeen.movie.MovieId">@movieSeen.movie.Title</a>
-								</td>
-								<td>
-									@movieSeen.movie.Year
-								</td>
+                                <td>
+                                    <a asp-page="/Movies/Details" asp-route-movieId="@movieSeen.movie.MovieId">@movieSeen.movie.Title</a> (@movieSeen.movie.Year)
+                                </td>
 								<td>
 									<form method="post">
 										<div class="form-group">
@@ -72,10 +66,7 @@
 									Title
 								</th>
 								<th>
-									Release Year
-								</th>
-								<th>
-									Directed By
+									Director
 								</th>
 							</tr>
 						</thead>
@@ -83,12 +74,9 @@
 							@foreach (var movieMightLike in Model.moviesMightLike)
 							{
 								<tr>
-									<td>
-										<a asp-page="/Movies/Details" asp-route-movieId="@movieMightLike.movie.MovieId">@movieMightLike.movie.Title</a>
-									</td>
-									<td>
-										@movieMightLike.movie.Year
-									</td>
+                                    <td>
+                                        <a asp-page="/Movies/Details" asp-route-movieId="@movieMightLike.movie.MovieId">@movieMightLike.movie.Title</a> (@movieMightLike.movie.Year)
+                                    </td>
 									<td>
 										<a asp-page="/CastCrewPage/Details" asp-route-id="@movieMightLike.director.CastCrewId">@movieMightLike.director.Name</a>
 									</td>
