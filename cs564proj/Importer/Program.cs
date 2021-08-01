@@ -110,10 +110,10 @@ namespace Importer
             var (userRatingList, newUserSet) = ParseUserRatingOrTagDat<UserRating>(userRatingDat, "\t");
             userSet.UnionWith(newUserSet);
             // Load
-            BulkInsertList(userTagList, contextOptions);
-            BulkInsertList(userRatingList, contextOptions);
             var generatedUserSet = GenerateUserData(userSet, userRatingList, movieDatList);
             BulkInsertSet(generatedUserSet, contextOptions);
+            BulkInsertList(userTagList, contextOptions);
+            BulkInsertList(userRatingList, contextOptions);
 
             // Transform
             var (actorList, castCrewSet) = ParseActorDirectorDat<ActsIn>(actorDat, "\t");

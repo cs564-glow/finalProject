@@ -24,9 +24,10 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.UserList[0].Username)
+                <a asp-page="./Index" asp-route-sortOrder="@Model.UsernameSort">
+                    @Html.DisplayNameFor(model => model.UserList[0].Username)
+                </a>
             </th>
-            <th></th>
         </tr>
     </thead>
     <tbody>
