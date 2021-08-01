@@ -27,19 +27,17 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-page="/Search/AdvancedSearch">Advanced Search</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-page="/SimpleSearch/SimpleSearch">Simple Search</a>
+                        </li>
 
-                        <!-- REMOVE ME
-    <li class="nav-item">
-        <a class="nav-link text-dark" asp-area="" asp-page="/User">Dummy User</a>
-    </li>
-    <li>
-        <div class="input-group float-right">
-            <input class="form-control" type="text" placeholder="Enter search term..."
-                   aria-label="Enter search term..." aria-describedby="button-search" />
-            <button class="btn btn-primary" id="button-search" type="button">Go!</button>
-        </div>
-    </li>
-    -->
+                        <li>
+                            <div class="input-group float-right">
+                                <input class="form-control" type="text" placeholder="Enter search term..."
+                                       aria-label="Enter search term..." aria-describedby="button-search" name="SearchString" value="" />
+                                <button class="btn btn-primary" id="button-search" type="button">Go!</button>
+                            </div>
+                        </li>
                     </ul>
                 </div>
             </div>

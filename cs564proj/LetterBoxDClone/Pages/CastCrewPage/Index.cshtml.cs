@@ -69,9 +69,6 @@ namespace LetterBoxDClone.Pages.CastCrewPage
             var pageSize = _configuration.GetValue("PageSize", 10);
             CastCrew = await PaginatedList<CastCrew>.CreateAsync(
                 castCrewIq.AsNoTracking(), pageIndex ?? 1, pageSize);
-
-
-
         }
     }
 }
