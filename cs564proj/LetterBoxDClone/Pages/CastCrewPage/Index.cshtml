@@ -59,8 +59,6 @@
     var nextDisabled = !Model.CastCrew.HasNextPage ? "disabled" : "";
 }
 
-
-
 <a asp-page="./Index"
    asp-route-sortOrder="@Model.CurrentSort"
    asp-route-pageIndex="@(Model.CastCrew.PageIndex - 1)"
