@@ -23,7 +23,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Pages\Movies\" />
     <Folder Include="Pages\Users\" />
     <Folder Include="Pages\Search\" />
   </ItemGroup>

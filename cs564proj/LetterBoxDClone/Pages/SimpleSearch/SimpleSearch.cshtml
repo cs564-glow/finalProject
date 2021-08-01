@@ -11,11 +11,11 @@
     <div class="row">
         <div class="col-lg-9">
             <form asp-page="./SimpleSearch" method="get">
-                <div class="form-actions no-color">
+                <div class="form-inline">
                     <p>
-                        <input type="text" name="SearchString" value="@Model.CurrentFilter" />
-                        <input type="submit" value="Search" class="btn btn-primary" />
-                        <a asp-page="./SimpleSearch">Back to full list</a>
+                        <input class="form-control mr-sm-1" type="text" name="SearchString" value="@Model.CurrentFilter" />
+                        <input class="btn btn-primary" type="submit" value="Search" />
+                        <a asp-page="./SimpleSearch">Clear search</a>
                     </p>
                 </div>
             </form>

@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Importer", "Importer\Import
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LetterBoxDClone", "LetterBoxDClone\LetterBoxDClone.csproj", "{8683ED71-BAE9-40C1-8F7A-09F97B4C7E37}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataLibrary", "DataLibrary\DataLibrary.csproj", "{EC6DE909-E90C-4F8B-A02F-31235C7C86BD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataLibrary", "DataLibrary\DataLibrary.csproj", "{EC6DE909-E90C-4F8B-A02F-31235C7C86BD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
