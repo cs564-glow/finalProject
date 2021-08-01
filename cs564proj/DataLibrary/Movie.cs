@@ -31,6 +31,8 @@ namespace DataLibrary
 #nullable disable
         public List<ActsIn> MovieActors { get; set; }
         public List<Directs> MovieDirectors { get; set; }
+        public List<UserTag> UserTag { get; set; }
+        public List<UserRating> UserRating { get; set; }
         //[Ignore]
         //public string RtAllNumFresh { get; set; }
         //[Ignore]
