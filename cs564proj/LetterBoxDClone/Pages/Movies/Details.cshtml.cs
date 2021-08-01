@@ -25,19 +25,21 @@ namespace LetterBoxDClone.Pages
         public string countryProduced { get; set; }
         public List<string> FilmingLocations { get; set; }
 
-        public async Task<IActionResult> OnGet()
+        public IActionResult OnGet()
         {
-            //TODO: handle nulls
-            //TODO: recreate the database
-            //TODO: link out to Cast and Crew Properly
+            //TODO: link out to Cast and Crew properly
             //TODO: make director name a hyperlink
-            //TODO: clicking on different hyperlinks should take us to search functionality
-            //TODO: Ratings
+
+            if (string.IsNullOrEmpty(MovieId))
+            {
+                return Redirect("~/Search/AdvancedSearch");
+            }
+
             Movie = GetSingleMovieByKey(MovieId);
 
-            if (MovieId == null)
+            if (Movie == default(Movie))
             {
-                return NotFound();
+                return Redirect("~/Search/AdvancedSearch");
             }
 
             Director = GetDirectorByMovieKey(MovieId);
@@ -72,8 +74,11 @@ namespace LetterBoxDClone.Pages
             movie.MovieId = reader.GetInt32(0);
             movie.Title = reader.GetString(1);
             movie.Year = reader.GetString(2);
+            movie.CountryId = reader.GetInt32(3);
             movie.ImdbId = reader.GetString(4);
             movie.RtId = reader.GetString(5);
+            movie.RtAllCriticsRating = reader.GetInt32(6);
+            movie.RtAllCriticsNumReviews = reader.GetInt32(7);
 
             return movie;
         }
@@ -171,12 +176,14 @@ namespace LetterBoxDClone.Pages
             string query =
                 $@"
                 SELECT
-                        m1.MovieId as MovieId,
-                        m1.Title as Title,
-                        m1.Year as Year,
-                        m1.Year as Year,
-                        m1.ImdbId as ImdbId,
-                        m1.RtId as RtId
+                        m1.MovieId
+                        m1.Title
+                        m1.Year
+                        m1.CountryId
+                        m1.ImdbId
+                        m1.RtId
+                        m1.RtAllCriticsRating
+                        m1.RtAllCriticsNumReviews
                 FROM Movie as m1
                 NATURAL JOIN   (SELECT ut.MovieID
                                 FROM UserTag AS ut
