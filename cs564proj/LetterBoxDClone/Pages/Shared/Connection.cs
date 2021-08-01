@@ -13,6 +13,18 @@ namespace LetterBoxDClone.Pages.Shared
 
         private const string PATH_TO_DATABASE = "Data Source=C:\\ProgramData\\cs564proj\\movie.db";
 
+        /// <summary>
+        /// Opens a connection to the database and returns a single 
+        /// result from it that matches the passed querry. 
+        /// </summary>
+        /// <typeparam name="T">Type of the return object</typeparam>
+        /// <param name="query">SQL query to execute</param>
+        /// <param name="function">callback function reponsible for gathering
+        /// data from SqliteDataReader object and returning it.
+        /// Callback function should return an object of type T
+        /// This function will be run on the first row returned by reader</param>
+        /// <returns>Object returned by the callback function.
+        /// Default of T if SQL query didn't return any results</returns>
         public static T GetSingleRow<T>(string query, Func<SqliteDataReader, T> function)
         {
             using var connection = new SqliteConnection(PATH_TO_DATABASE);
@@ -42,6 +54,18 @@ namespace LetterBoxDClone.Pages.Shared
             return command.ExecuteNonQuery();
 		}
 
+        /// <summary>
+        /// Opens a connection to the database and returns a list   
+        /// containing results returned by the passed querry. 
+        /// </summary>
+        /// <typeparam name="T">Type of the return object</typeparam>
+        /// <param name="query">SQL query to execute</param>
+        /// <param name="function">callback function reponsible for gathering
+        /// data from SqliteDataReader object and returning it.
+        /// Callback function should return an object of type T.
+        /// This function will be run on every row returned by reader</param>
+        /// <returns>List containing objects returned by the callback function.
+        /// An empty list if SQL query didn't return any results</returns>
         public static List<T> GetMultipleRows<T>(string query, Func<SqliteDataReader, T> function)
         {
             using var connection = new SqliteConnection(PATH_TO_DATABASE);
