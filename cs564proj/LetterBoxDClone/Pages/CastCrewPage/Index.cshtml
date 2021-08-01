@@ -14,16 +14,15 @@
 </p>
 
 <form asp-page="./Index" method="get">
-    <div class="form-actions no-color">
+    <div class="form-inline">
         <p>
             Find by name:
-            <input type="text" name="SearchString" value="@Model.CurrentFilter" />
-            <input type="submit" value="Search" class="btn btn-primary" />
+            <input class="form-control mr-sm-1" type="text" name="SearchString" value="@Model.CurrentFilter" />
+            <input class="btn btn-primary" type="submit" value="Search" />
             <a asp-page="./Index">Back to full list</a>
         </p>
     </div>
 </form>
-
 
 <table class="table">
     <thead>
