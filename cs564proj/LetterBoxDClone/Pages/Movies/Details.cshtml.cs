@@ -27,9 +27,6 @@ namespace LetterBoxDClone.Pages
 
         public IActionResult OnGet()
         {
-            //TODO: link out to Cast and Crew properly
-            //TODO: make director name a hyperlink
-
             if (string.IsNullOrEmpty(MovieId))
             {
                 return Redirect("~/Search/AdvancedSearch");
@@ -69,16 +66,17 @@ namespace LetterBoxDClone.Pages
 
         public static Movie GetMovieDataFromReader(SqliteDataReader reader)
         {
-            Movie movie = new Movie();
-
-            movie.MovieId = reader.GetInt32(0);
-            movie.Title = reader.GetString(1);
-            movie.Year = reader.GetString(2);
-            movie.CountryId = reader.GetInt32(3);
-            movie.ImdbId = reader.GetString(4);
-            movie.RtId = reader.GetString(5);
-            movie.RtAllCriticsRating = reader.GetInt32(6);
-            movie.RtAllCriticsNumReviews = reader.GetInt32(7);
+            Movie movie = new Movie
+            {
+                MovieId = reader.GetInt32(0),
+                Title = reader.GetString(1),
+                Year = reader.GetString(2),
+                CountryId = reader.GetInt32(3),
+                ImdbId = reader.GetString(4),
+                RtId = reader.GetString(5),
+                RtAllCriticsRating = reader.IsDBNull(6) ? 0 : reader.GetInt32(6),
+                RtAllCriticsNumReviews = reader.IsDBNull(7) ? 0 : reader.GetInt32(7)
+            };
 
             return movie;
         }
@@ -139,10 +137,11 @@ namespace LetterBoxDClone.Pages
 
         public static Tag GetMostAppliedTagsFromReader(SqliteDataReader reader)
         {
-            Tag tag = new Tag();
-
-            tag.TagId = reader.GetInt32(0);
-            tag.Name = reader.GetString(1);
+            Tag tag = new Tag
+            {
+                TagId = reader.GetInt32(0),
+                Name = reader.GetString(1)
+            };
 
             return tag;
         }
@@ -164,9 +163,10 @@ namespace LetterBoxDClone.Pages
 
         public static Genre GetGenresFromReader(SqliteDataReader reader)
         {
-            Genre genre = new Genre(reader.GetString(1));
-
-            genre.GenreId = reader.GetInt32(0);
+            Genre genre = new Genre(reader.GetString(1))
+            {
+                GenreId = reader.GetInt32(0)
+            };
 
             return genre;
         }
@@ -176,13 +176,13 @@ namespace LetterBoxDClone.Pages
             string query =
                 $@"
                 SELECT
-                        m1.MovieId
-                        m1.Title
-                        m1.Year
-                        m1.CountryId
-                        m1.ImdbId
-                        m1.RtId
-                        m1.RtAllCriticsRating
+                        m1.MovieId,
+                        m1.Title,
+                        m1.Year,
+                        m1.CountryId,
+                        m1.ImdbId,
+                        m1.RtId,
+                        m1.RtAllCriticsRating,
                         m1.RtAllCriticsNumReviews
                 FROM Movie as m1
                 NATURAL JOIN   (SELECT ut.MovieID

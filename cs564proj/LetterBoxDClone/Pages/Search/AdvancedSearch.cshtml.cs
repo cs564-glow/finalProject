@@ -39,27 +39,39 @@ namespace LetterBoxDClone.Pages.Search
 
         public void OnGet()
         {
-            string movieQuery =
-                 $@"
-                 SELECT *
-                 FROM Movie
-                 ";
+            //for every search criteria passed, this list will have an entry
+            //we will later join all of these queries with NATURAL JOIN
+            List<String> logicToUse = new List<string>();
 
-            string movieTitleQuery =
+            string query;
+
+            if (!String.IsNullOrEmpty(MovieTitle))
+            {
+                query =
                  $@"(
                  SELECT *
                  FROM Movie
                  WHERE Title LIKE '%{MovieTitle}%'
                  )";
 
-            string movieYearQuery =
-                 $@"(
+                logicToUse.Add(query);
+            }
+
+            if (MovieYear > 0)
+            {
+                query =
+                $@"(
                  SELECT DISTINCT MovieId
                  FROM Movie
                  WHERE Year = '{MovieYear}'
                  )";
 
-            string castCrewQuery =
+                logicToUse.Add(query);
+            }
+
+            if (!String.IsNullOrEmpty(CastCrew))
+            {
+                query =
                 $@"(
                 SELECT DISTINCT ai.MovieId
                 FROM ActsIn AS ai
@@ -67,7 +79,12 @@ namespace LetterBoxDClone.Pages.Search
                 WHERE cc.Name LIKE '%{CastCrew}%'
                 )";
 
-            string directorQuery =
+                logicToUse.Add(query);
+            }
+
+            if (!String.IsNullOrEmpty(Director))
+            {
+                query =
                 $@"(
                 SELECT DISTINCT d.MovieId
                 FROM Directs AS d
@@ -75,7 +92,12 @@ namespace LetterBoxDClone.Pages.Search
                 WHERE cc.Name LIKE '%{Director}%'
                 )";
 
-            string genreQuery =
+                logicToUse.Add(query);
+            }
+
+            if (!String.IsNullOrEmpty(Genre))
+            {
+                query =
                 $@"(
                 SELECT DISTINCT mg.MovieId
                 FROM Genre AS g
@@ -83,7 +105,12 @@ namespace LetterBoxDClone.Pages.Search
                 WHERE g.GenreName LIKE '%{Genre}%'
                 )";
 
-            string countryProducedQuery =
+                logicToUse.Add(query);
+            }
+
+            if (!String.IsNullOrEmpty(CountryProduced))
+            {
+                query =
                 $@"(
                 SELECT DISTINCT m.MovieId
                 FROM Movie AS m
@@ -91,7 +118,12 @@ namespace LetterBoxDClone.Pages.Search
                 WHERE c.Name LIKE '%{CountryProduced}%'
                 )";
 
-            string tagQuery =
+                logicToUse.Add(query);
+            }
+
+            if (!String.IsNullOrEmpty(Tag))
+            {
+                query =
                 $@"(
                 SELECT DISTINCT ut.MovieId
                 FROM Tag AS t
@@ -99,142 +131,73 @@ namespace LetterBoxDClone.Pages.Search
                 WHERE t.Name LIKE '%{Tag}%'
                 )";
 
-            string countryFilmedQuery =
+                logicToUse.Add(query);
+            }
+
+            if (!String.IsNullOrEmpty(CountryFilmed))
+            {
+                query =
                 $@"(
                 SELECT DISTINCT fl.MovieId
                 FROM FilmLocation AS fl
                 WHERE c.Name LIKE '%{CountryFilmed}%'
                 )";
 
-            string stateFilmedQuery =
+                logicToUse.Add(query);
+            }
+
+            if (!String.IsNullOrEmpty(StateFilmed))
+            {
+                query =
                 $@"(
                 SELECT DISTINCT fl.MovieId
                 FROM FilmLocation AS fl
                 WHERE fl.State LIKE '%{StateFilmed}%'
                 )";
 
-            string addressFilmedQuery =
-                $@"(
-                SELECT DISTINCT fl.MovieId
-                FROM FilmLocation AS fl
-                WHERE fl.StreetAddress LIKE '%{AddressFilmed}%'
-                )";
+                logicToUse.Add(query);
+            }
 
-            string cityFilmedQuery =
+            if (!String.IsNullOrEmpty(CityFilmed))
+            {
+                query =
                 $@"(
                 SELECT DISTINCT fl.MovieId
                 FROM FilmLocation AS fl
                 WHERE fl.City LIKE '%{CityFilmed}%'
                 )";
 
-            List<String> list = new List<string>();
-
-            if (!String.IsNullOrEmpty(MovieTitle))
-            {
-                list.Add(movieTitleQuery);
-            }
-
-            if (MovieYear > 0)
-            {
-                list.Add(movieYearQuery);
-            }
-
-            if (!String.IsNullOrEmpty(CastCrew))
-            {
-                list.Add(castCrewQuery);
-            }
-
-            if (!String.IsNullOrEmpty(Director))
-            {
-                list.Add(directorQuery);
-            }
-
-            if (!String.IsNullOrEmpty(Genre))
-            {
-                list.Add(genreQuery);
-            }
-
-            if (!String.IsNullOrEmpty(CountryProduced))
-            {
-                list.Add(countryProducedQuery);
-            }
-
-            if (!String.IsNullOrEmpty(Tag))
-            {
-                list.Add(tagQuery);
-            }
-
-            if (!String.IsNullOrEmpty(CountryFilmed))
-            {
-                list.Add(countryFilmedQuery);
-            }
-
-            if (!String.IsNullOrEmpty(StateFilmed))
-            {
-                list.Add(stateFilmedQuery);
-            }
-
-            if (!String.IsNullOrEmpty(CityFilmed))
-            {
-                list.Add(cityFilmedQuery);
+                logicToUse.Add(query);
             }
 
             if (!String.IsNullOrEmpty(AddressFilmed))
             {
-                list.Add(addressFilmedQuery);
+                query =
+                $@"(
+                SELECT DISTINCT fl.MovieId
+                FROM FilmLocation AS fl
+                WHERE fl.StreetAddress LIKE '%{AddressFilmed}%'
+                )";
+
+                logicToUse.Add(query);
             }
 
-            if (list.Count > 0)
+            //If we have any logic, join all of those using NATURAL JOIN, and then
+            //NATURAL JOIN it on movies table to get final results and all columns
+            if (logicToUse.Count > 0)
             {
-                string fq = string.Join("NATURAL JOIN ", movieQuery, string.Join(" NATURAL JOIN ", list));
-                //Console.WriteLine(fq);
+                query =
+                $@"
+                SELECT *
+                FROM Movie
+                ";
+
+                string logicQuery = string.Join(" NATURAL JOIN ", logicToUse);
+                string fq = string.Join("NATURAL JOIN ", query, logicQuery);
+
                 searchResults = Connection.GetMultipleRows(fq, MoviesModel.GetMovieDataFromReader);
-
-                //Console.WriteLine();
-                //foreach (Movie movie in movies)
-                //{
-                //    Console.WriteLine(movie.MovieId + ": " + movie.Title);
-                //}
-            }
-            else
-            {
-                return;
             }
 
-        }
-
-        public string QueryConstructor(Dictionary<string, string> searchParameters)
-        {
-            List<String> list = new List<string>();
-
-            if (!String.IsNullOrEmpty(MovieTitle))
-            {
-                list.Add($"Title LIKE '%{MovieTitle}%");
-            }
-
-            if (MovieYear > 0)
-            {
-                list.Add($"WHERE Year = '{MovieYear}'");
-            }
-
-            //foreach (KeyValuePair<string, string> kvp in searchParameters)
-            //{
-            //    Director = "a";
-            //}
-                return null;
-        }
-
-        public static List<Movie> GetMovies(string query)
-        {
-            //TODO: Can probably just do away with this tag
-            List<Movie> movies = Connection.GetMultipleRows(query, MoviesModel.GetMovieDataFromReader);
-
-            foreach (Movie movie in movies)
-            {
-                Console.WriteLine(movie.Title);
-            }
-
-            return null;
         }
     }
 }
