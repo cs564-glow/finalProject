@@ -11,5 +11,9 @@ namespace DataLibrary
         [Range(0, 5)]
         public double Rating { get; set; }
         [Name("timestamp")] public ulong Timestamp { get; set; }
+        [Ignore]
+        public User User { get; set; }
+        [Ignore]
+        public Movie Movie { get; set; }
     }
 }

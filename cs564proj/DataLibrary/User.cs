@@ -13,7 +13,8 @@ namespace DataLibrary
         public string Username { get; set; }
         [Required]
         public string Password { get; set; }
-        
+        public List<UserTag> UserTag { get; set; }
+        public List<UserRating> UserRating { get; set; }
 
         public User(long userId)
         {

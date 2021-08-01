@@ -46,7 +46,7 @@ namespace DataLibrary
             modelBuilder.Entity<Directs>()
                 .HasKey(m => new { m.MovieId, m.CastCrewId });
             modelBuilder.Entity<ActsIn>()
-                .HasKey(m => new {m.MovieId, m.CastCrewId});
+                .HasKey(m => new { m.MovieId, m.CastCrewId });
             // https://docs.microsoft.com/en-us/ef/core/modeling/relationships?tabs=fluent-api%2Cfluent-api-simple-key%2Csimple-key#indirect-many-to-many-relationships
             modelBuilder.Entity<ActsIn>()
                 .HasOne(acts => acts.CastCrew)
@@ -64,6 +64,22 @@ namespace DataLibrary
                 .HasOne(mv => mv.Movie)
                 .WithMany(m => m.MovieDirectors)
                 .HasForeignKey(mv => mv.MovieId);
+            modelBuilder.Entity<UserRating>()
+                .HasOne(u => u.User)
+                .WithMany(m => m.UserRating)
+                .HasForeignKey(u => u.UserId);
+            modelBuilder.Entity<UserRating>()
+                .HasOne(u => u.Movie)
+                .WithMany(m => m.UserRating)
+                .HasForeignKey(u => u.MovieId);
+            modelBuilder.Entity<UserTag>()
+                .HasOne(u => u.User)
+                .WithMany(m => m.UserTag)
+                .HasForeignKey(u => u.UserId);
+            modelBuilder.Entity<UserTag>()
+                .HasOne(u => u.Movie)
+                .WithMany(m => m.UserTag)
+                .HasForeignKey(u => u.MovieId);
         }
         public DbSet<Movie> Movie { get; set; }
         public DbSet<Genre> Genre { get; set; }
@@ -76,6 +92,6 @@ namespace DataLibrary
         public DbSet<ActsIn> ActsIn { get; set; }
         public DbSet<CastCrew> CastCrew { get; set; }
         public DbSet<Country> Country { get; set; }
-        public DbSet<FilmLocation> FilmLocation{ get; set; }
+        public DbSet<FilmLocation> FilmLocation { get; set; }
     }
 }
