@@ -61,7 +61,7 @@ namespace LetterBoxDClone.Pages.SimpleSearch
                 userIq = userIq.Where(u => u.Username.ToUpper().Contains(searchString.ToUpper()));
             }
 
-            var pageSize = _configuration.GetValue("PageSize", 10);
+            var pageSize = 5; // hardcode simple search page size to 5
             Movie = await PaginatedList<Movie>.CreateAsync(movieIq.AsNoTracking(), moviePageIndex ?? 1, pageSize);
             CastCrew = await PaginatedList<CastCrew>.CreateAsync(castCrewIq.AsNoTracking(), castCrewPageIndex ?? 1, pageSize);
             UserList = await PaginatedList<User>.CreateAsync(userIq.AsNoTracking(), userPageIndex ?? 1, pageSize);

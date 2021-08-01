@@ -1,4 +1,6 @@
-﻿<!DOCTYPE html>
+﻿@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -25,20 +27,14 @@
                             <a class="nav-link text-dark" asp-page="/Users/Index">Users</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-page="/Search/AdvancedSearch">Advanced Search</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-page="/SimpleSearch/SimpleSearch">Simple Search</a>
-                        </li>
-
-                        <li>
-                            <div class="input-group float-right">
-                                <input class="form-control" type="text" placeholder="Enter search term..."
-                                       aria-label="Enter search term..." aria-describedby="button-search" name="SearchString" value="" />
-                                <button class="btn btn-primary" id="button-search" type="button">Go!</button>
-                            </div>
+                            <a class="nav-link text-dark" asp-page="/Search/AdvancedSearch">Advanced Movie Search</a>
                         </li>
                     </ul>
+                    <form asp-page="/SimpleSearch/SimpleSearch" asp-route-currentFilter="SearchString" method="get" class="form-inline my-2 my-lg-0">
+                        <input class="form-control mr-sm-2" type="search" placeholder="Enter search term..."
+                               aria-label="Enter search term..." aria-describedby="button-search" name="SearchString" value="" />
+                        <input class="btn btn-primary" type="submit" asp-page="/SimpleSearch/SimpleSearch" asp-route-currentFilter="SearchString" value="Search" />
+                    </form>
                 </div>
             </div>
         </nav>

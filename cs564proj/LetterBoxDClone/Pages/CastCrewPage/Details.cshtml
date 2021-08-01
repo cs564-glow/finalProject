@@ -5,24 +5,9 @@
     ViewData["Title"] = "Details";
 }
 
-
-@*<h1>Details</h1>*@
 <h1>@Model.CastCrew.Name</h1>
 
-@*<div>
-        <h4>CastCrew</h4>
-        <hr />
-        <dl class="row">
-            <dt class="col-sm-2">
-                @Html.DisplayNameFor(model => model.CastCrew.Name)
-            </dt>
-            <dd class="col-sm-10">
-                @Html.DisplayFor(model => model.CastCrew.Name)
-            </dd>
-        </dl>
-    </div>*@
-
- @*https://docs.microsoft.com/en-us/aspnet/core/data/ef-rp/read-related-data?view=aspnetcore-5.0&tabs=visual-studio#update-the-instructors-index-page*@
+@*https://docs.microsoft.com/en-us/aspnet/core/data/ef-rp/read-related-data?view=aspnetcore-5.0&tabs=visual-studio#update-the-instructors-index-page*@
 @if (Model.CastCrew.ActingRoles != null && Model.CastCrew.ActingRoles.Count > 0)
 {
     <h3>Actor <small class="text-muted">(@Model.CastCrew.ActingRoles.Count Credits)</small></h3>

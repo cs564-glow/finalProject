@@ -2,198 +2,154 @@
 @model LetterBoxDClone.Pages.SimpleSearch.SimpleSearchModel
 
 @{
-    ViewData["Title"] = "Search";
+    ViewData["Title"] = "Basic Search";
 }
 
-<h1>Search</h1>
+<h1>Basic Search</h1>
 
-<p>
-    <a asp-page="Create">Create New</a>
-</p>
+<div class="container">
+    <div class="row">
+        <div class="col-lg-9">
+            <form asp-page="./SimpleSearch" method="get">
+                <div class="form-actions no-color">
+                    <p>
+                        <input type="text" name="SearchString" value="@Model.CurrentFilter" />
+                        <input type="submit" value="Search" class="btn btn-primary" />
+                        <a asp-page="./SimpleSearch">Back to full list</a>
+                    </p>
+                </div>
+            </form>
 
-<form asp-page="./Index" method="get">
-    <div class="form-actions no-color">
-        <p>
-            Search:
-            <input type="text" name="SearchString" value="@Model.CurrentFilter" />
-            <input type="submit" value="Search" class="btn btn-primary" />
-            <a asp-page="./Index">Back to full list</a>
-        </p>
+            <table class="table table-sm mb-0">
+                <thead>
+                    <tr>
+                        <th>
+                            Movies
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Movie)
+                    {
+                        <tr>
+                            <td>
+                                <a asp-page="/Movies/Details" asp-route-movieId="@item.MovieId">@item.Title</a> (@item.Year)
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            @{
+                var moviePrevDisabled = !Model.Movie.HasPreviousPage ? "disabled" : "";
+                var movieNextDisabled = !Model.Movie.HasNextPage ? "disabled" : "";
+            }
+            <div class="btn-group btn-group-sm">
+                <a asp-page="./SimpleSearch"
+                   asp-route-castCrewPageIndex="@(Model.CastCrew.PageIndex)"
+                   asp-route-moviePageIndex="@(Model.Movie.PageIndex - 1)"
+                   asp-route-userPageIndex="@(Model.UserList.PageIndex)"
+                   asp-route-currentFilter="@Model.CurrentFilter"
+                   class="btn btn-secondary @moviePrevDisabled">
+                    <<
+                </a>
+                <a asp-page="./SimpleSearch"
+                   asp-route-castCrewPageIndex="@(Model.CastCrew.PageIndex)"
+                   asp-route-moviePageIndex="@(Model.Movie.PageIndex + 1)"
+                   asp-route-userPageIndex="@(Model.UserList.PageIndex)"
+                   asp-route-currentFilter="@Model.CurrentFilter"
+                   class="btn btn-secondary @movieNextDisabled">
+                    >>
+                </a>
+            </div>
+            <table class="table table-sm mb-0 mt-1">
+                <thead>
+                    <tr>
+                        <th>
+                            Cast and Crew Members
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.CastCrew)
+                    {
+                        <tr>
+                            <td>
+                                <a asp-page="/CastCrewPage/Details" asp-route-id="@item.CastCrewId">@item.Name</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            @{
+                var castCrewPrevDisabled = !Model.CastCrew.HasPreviousPage ? "disabled" : "";
+                var castCrewNextDisabled = !Model.CastCrew.HasNextPage ? "disabled" : "";
+            }
+            <div class="btn-group btn-group-sm">
+                <a asp-page="./SimpleSearch"
+                   asp-route-castCrewPageIndex="@(Model.CastCrew.PageIndex - 1)"
+                   asp-route-moviePageIndex="@(Model.Movie.PageIndex)"
+                   asp-route-userPageIndex="@(Model.UserList.PageIndex)"
+                   asp-route-currentFilter="@Model.CurrentFilter"
+                   class="btn btn-secondary @castCrewPrevDisabled">
+                    <<
+                </a>
+                <a asp-page="./SimpleSearch"
+                   asp-route-castCrewPageIndex="@(Model.CastCrew.PageIndex + 1)"
+                   asp-route-moviePageIndex="@(Model.Movie.PageIndex)"
+                   asp-route-userPageIndex="@(Model.UserList.PageIndex)"
+                   asp-route-currentFilter="@Model.CurrentFilter"
+                   class="btn btn-secondary @castCrewNextDisabled">
+                    >>
+                </a>
+            </div>
+            <table class="table table-sm mb-0 mt-1">
+                <thead>
+                    <tr>
+                        <th>
+                            Users
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.UserList)
+                    {
+                        <tr>
+                            <td>
+                                <a asp-page="/Users/Details" asp-route-id="@item.UserId">@item.Username</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+            @{
+                var userPrevDisabled = !Model.UserList.HasPreviousPage ? "disabled" : "";
+                var userNextDisabled = !Model.UserList.HasNextPage ? "disabled" : "";
+            }
+            <div class="btn-group btn-group-sm">
+                <a asp-page="./SimpleSearch"
+                   asp-route-castCrewPageIndex="@(Model.CastCrew.PageIndex)"
+                   asp-route-moviePageIndex="@(Model.Movie.PageIndex)"
+                   asp-route-userPageIndex="@(Model.UserList.PageIndex - 1)"
+                   asp-route-currentFilter="@Model.CurrentFilter"
+                   class="btn btn-secondary @userPrevDisabled">
+                    <<
+                </a>
+                <a asp-page="./SimpleSearch"
+                   asp-route-castCrewPageIndex="@(Model.CastCrew.PageIndex)"
+                   asp-route-moviePageIndex="@(Model.Movie.PageIndex)"
+                   asp-route-userPageIndex="@(Model.UserList.PageIndex + 1)"
+                   asp-route-currentFilter="@Model.CurrentFilter"
+                   class="btn btn-secondary @userNextDisabled">
+                    >>
+                </a>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card">
+                <div class="card-body">
+                    <a asp-page="/Search/AdvancedSearch">Advanced Movie Search</a>
+                </div>
+            </div>
+        </div>
     </div>
-</form>
-
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Movie[0].Title)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Movie[0].Year)
-            </th>
-            @*<th>
-                    @Html.DisplayNameFor(model => model.Movie[0].CountryId)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Movie[0].ImdbId)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Movie[0].RtId)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Movie[0].RtAllCriticsRating)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Movie[0].RtAllCriticsNumReviews)
-                </th>*@
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model.Movie)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Title)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Year)
-                </td>
-                @*<td>
-                        @Html.DisplayFor(modelItem => item.CountryId)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.ImdbId)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.RtId)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.RtAllCriticsRating)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.RtAllCriticsNumReviews)
-                    </td>*@
-                <td>
-                    @*<a asp-page="./Edit" asp-route-id="@item.MovieId">Edit</a> |*@
-                    <a asp-page="./Details" asp-route-id="@item.MovieId">Details</a> |
-                    @*<a asp-page="./Delete" asp-route-id="@item.MovieId">Delete</a>*@
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
-
-@{
-    var moviePrevDisabled = !Model.Movie.HasPreviousPage ? "disabled" : "";
-    var movieNextDisabled = !Model.Movie.HasNextPage ? "disabled" : "";
-}
-
-<a asp-page="./SimpleSearch"
-   asp-route-castCrewPageIndex="@(Model.CastCrew.PageIndex)"
-   asp-route-moviePageIndex="@(Model.Movie.PageIndex - 1)"
-   asp-route-userPageIndex="@(Model.UserList.PageIndex)"
-   asp-route-currentFilter="@Model.CurrentFilter"
-   class="btn btn-primary @moviePrevDisabled">
-    Previous
-</a>
-<a asp-page="./SimpleSearch"
-   asp-route-castCrewPageIndex="@(Model.CastCrew.PageIndex)"
-   asp-route-moviePageIndex="@(Model.Movie.PageIndex + 1)"
-   asp-route-userPageIndex="@(Model.UserList.PageIndex)"
-   asp-route-currentFilter="@Model.CurrentFilter"
-   class="btn btn-primary @movieNextDisabled">
-    Next
-</a>
-
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.CastCrew[0].Name)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model.CastCrew)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Name)
-                </td>
-                <td>
-                    <a asp-page="./Details" asp-route-id="@item.CastCrewId">Details</a> |
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
-
-@{
-    var castCrewPrevDisabled = !Model.CastCrew.HasPreviousPage ? "disabled" : "";
-    var castCrewNextDisabled = !Model.CastCrew.HasNextPage ? "disabled" : "";
-}
-
-<a asp-page="./SimpleSearch"
-   asp-route-castCrewPageIndex="@(Model.CastCrew.PageIndex - 1)"
-   asp-route-moviePageIndex="@(Model.Movie.PageIndex)"
-   asp-route-userPageIndex="@(Model.UserList.PageIndex)"
-   asp-route-currentFilter="@Model.CurrentFilter"
-   class="btn btn-primary @castCrewPrevDisabled">
-    Previous
-</a>
-<a asp-page="./SimpleSearch"
-   asp-route-castCrewPageIndex="@(Model.CastCrew.PageIndex + 1)"
-   asp-route-moviePageIndex="@(Model.Movie.PageIndex)"
-   asp-route-userPageIndex="@(Model.UserList.PageIndex)"
-   asp-route-currentFilter="@Model.CurrentFilter"
-   class="btn btn-primary @castCrewNextDisabled">
-    Next
-</a>
-
-<table class="table">
-    <thead>
-    <tr>
-        <th>
-            @Html.DisplayNameFor(model => model.UserList[0].Username)
-        </th>
-        <th></th>
-    </tr>
-    </thead>
-    <tbody>
-    @foreach (var item in Model.UserList)
-    {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Username)
-            </td>
-            <td>
-                <a asp-page="./Details" asp-route-id="@item.UserId">Details</a> |
-            </td>
-        </tr>
-    }
-    </tbody>
-</table>
-
-@{
-    var userPrevDisabled = !Model.UserList.HasPreviousPage ? "disabled" : "";
-    var userNextDisabled = !Model.UserList.HasNextPage ? "disabled" : "";
-}
-
-<a asp-page="./SimpleSearch"
-   asp-route-castCrewPageIndex="@(Model.CastCrew.PageIndex)"
-   asp-route-moviePageIndex="@(Model.Movie.PageIndex)"
-   asp-route-userPageIndex="@(Model.UserList.PageIndex - 1)"
-   asp-route-currentFilter="@Model.CurrentFilter"
-   class="btn btn-primary @userPrevDisabled">
-    Previous
-</a>
-<a asp-page="./SimpleSearch"
-   asp-route-castCrewPageIndex="@(Model.CastCrew.PageIndex)"
-   asp-route-moviePageIndex="@(Model.Movie.PageIndex)"
-   asp-route-userPageIndex="@(Model.UserList.PageIndex + 1)"
-   asp-route-currentFilter="@Model.CurrentFilter"
-   class="btn btn-primary @userNextDisabled">
-    Next
-</a>
+</div>
