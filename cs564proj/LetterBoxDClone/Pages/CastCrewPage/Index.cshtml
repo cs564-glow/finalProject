@@ -63,14 +63,14 @@
    asp-route-sortOrder="@Model.CurrentSort"
    asp-route-pageIndex="@(Model.CastCrew.PageIndex - 1)"
    asp-route-currentFilter="@Model.CurrentFilter"
-   class="btn btn-primary @prevDisabled">
-   Previous
+   class="btn btn-secondary @prevDisabled">
+   <<
 </a>
 <a asp-page="./Index"
    asp-route-sortOrder="@Model.CurrentSort"
    asp-route-pageIndex="@(Model.CastCrew.PageIndex + 1)"
    asp-route-currentFilter="@Model.CurrentFilter"
 
-   class="btn btn-primary @nextDisabled">
-    Next
+   class="btn btn-secondary @nextDisabled">
+    >>
 </a>
