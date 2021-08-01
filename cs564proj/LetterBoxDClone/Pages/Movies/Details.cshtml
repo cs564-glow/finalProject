@@ -22,68 +22,77 @@
 
 
                         <!-- Year and Director-->
-                        <div class="text-muted fst-italic mb-2">
-                            @Model.Movie.Year by
-                            <a asp-page="/CastCrewPage/Details" asp-route-id="@Model.Director.CastCrewId">@Model.Director.Name</a>
-                        </div>
-
-                    <!-- Genre -->
-                    @if (Model.genres != null && Model.genres.Count > 0)
-                    {
-
-                        <div class="row">
-                            <div class="col-sm-1">
-                                <span>Genres: </span>
+                        @if (Model.Director != null)
+                        {
+                            <div class="text-muted fst-italic mb-2">
+                                @Model.Movie.Year directed by
+                                <a asp-page="/CastCrewPage/Details" asp-route-id="@Model.Director.CastCrewId">@Model.Director.Name</a>
                             </div>
-                            <div class="col-sm-11">
-                                <div>
-                                    @foreach (var genre in Model.genres)
-                                    {
-                                        <a class="badge badge-light text-decoration-none link-light" href="~/Search/AdvancedSearch?Genre=@genre.GenreName">@genre.GenreName</a>
-                                    }
+                        }
+                        else
+                        {
+                            <div class="text-muted fst-italic mb-2">
+                                @Model.Movie.Year
+                            </div>
+                        }
+
+                        <!-- Genre -->
+                        @if (Model.genres != null && Model.genres.Count > 0)
+                        {
+
+                            <div class="row">
+                                <div class="col-sm-1">
+                                    <span>Genres: </span>
                                 </div>
-                            </div>
-                        </div>
-                    }
-
-                    <!-- Most popular tags -->
-                    @if (Model.mostAppliedTags != null && Model.mostAppliedTags.Count > 0)
-                    {
-                        <div class="row">
-                            <div class="col-sm-1">
-                                <span>Tags: </span>
-                            </div>
-                            <div class="col-sm-11">
-                                @foreach (var tag in Model.mostAppliedTags)
-                                {
-                                    <a class="badge badge-secondary text-decoration-none link-light" href="~/Search/AdvancedSearch?Tag=@tag.Name">@tag.Name</a>
-                                }
-                            </div>
-                        </div>
-                    }
-
-                    <!-- Cast and Crew -->
-                    @if (Model.CastAndCrew != null && Model.CastAndCrew.Count > 0)
-                    {
-                        <br />
-                        <div class="card mb-4">
-                            <div class="card-header">Cast and Crew</div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-sm-12">
-                                        <ul class="list-group list-group-flush mb-0">
-                                            @foreach (var crew in Model.CastAndCrew)
-                                            {
-                                                <li class="list-group-item">
-                                                    <a asp-page="/CastCrewPage/Details" asp-route-id="@crew.CastCrewId">@crew.Name</a>
-                                                </li>
-                                            }
-                                        </ul>
+                                <div class="col-sm-11">
+                                    <div>
+                                        @foreach (var genre in Model.genres)
+                                        {
+                                            <a class="badge badge-light text-decoration-none link-light" href="~/Search/AdvancedSearch?Genre=@genre.GenreName">@genre.GenreName</a>
+                                        }
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    }
+                        }
+
+                        <!-- Most popular tags -->
+                        @if (Model.mostAppliedTags != null && Model.mostAppliedTags.Count > 0)
+                        {
+                            <div class="row">
+                                <div class="col-sm-1">
+                                    <span>Tags: </span>
+                                </div>
+                                <div class="col-sm-11">
+                                    @foreach (var tag in Model.mostAppliedTags)
+                                    {
+                                        <a class="badge badge-secondary text-decoration-none link-light" href="~/Search/AdvancedSearch?Tag=@tag.Name">@tag.Name</a>
+                                    }
+                                </div>
+                            </div>
+                        }
+
+                        <!-- Cast and Cre-->
+                        @if (Model.CastAndCrew != null && Model.CastAndCrew.Count > 0)
+                        {
+                            <br />
+                            <div class="card mb-4">
+                                <div class="card-header">Cast and Crew</div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-sm-12">
+                                            <ul class="list-group list-group-flush mb-0">
+                                                @foreach (var crew in Model.CastAndCrew)
+                                                {
+                                                    <li class="list-group-item">
+                                                        <a asp-page="/CastCrewPage/Details" asp-route-id="@crew.CastCrewId">@crew.Name</a>
+                                                    </li>
+                                                }
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
 
                     </header>
 
@@ -123,7 +132,7 @@
                                     <ul class="list-group list-group-flush mb-0">
                                         @foreach (var movie in Model.similarMovies)
                                         {
-                                        <li class="list-group-item"><a href="https://localhost:5001/Movies/Details?movieID=@movie.MovieId">@movie.Title</a> (@movie.Year)</li>
+                                            <li class="list-group-item"><a href="https://localhost:5001/Movies/Details?movieID=@movie.MovieId">@movie.Title</a> (@movie.Year)</li>
                                         }
                                     </ul>
                                 </div>

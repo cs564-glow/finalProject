@@ -1,22 +1,22 @@
 ﻿@page
-@model LetterBoxDClone.Pages.CastCrewPage.IndexModel
+@model LetterBoxDClone.Pages.Movies.IndexModel
 
 @{
-    ViewData["Title"] = "Cast & Crew Index";
+    ViewData["Title"] = "Movie Index";
 }
 
 
 <h1>@ViewData["Title"]</h1>
 
 
-<p>
+@*<p>
     <a asp-page="Create">Create New</a>
-</p>
+</p>*@
 
 <form asp-page="./Index" method="get">
     <div class="form-inline">
         <p>
-            Find by name:
+            Find by title:
             <input class="form-control mr-sm-1" type="text" name="SearchString" value="@Model.CurrentFilter" />
             <input class="btn btn-primary" type="submit" value="Search" />
             <a asp-page="./Index">Back to full list</a>
@@ -24,29 +24,23 @@
     </div>
 </form>
 
+
 <table class="table">
     <thead>
         <tr>
-            <th>
-
+            <th
                 <a asp-page="./Index" asp-route-sortOrder="@Model.NameSort">
-                    @Html.DisplayNameFor(model => model.CastCrew[0].Name)
+                    @Html.DisplayNameFor(model => model.Movie[0].Title)
                 </a>
             </th>
-            <th></th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model.CastCrew)
+        @foreach (var item in Model.Movie)
         {
             <tr>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Name)
-                </td>
-                <td>
-                    <a asp-page="./Edit" asp-route-id="@item.CastCrewId">Edit</a> |
-                    <a asp-page="./Details" asp-route-id="@item.CastCrewId">Details</a>
-                    @*<a asp-page="./Delete" asp-route-id="@item.CastCrewId">Delete</a>*@
+                    <a asp-page="/Movies/Details" asp-route-movieId="@item.MovieId">@item.Title</a> (@item.Year)
                 </td>
             </tr>
         }
@@ -54,22 +48,21 @@
 </table>
 
 @{
-    var prevDisabled = !Model.CastCrew.HasPreviousPage ? "disabled" : "";
-    var nextDisabled = !Model.CastCrew.HasNextPage ? "disabled" : "";
+    var prevDisabled = !Model.Movie.HasPreviousPage ? "disabled" : "";
+    var nextDisabled = !Model.Movie.HasNextPage ? "disabled" : "";
 }
 
 <a asp-page="./Index"
    asp-route-sortOrder="@Model.CurrentSort"
-   asp-route-pageIndex="@(Model.CastCrew.PageIndex - 1)"
+   asp-route-pageIndex="@(Model.Movie.PageIndex - 1)"
    asp-route-currentFilter="@Model.CurrentFilter"
    class="btn btn-secondary @prevDisabled">
-   <<
+    <<
 </a>
 <a asp-page="./Index"
    asp-route-sortOrder="@Model.CurrentSort"
-   asp-route-pageIndex="@(Model.CastCrew.PageIndex + 1)"
+   asp-route-pageIndex="@(Model.Movie.PageIndex + 1)"
    asp-route-currentFilter="@Model.CurrentFilter"
-
    class="btn btn-secondary @nextDisabled">
     >>
 </a>

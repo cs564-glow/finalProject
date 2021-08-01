@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
 using DataLibrary;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 
-namespace LetterBoxDClone.Pages.Users
+namespace LetterBoxDClone.Pages.Movies
 {
     public class IndexModel : PageModel
     {
@@ -21,15 +19,17 @@ namespace LetterBoxDClone.Pages.Users
             _configuration = configuration;
         }
 
-        public string UsernameSort { get; set; }
+
+        public string NameSort { get; set; }
         public string CurrentFilter { get; set; }
         public string CurrentSort { get; set; }
-        public PaginatedList<User> UserList { get;set; }
+
+        public PaginatedList<Movie> Movie { get; set; }
 
         public async Task OnGetAsync(string sortOrder, string currentFilter, string searchString, int? pageIndex)
         {
             CurrentSort = sortOrder;
-            UsernameSort = string.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
+            NameSort = string.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
             if (searchString != null)
             {
                 pageIndex = 1;
@@ -40,29 +40,29 @@ namespace LetterBoxDClone.Pages.Users
             }
             CurrentFilter = searchString;
 
-            IQueryable<User> userIq = from c in _context.User
+            IQueryable<Movie> movieIq = from c in _context.Movie
                                               select c;
 
 
             if (!string.IsNullOrEmpty(searchString))
             {
                 // case sensitivity: https://docs.microsoft.com/en-us/aspnet/core/data/ef-rp/sort-filter-page?view=aspnetcore-5.0#iqueryable-vs-ienumerable
-                userIq = userIq.Where(c => c.Username.ToUpper().Contains(searchString.ToUpper()));
+                movieIq = movieIq.Where(c => c.Title.ToUpper().Contains(searchString.ToUpper()));
             }
 
             switch (sortOrder)
             {
                 case "name_desc":
-                    userIq = userIq.OrderByDescending(c => c.Username);
+                    movieIq = movieIq.OrderByDescending(c => c.Title);
                     break;
                 default:
-                    userIq = userIq.OrderBy(c => c.Username);
+                    movieIq = movieIq.OrderBy(c => c.Title);
                     break;
             }
 
             var pageSize = _configuration.GetValue("PageSize", 10);
-
-            UserList = await PaginatedList<User>.CreateAsync(userIq.AsNoTracking(), pageIndex ?? 1, pageSize);
+            Movie = await PaginatedList<Movie>.CreateAsync(
+                movieIq.AsNoTracking(), pageIndex ?? 1, pageSize);
         }
     }
 }

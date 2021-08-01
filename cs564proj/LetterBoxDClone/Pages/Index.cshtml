@@ -4,9 +4,18 @@
     ViewData["Title"] = "Home page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Track what films you've watched. Save films you want to see. Get recommendations for new films to watch</a>.</p>
+<div class="container">
+    <div class="text-center">
+        <h1 class="display-4">Welcome</h1>
+        <p>Track what films you've watched. Save films you want to see. Get recommendations for new films to watch.</p>
+        <div class="row">
+            <form asp-page="/SimpleSearch/SimpleSearch" asp-route-currentFilter="SearchString" method="get" class="form-inline col-lg my-2 my-lg-0">
+                <input class="form-control col-lg-10 mr-sm-1" type="search" placeholder="Search by movie title, name, user..."
+                       aria-label="Search by movie title, name, user..." aria-describedby="button-search" name="SearchString" value="" />
+                <input class="btn btn-primary col" type="submit" asp-page="/SimpleSearch/SimpleSearch" asp-route-currentFilter="SearchString" value="Search" />
+            </form>
+        </div>
+    </div>
 </div>
 
 <div container>
