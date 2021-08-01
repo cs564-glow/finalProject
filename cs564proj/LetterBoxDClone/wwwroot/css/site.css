@@ -35,6 +35,10 @@ html {
   }
 }
 
+.margin-right {
+    margin-right: 10px;
+}
+
 .border-top {
   border-top: 1px solid #e5e5e5;
 }
