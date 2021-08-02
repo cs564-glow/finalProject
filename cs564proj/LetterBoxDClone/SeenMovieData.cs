@@ -8,7 +8,9 @@ namespace LetterBoxDClone
 {
 	public class SeenMovieData
 	{
-		public Movie movie { get; set; }
-		public UserRating rating { get; set; }
+		public int MovieId { get; set; }
+		public string Title { get; set; }
+		public string Year { get; set; }
+		public double Rating { get; set; }
 	}
 }
