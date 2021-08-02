@@ -8,36 +8,48 @@ using DataLibrary;
 using LetterBoxDClone.Pages.Shared;
 using static LetterBoxDClone.Pages.Shared.Connection;
 using Microsoft.Data.Sqlite;
-
+using Microsoft.Extensions.Configuration;
 
 namespace LetterBoxDClone.Pages.Users
 {
     public class DetailsModel : PageModel
     {
         [BindProperty(SupportsGet = true)]
-        public string id { get; set; }
+        public long id { get; set; }
         public User User1 { get; set; }
-        public List<SeenMovieData> moviesSeen { get; set; }
+        public PaginatedList<SeenMovieData> moviesSeen { get; set; }
         public List<MightLikeMovieData> moviesMightLike { get; set; }
         public Dictionary<int, List<Tag>> userTags { get; set; }
 
-        public void OnGet()
+        private readonly DataLibrary.MovieContext _context;
+        private readonly IConfiguration _configuration;
+
+        public DetailsModel(DataLibrary.MovieContext context, IConfiguration configuration)
+        {
+            _context = context;
+            _configuration = configuration;
+        }
+
+        public async Task OnGetAsync(int? moviesSeenPageIndex)
         {
             userTags = new Dictionary<int, List<Tag>>();
             User1 = GetSingleUserByKey(id);
-            moviesSeen = GetMoviesSeen(id);
+            moviesSeen = await GetMoviesSeen(id, moviesSeenPageIndex);
             foreach(SeenMovieData mvs in moviesSeen)
 			{
-                userTags.Add(mvs.movie.MovieId, GetTagsByKey(id, mvs.movie.MovieId));
+                if (!userTags.ContainsKey(mvs.MovieId)) 
+                {
+                    userTags.Add(mvs.MovieId, GetTagsByKey(id, mvs.MovieId));
+                }
 			}
-            moviesMightLike = GetMoviesMightLike(id);
+            moviesMightLike = await GetMoviesMightLike(id, moviesSeenPageIndex);
         }
 
 
-        public IActionResult OnPost(string userId, int movieId, double rating)
+        public async Task<IActionResult> OnPostAsync(long userId, int movieId, double rating, int? moviesSeenPageIndex)
         {
             long timestamp = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-            foreach (MightLikeMovieData mvd in GetMoviesMightLike(userId))
+            foreach (MightLikeMovieData mvd in (await GetMoviesMightLike(userId, moviesSeenPageIndex)))
 			{
                 if (mvd.movie.MovieId == movieId)
 				{
@@ -52,7 +64,7 @@ namespace LetterBoxDClone.Pages.Users
 
         
 
-        public int UpdateRatingByKey(string UserId, int MovieId, double rating, long timestamp)
+        public int UpdateRatingByKey(long UserId, int MovieId, double rating, long timestamp)
         {   
             
             string query =
@@ -63,7 +75,7 @@ namespace LetterBoxDClone.Pages.Users
             return Connection.SetSingleRow(query);
         }
 
-        public int CreateRatingByKey(string UserId, int MovieId, double rating, long timestamp)
+        public int CreateRatingByKey(long UserId, int MovieId, double rating, long timestamp)
 		{
             string query =
                 $@"
@@ -72,7 +84,7 @@ namespace LetterBoxDClone.Pages.Users
             return Connection.SetSingleRow(query);
 		}
 
-        public static User GetSingleUserByKey(string UserId)
+        public static User GetSingleUserByKey(long UserId)
         {
             string query =
                 $@"
@@ -85,7 +97,7 @@ namespace LetterBoxDClone.Pages.Users
             return User;
         }
 
-        public static List<Tag> GetTagsByKey(string UserId, int MovieId)
+        public static List<Tag> GetTagsByKey(long UserId, int MovieId)
 		{
             string query =
                 $@"
@@ -115,18 +127,33 @@ namespace LetterBoxDClone.Pages.Users
             return user;
         }
 
-        public static List<SeenMovieData> GetMoviesSeen(string UserId)
+        public async Task<PaginatedList<SeenMovieData>> GetMoviesSeen(long UserId, int? moviesSeenPageIndex)
         {
-            string query =
+            /*string query =
                 $@"
                  SELECT m.movieId, m.Title, m.Year, ur.Rating
                  FROM Movie AS m NATURAL JOIN UserRating AS ur
                  WHERE ur.UserId = {UserId}
                  ORDER BY m.Title
-                 ";
-            List<SeenMovieData> movieList = Connection.GetMultipleRows(query, GetSeenMoviesDataFromReader);
-            // PaginatedList<SeenMovieData> paginatedMovieList = new PaginatedList<SeenMovieData>(movieList, movieList.Count, 1, 10);
-            return movieList;
+                 ";*/
+            IQueryable<SeenMovieData> seenMovieIq = from m in _context.Movie
+                                                    join ur in _context.UserRating
+                                                    on m.MovieId equals ur.MovieId
+                                                    where ur.UserId == UserId
+													orderby m.Title
+                                                    select new SeenMovieData
+                                                    {
+                                                        MovieId = m.MovieId,
+                                                        Title = m.Title,
+                                                        Year = m.Year,
+                                                        Rating = ur.Rating
+                                                    };
+
+
+
+            // List < SeenMovieData > movieList = Connection.GetMultipleRows(query, GetSeenMoviesDataFromReader);
+            PaginatedList<SeenMovieData> paginatedMovieList = await PaginatedList<SeenMovieData>.CreateAsync(seenMovieIq, moviesSeenPageIndex ?? 1, 10);
+            return paginatedMovieList;// return movieList;
         }
 
         public static SeenMovieData GetSeenMoviesDataFromReader(SqliteDataReader reader)
@@ -134,19 +161,19 @@ namespace LetterBoxDClone.Pages.Users
             SeenMovieData smd = new SeenMovieData();
 
             Movie movie = new Movie();
-            movie.MovieId = reader.GetInt32(0);
-            movie.Title = reader.GetString(1);
-            movie.Year = reader.GetString(2);
-            smd.movie = movie;
+            smd.MovieId = reader.GetInt32(0);
+            smd.Title = reader.GetString(1);
+            smd.Year = reader.GetString(2);
+            // smd.movie = movie;
 
             UserRating ur = new UserRating();
-            ur.Rating = reader.GetDouble(3);
-            smd.rating = ur;
+            smd.Rating = reader.GetDouble(3);
+            // smd.rating = ur;
 
             return smd;
         }
 
-        public static List<MightLikeMovieData> GetMoviesMightLike(string UserId)
+        public async Task<List<MightLikeMovieData>> GetMoviesMightLike(long UserId, int? moviesSeenPageIndex)
         {
             string query =
                 $@"
@@ -170,7 +197,7 @@ namespace LetterBoxDClone.Pages.Users
                                        WHERE ur4.UserId = {UserId})
                 ORDER BY m1.RtAllCriticsRating DESC
                 LIMIT 5"; 
-            if (GetMoviesSeen(UserId).Count == 0)
+            if ((await GetMoviesSeen(UserId, moviesSeenPageIndex)).Count == 0)
 			{
                 query =
                     @$"
