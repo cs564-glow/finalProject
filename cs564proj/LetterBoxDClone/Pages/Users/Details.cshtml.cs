@@ -19,18 +19,19 @@ namespace LetterBoxDClone.Pages.Users
         public User User1 { get; set; }
         public List<SeenMovieData> moviesSeen { get; set; }
         public List<MightLikeMovieData> moviesMightLike { get; set; }
+        public Dictionary<int, List<Tag>> userTags { get; set; }
 
         public void OnGet()
         {
+            userTags = new Dictionary<int, List<Tag>>();
             User1 = GetSingleUserByKey(id);
             moviesSeen = GetMoviesSeen(id);
+            foreach(SeenMovieData mvs in moviesSeen)
+			{
+                userTags.Add(mvs.movie.MovieId, GetTagsByKey(id, mvs.movie.MovieId));
+			}
             moviesMightLike = GetMoviesMightLike(id);
         }
-
-        /*public async Task OnPostButton()
-		{
-            int rowCountChanged = SetRatingByKey(UserId, MovieId, rating)
-		}*/
 
 
         public IActionResult OnPost(string userId, int movieId, double rating)
@@ -55,16 +56,18 @@ namespace LetterBoxDClone.Pages.Users
         {   
             
             string query =
-                $@"UPDATE UserRating
-                   SET Rating = {rating}, Timestamp = {timestamp}
-                   WHERE UserId = {UserId} AND MovieId = {MovieId}";
+                $@"
+                UPDATE UserRating
+                SET Rating = {rating}, Timestamp = {timestamp}
+                WHERE UserId = {UserId} AND MovieId = {MovieId}";
             return Connection.SetSingleRow(query);
         }
 
         public int CreateRatingByKey(string UserId, int MovieId, double rating, long timestamp)
 		{
             string query =
-                $@"INSERT INTO UserRating (UserId, MovieId, Rating, Timestamp)
+                $@"
+                INSERT INTO UserRating (UserId, MovieId, Rating, Timestamp)
                 VALUES({UserId}, {MovieId}, {rating}, {timestamp})";
             return Connection.SetSingleRow(query);
 		}
@@ -81,6 +84,26 @@ namespace LetterBoxDClone.Pages.Users
 
             return User;
         }
+
+        public static List<Tag> GetTagsByKey(string UserId, int MovieId)
+		{
+            string query =
+                $@"
+                SELECT Name
+                FROM UserTag
+                NATURAL JOIN Tag
+                WHERE UserId={UserId} AND MovieId={MovieId}
+                ";
+            List<Tag> tagList = Connection.GetMultipleRows<Tag>(query, GetTagDataFromReader);
+            return tagList;
+		}
+
+        public static Tag GetTagDataFromReader(SqliteDataReader reader)
+		{
+            Tag tag = new Tag();
+            tag.Name = reader.GetString(0);
+            return tag;
+		}
 
         public static User GetUserDataFromReader(SqliteDataReader reader)
         {
@@ -150,7 +173,8 @@ namespace LetterBoxDClone.Pages.Users
             if (GetMoviesSeen(UserId).Count == 0)
 			{
                 query =
-                    @$"SELECT m.MovieId, m.Title, m.Year, d.CastCrewId, cc.Name
+                    @$"
+                    SELECT m.MovieId, m.Title, m.Year, d.CastCrewId, cc.Name
                     FROM Movie as m
                     NATURAL JOIN Directs as d
                     NATURAL JOIN CastCrew as cc

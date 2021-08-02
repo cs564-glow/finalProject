@@ -2,7 +2,6 @@
 @model LetterBoxDClone.Pages.Users.DetailsModel
 
 @{
-
 	ViewData["Title"] = Model.User1.Username;
 }
 
@@ -20,31 +19,46 @@
 					<table class="table">
 						<thead>
 							<tr>
-								<th>
+								<th class="title-column">
 									Title
 								</th>
 								<th>
 									Your Rating
 								</th>
+								<th class="tag-column">
+									Your Tags
+								</th>
 							</tr>
 						</thead>
 						<tbody>
-
 							@foreach (var movieSeen in Model.moviesSeen)
 							{
 							<tr id="@movieSeen.movie.MovieId">
-                                <td>
+                                <td class="title-column">
                                     <a asp-page="/Movies/Details" asp-route-movieId="@movieSeen.movie.MovieId">@movieSeen.movie.Title</a> (@movieSeen.movie.Year)
                                 </td>
 								<td>
 									<form method="post" class="form-inline">
 										<div class="form-group">
-											<input class="margin-right" type="number" name="rating" min="0" max="5" step="0.5" value="@movieSeen.rating.Rating" />
+											<input class="rating-field" type="number" name="rating" min="0" max="5" step="0.5" value="@movieSeen.rating.Rating" />
 											<input type="hidden" name="movieId" value="@movieSeen.movie.MovieId" />
 											<input type="hidden" name="userId" value="@Model.User1.UserId" />
 										</div>
 										<button class="btn btn-primary" value="UpdateRating">Update Rating</button>
 									</form>	
+								</td>
+								<td class="tag-column">
+									@{
+										List<DataLibrary.Tag> tagList;
+										bool hasTags = Model.userTags.TryGetValue(movieSeen.movie.MovieId, out tagList);
+										if (hasTags)
+										{
+											foreach (var tag in tagList)
+											{
+												<a class="badge badge-secondary text-decoration-none link-light" href="~/Search/AdvancedSearch?Tag=@tag.Name">@tag.Name</a>
+											}
+										}
+									}
 								</td>
 							</tr>
 							}
@@ -86,7 +100,7 @@
 									<td>
 										<form method="post" class="form-inline">
 											<div class="form-group">
-												<input class="margin-right" type="number" name="rating" min="0" max="5" step="0.5" value="" />
+												<input class="rating-field" type="number" name="rating" min="0" max="5" step="0.5" value="" />
 												<input type="hidden" name="movieId" value="@movieMightLike.movie.MovieId" />
 												<input type="hidden" name="userId" value="@Model.User1.UserId" />
 											</div>
