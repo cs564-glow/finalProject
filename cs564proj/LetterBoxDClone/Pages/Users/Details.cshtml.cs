@@ -122,7 +122,7 @@ namespace LetterBoxDClone.Pages.Users
                  SELECT m.movieId, m.Title, m.Year, ur.Rating
                  FROM Movie AS m NATURAL JOIN UserRating AS ur
                  WHERE ur.UserId = {UserId}
-                 ORDER BY ur.Timestamp DESC
+                 ORDER BY m.Title
                  ";
             List<SeenMovieData> movieList = Connection.GetMultipleRows(query, GetSeenMoviesDataFromReader);
             // PaginatedList<SeenMovieData> paginatedMovieList = new PaginatedList<SeenMovieData>(movieList, movieList.Count, 1, 10);
