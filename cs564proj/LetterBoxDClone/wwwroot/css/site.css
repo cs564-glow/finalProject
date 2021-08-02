@@ -35,8 +35,16 @@ html {
   }
 }
 
-.margin-right {
+.rating-field {
     margin-right: 10px;
+}
+
+.title-column {
+    max-width: 200px;
+}
+
+.tag-column {
+    max-width: 300px;
 }
 
 .border-top {
