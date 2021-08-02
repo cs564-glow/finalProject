@@ -132,7 +132,7 @@
                                     <ul class="list-group list-group-flush mb-0">
                                         @foreach (var movie in Model.similarMovies)
                                         {
-                                            <li class="list-group-item"><a href="https://localhost:5001/Movies/Details?movieID=@movie.MovieId">@movie.Title</a> (@movie.Year)</li>
+                                            <li class="list-group-item"><a asp-page="/Movies/Details" asp-route-movieId="@movie.MovieId">@movie.Title</a> (@movie.Year)</li>
                                         }
                                     </ul>
                                 </div>

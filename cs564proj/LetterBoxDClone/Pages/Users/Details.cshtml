@@ -43,7 +43,7 @@
 											<input type="hidden" name="movieId" value="@movieSeen.MovieId" />
 											<input type="hidden" name="userId" value="@Model.User1.UserId" />
 										</div>
-										<button class="btn btn-primary" value="UpdateRating">Update Rating</button>
+										<button class="btn btn-primary" asp-route-id="@Model.User1.UserId" asp-route-movieSeenPageIndex="@Model.moviesSeen.PageIndex">Update Rating</button>
 									</form>	
 								</td>
 								<td class="tag-column">
