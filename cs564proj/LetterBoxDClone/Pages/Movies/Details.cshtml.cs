@@ -71,7 +71,7 @@ namespace LetterBoxDClone.Pages
                 MovieId = reader.GetInt32(0),
                 Title = reader.GetString(1),
                 Year = reader.GetString(2),
-                CountryId = reader.GetInt32(3),
+                CountryId = reader.IsDBNull(3) ? 0 : reader.GetInt32(3),
                 ImdbId = reader.GetString(4),
                 RtId = reader.GetString(5),
                 RtAllCriticsRating = reader.IsDBNull(6) ? 0 : reader.GetInt32(6),
