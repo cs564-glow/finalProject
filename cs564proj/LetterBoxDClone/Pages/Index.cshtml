@@ -34,9 +34,9 @@
                             <ol class="list-group-flush list-group-numbered mb">
                                 @foreach (var movie in Model.MostSeen)
                                 {
-                                    <li class="list-group-item">
-                                        <a href="~/Movies/Details?movieID=@movie.MovieId">@movie.Title (@movie.Year)</a>
-                                    </li>
+                                <li class="list-group-item">
+                                    <a href="~/Movies/Details?movieID=@movie.MovieId">@movie.Title</a> (@movie.Year)
+                                </li>
                                 }
                             </ol>
                         </div>
@@ -55,9 +55,9 @@
                             <ol class="list-group-flush list-group-numbered mb">
                                 @foreach (var movie in Model.HighestRated)
                                 {
-                                    <li class="list-group-item">
-                                        <a href="~/Movies/Details?movieID=@movie.MovieId">@movie.Title (@movie.Year)</a>
-                                    </li>
+                                <li class="list-group-item">
+                                    <a href="~/Movies/Details?movieID=@movie.MovieId">@movie.Title</a> (@movie.Year)
+                                </li>
                                 }
                             </ol>
                         </div>
