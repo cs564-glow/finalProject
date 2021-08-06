@@ -3,6 +3,8 @@
 ![alt text](https://github.com/cs564-glow/finalProject/blob/main/BasicSearch1.gif "Basic Search")
 ## Advanced Search
 ![alt text](https://github.com/cs564-glow/finalProject/blob/main/AdvancedSearch1.gif "Advanced Search")
+## Movie Detail
+![alt text](https://github.com/cs564-glow/finalProject/blob/main/MovieDetail.gif "Movie Detail")
 ## User Detail and Editing
 ![alt text](https://github.com/cs564-glow/finalProject/blob/main/UserDetailAndEdit.gif "User Detail and Editing")
 ## Cast and Crew Detail
