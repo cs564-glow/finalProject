@@ -24,7 +24,7 @@ namespace LetterBoxDClone.Pages.Users
         }
 
         [BindProperty]
-        public User User { get; set; }
+        public User UserRecord { get; set; }
 
         // To protect from overposting attacks, see https://aka.ms/RazorPagesCRUD
         public async Task<IActionResult> OnPostAsync()
@@ -34,7 +34,7 @@ namespace LetterBoxDClone.Pages.Users
                 return Page();
             }
 
-            _context.User.Add(User);
+            _context.User.Add(UserRecord);
             await _context.SaveChangesAsync();
 
             return RedirectToPage("./Index");

@@ -1,0 +1,50 @@
+﻿@page
+@model LetterBoxDClone.Pages.SummaryInfo.SummaryModel
+
+@{
+    ViewData["Title"] = "Summary Info";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+<div class="container">
+    <div class="d-flex flex-column bd-highlight mb-3">
+        <div class="p-2 btn-group-vertical">
+            <a asp-page="./SummaryInfo"
+               asp-route-shouldUpdateLeaderboard="true"
+               class="btn btn-secondary">
+                Update Leaderboards Now
+            </a>
+        </div>
+        <div class="p-2">
+            @if (Model.summaryInfoDictionary != null && Model.summaryInfoDictionary.Count > 0)
+            {
+                <div class="card">
+                    <div class="card-body">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">
+                                        Table Name
+                                    </th>
+                                    <th scope="col">
+                                        Total Records
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var entry in Model.summaryInfoDictionary)
+                                {
+                                    <tr>
+                                        <th scope="row">@entry.Key</th>
+                                        <td>@entry.Value</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

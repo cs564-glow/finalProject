@@ -7,26 +7,26 @@
 
 <h1>@ViewData["Title"]</h1>
 
-<h4>User</h4>
+<h4>UserRecord</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
         <form method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="User.UserId" class="control-label"></label>
-                <input asp-for="User.UserId" class="form-control" />
-                <span asp-validation-for="User.UserId" class="text-danger"></span>
+                <label asp-for="UserRecord.UserId" class="control-label"></label>
+                <input asp-for="UserRecord.UserId" class="form-control" />
+                <span asp-validation-for="UserRecord.UserId" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="User.Username" class="control-label"></label>
-                <input asp-for="User.Username" class="form-control" />
-                <span asp-validation-for="User.Username" class="text-danger"></span>
+                <label asp-for="UserRecord.Username" class="control-label"></label>
+                <input asp-for="UserRecord.Username" class="form-control" />
+                <span asp-validation-for="UserRecord.Username" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="User.Password" class="control-label"></label>
-                <input asp-for="User.Password" type ="password" class="form-control" />
-                <span asp-validation-for="User.Password" class="text-danger"></span>
+                <label asp-for="UserRecord.Password" class="control-label"></label>
+                <input asp-for="UserRecord.Password" type ="password" class="form-control" />
+                <span asp-validation-for="UserRecord.Password" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />

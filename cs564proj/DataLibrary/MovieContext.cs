@@ -94,6 +94,18 @@ namespace DataLibrary
                 .HasOne(g => g.Genre)
                 .WithMany(mg => mg.MovieGenreList)
                 .HasForeignKey(g => g.GenreId);
+            modelBuilder.Entity<MovieLeaderboard>()
+                .HasKey(l => new { l.LeaderboardCategory, l.MovieId });
+            modelBuilder.Entity<MovieLeaderboard>()
+                .HasOne(m => m.Movie)
+                .WithMany(l => l.LeaderboardEntryList)
+                .HasForeignKey(m => m.MovieId);
+            modelBuilder.Entity<ActorLeaderboard>()
+                .HasKey(l => new { l.LeaderboardCategory, l.CastCrewId });
+            modelBuilder.Entity<ActorLeaderboard>()
+                .HasOne(m => m.CastCrew)
+                .WithMany(l => l.ActorLeaderboardEntryList)
+                .HasForeignKey(m => m.CastCrewId);
         }
         public DbSet<Movie> Movie { get; set; }
         public DbSet<Genre> Genre { get; set; }
@@ -107,5 +119,7 @@ namespace DataLibrary
         public DbSet<CastCrew> CastCrew { get; set; }
         public DbSet<Country> Country { get; set; }
         public DbSet<FilmLocation> FilmLocation { get; set; }
+        public DbSet<MovieLeaderboard> MovieLeaderboard { get; set; }
+        public DbSet<ActorLeaderboard> ActorLeaderboard { get; set; }
     }
 }
