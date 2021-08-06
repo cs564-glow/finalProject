@@ -1,7 +1,7 @@
 # Final
 ## Basic Search
 ![alt text](https://github.com/cs564-glow/finalProject/blob/main/BasicSearch1.gif "Basic Search")
-## Advanced Search
+## Advanced Search, Tag and Genre Navigation
 ![alt text](https://github.com/cs564-glow/finalProject/blob/main/AdvancedSearch1.gif "Advanced Search")
 ## Movie Detail
 ![alt text](https://github.com/cs564-glow/finalProject/blob/main/MovieDetail.gif "Movie Detail")
