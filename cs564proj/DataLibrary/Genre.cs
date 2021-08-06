@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace DataLibrary
@@ -9,6 +10,7 @@ namespace DataLibrary
         [Key]
         public int GenreId { get; set; }
         public string GenreName { get; init; }
+        public List<MovieGenre> MovieGenreList { get; set; }
 
         public Genre() { }
 

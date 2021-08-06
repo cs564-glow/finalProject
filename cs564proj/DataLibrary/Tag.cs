@@ -9,5 +9,7 @@ namespace DataLibrary
     {
         [Name("id"), Key, DatabaseGenerated(DatabaseGeneratedOption.None)] public int TagId { get; set; }
         [Name("value")] public string Name { get; set; }
+        [Ignore]
+        public List<UserTag> UserTag { get; set; }
     }
 }

@@ -48,6 +48,8 @@ namespace DataLibrary
             modelBuilder.Entity<ActsIn>()
                 .HasKey(m => new { m.MovieId, m.CastCrewId });
             // https://docs.microsoft.com/en-us/ef/core/modeling/relationships?tabs=fluent-api%2Cfluent-api-simple-key%2Csimple-key#indirect-many-to-many-relationships
+            // One-To-Many relationships and FKs are established automatically based on the model classes (assuming naming convention)
+            // Acts Many-to-Many
             modelBuilder.Entity<ActsIn>()
                 .HasOne(acts => acts.CastCrew)
                 .WithMany(a => a.ActingRoles)
@@ -56,6 +58,7 @@ namespace DataLibrary
                 .HasOne(mv => mv.Movie)
                 .WithMany(m => m.MovieActors)
                 .HasForeignKey(mv => mv.MovieId);
+            // Directs Many-to-Many
             modelBuilder.Entity<Directs>()
                 .HasOne(d => d.CastCrew)
                 .WithMany(c => c.DirectingCredits)
@@ -64,6 +67,7 @@ namespace DataLibrary
                 .HasOne(mv => mv.Movie)
                 .WithMany(m => m.MovieDirectors)
                 .HasForeignKey(mv => mv.MovieId);
+            // User Rating Many-to-Many
             modelBuilder.Entity<UserRating>()
                 .HasOne(u => u.User)
                 .WithMany(m => m.UserRating)
@@ -72,6 +76,7 @@ namespace DataLibrary
                 .HasOne(u => u.Movie)
                 .WithMany(m => m.UserRating)
                 .HasForeignKey(u => u.MovieId);
+            // User Tag Many-to-Many
             modelBuilder.Entity<UserTag>()
                 .HasOne(u => u.User)
                 .WithMany(m => m.UserTag)
@@ -80,6 +85,15 @@ namespace DataLibrary
                 .HasOne(u => u.Movie)
                 .WithMany(m => m.UserTag)
                 .HasForeignKey(u => u.MovieId);
+            // Movie Genre Many-to-Many
+            modelBuilder.Entity<MovieGenre>()
+                .HasOne(m => m.Movie)
+                .WithMany(g => g.MovieGenreList)
+                .HasForeignKey(m => m.MovieId);
+            modelBuilder.Entity<MovieGenre>()
+                .HasOne(g => g.Genre)
+                .WithMany(mg => mg.MovieGenreList)
+                .HasForeignKey(g => g.GenreId);
         }
         public DbSet<Movie> Movie { get; set; }
         public DbSet<Genre> Genre { get; set; }
