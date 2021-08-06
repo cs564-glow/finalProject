@@ -16,8 +16,8 @@ namespace DataLibrary
             this.LeaderboardCategoryRank = leaderboardCategoryRank;
         }
 
-        [Key]
-        public int LeaderboardId { get; set; }
+        //[Key]
+        //public int LeaderboardId { get; set; }
         public string LeaderboardCategory { get; set; }
         public string CastCrewId { get; set; }
         public int LeaderboardCategoryRank { get; set; }

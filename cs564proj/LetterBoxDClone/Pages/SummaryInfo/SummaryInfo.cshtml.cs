@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DataLibrary;
+using LetterBoxDClone.Models;
 using LetterBoxDClone.Pages.Shared;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -10,7 +11,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LetterBoxDClone.Pages.SummaryInfo
 {
-    public class SummaryModel : PageModel
+    public class SummaryModel : LeaderboardModel
     {
         private readonly MovieContext _context;
         public SummaryModel(MovieContext context)
@@ -18,6 +19,7 @@ namespace LetterBoxDClone.Pages.SummaryInfo
             _context = context;
         }
 
+        public bool ShouldUpdateLeaderboard { get; set; }
         public int CountMovie { get; set; }
         //public int CountCastCrew { get; set; }
         //public int CountCountry { get; set; }
@@ -29,7 +31,7 @@ namespace LetterBoxDClone.Pages.SummaryInfo
         //public int CountActsIn { get; set; }
         //public int CountDirects { get; set; }
         public Dictionary<string, int> summaryInfoDictionary { get; set; }
-        public async Task<IActionResult> OnGetAsync()
+        public async Task<IActionResult> OnGetAsync(bool shouldUpdateLeaderboard)
         {
             summaryInfoDictionary = new Dictionary<string, int>();
             CountMovie = await _context.Movie.Select(m => m.MovieId).CountAsync();
@@ -52,92 +54,35 @@ namespace LetterBoxDClone.Pages.SummaryInfo
                 return NotFound();
             }
 
+            if (shouldUpdateLeaderboard)
+            {
+                GetMostSeenMovies();
+                GetHighestRatedMovies();
+                GetActorsWithHighestRatedMovies();
+
+                for (int i = 0; i < MostSeen.Count; i++)
+                {
+                    _context.MovieLeaderboard.Update(new MovieLeaderboard("MostSeen", MostSeen[i].MovieId, i));
+
+                }
+
+                for (int i = 0; i < HighestRated.Count; i++)
+                {
+                    _context.MovieLeaderboard.Update(new MovieLeaderboard("HighestRated", HighestRated[i].MovieId, i));
+                }
+
+                for (int i = 0; i < ActorsWithHighestRatedMovies.Count; i++)
+                {
+                    _context.ActorLeaderboard.Update(new ActorLeaderboard("HighestRatedActors", ActorsWithHighestRatedMovies[i].CastCrewId, i));
+                }
+
+                _context.SaveChanges();
+            }
+
 
 
             return Page();
         }
 
-        //public List<Movie> MostSeen { get; set; }
-        //public List<Movie> HighestRated { get; set; }
-        //public List<CastCrew> ActorsWithHighestRatedMovies { get; set; }
-
-        //private void GetMostSeenMovies()
-        //{
-        //    string query =
-        //        $@"
-        //        SELECT
-        //                m1.MovieId,
-        //                m1.Title,
-        //                m1.Year,
-        //                m1.CountryId,
-        //                m1.ImdbId,
-        //                m1.RtId,
-        //                m1.RtAllCriticsRating,
-        //                m1.RtAllCriticsNumReviews
-        //        FROM Movie AS m1
-        //        NATURAL JOIN UserRating AS ur
-        //        GROUP BY ur.MovieId
-        //        HAVING count(*) > 10
-        //        ORDER BY count(*) DESC
-        //        LIMIT 10
-        //        ";
-
-        //    MostSeen = Connection.GetMultipleRows(query, MoviesModel.GetMovieDataFromReader);
-        //}
-
-        //private void GetHighestRatedMovies()
-        //{
-        //    string query =
-        //        $@"
-        //        SELECT
-        //                m1.MovieId,
-        //                m1.Title,
-        //                m1.Year,
-        //                m1.CountryId,
-        //                m1.ImdbId,
-        //                m1.RtId,
-        //                m1.RtAllCriticsRating,
-        //                m1.RtAllCriticsNumReviews
-        //        FROM Movie AS m1
-        //        NATURAL JOIN UserRating AS ur
-        //        GROUP BY ur.MovieId
-        //        HAVING count(*) > 10
-        //        ORDER BY AVG(Rating) DESC
-        //        LIMIT 10
-        //        ";
-
-        //    HighestRated = Connection.GetMultipleRows(query, MoviesModel.GetMovieDataFromReader);
-        //}
-
-        //private void GetActorsWithHighestRatedMovies()
-        //{
-        //    string query =
-        //        $@"
-        //        SELECT
-        //            cc.CastCrewId,
-	       //         cc.Name,
-	       //         AVG(avgRating)
-        //        FROM ActsIn AS ai
-        //        NATURAL JOIN 
-	       //         (SELECT
-		      //          ur.MovieId,
-		      //          AVG(ur.Rating) avgRating
-	       //         FROM UserRating AS ur
-	       //         GROUP BY (ur.MovieId)
-        //            HAVING count(*) > 10) AS amr
-        //        NATURAL JOIN CastCrew AS cc
-        //        GROUP BY cc.CastCrewId
-        //        HAVING count(*) > 3
-        //        ORDER BY AVG(avgRating) DESC
-        //        LIMIT 10
-        //        ";
-
-        //    ActorsWithHighestRatedMovies = Connection.GetMultipleRows(query, GetUsersWithMostRatingsFromReader);
-        //}
-
-        //private CastCrew GetUsersWithMostRatingsFromReader(SqliteDataReader reader)
-        //{
-        //    return new CastCrew(reader.GetString(0), reader.GetString(1));
-        //}
     }
 }

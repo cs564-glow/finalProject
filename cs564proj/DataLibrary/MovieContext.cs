@@ -95,9 +95,13 @@ namespace DataLibrary
                 .WithMany(mg => mg.MovieGenreList)
                 .HasForeignKey(g => g.GenreId);
             modelBuilder.Entity<MovieLeaderboard>()
+                .HasKey(l => new { l.LeaderboardCategory, l.MovieId });
+            modelBuilder.Entity<MovieLeaderboard>()
                 .HasOne(m => m.Movie)
                 .WithMany(l => l.LeaderboardEntryList)
                 .HasForeignKey(m => m.MovieId);
+            modelBuilder.Entity<ActorLeaderboard>()
+                .HasKey(l => new { l.LeaderboardCategory, l.CastCrewId });
             modelBuilder.Entity<ActorLeaderboard>()
                 .HasOne(m => m.CastCrew)
                 .WithMany(l => l.ActorLeaderboardEntryList)
