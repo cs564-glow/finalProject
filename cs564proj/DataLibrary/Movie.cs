@@ -33,6 +33,10 @@ namespace DataLibrary
         public List<Directs> MovieDirectors { get; set; }
         public List<UserTag> UserTag { get; set; }
         public List<UserRating> UserRating { get; set; }
+        public List<MovieGenre> MovieGenreList { get; set; }
+        [Ignore]
+        public Country Country { get; set; }
+        public List<FilmLocation> FilmLocationList { get; set; }
         //[Ignore]
         //public string RtAllNumFresh { get; set; }
         //[Ignore]

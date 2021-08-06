@@ -12,5 +12,7 @@ namespace DataLibrary
         public User User { get; set; }
         [Ignore]
         public Movie Movie { get; set; }
+        [Ignore]
+        public Tag Tag { get; set; }
     }
 }

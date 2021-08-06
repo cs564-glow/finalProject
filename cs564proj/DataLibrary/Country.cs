@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace DataLibrary
@@ -7,6 +8,8 @@ namespace DataLibrary
     {
         [Key] public int CountryId { get; set; }
         public string Name { get; init; }
+        public List<Movie> MovieListFromThisCountry { get; set; }
+        public List<FilmLocation> FilmLocationListFromThisCountry { get; set; }
 
         public Country(string name)
         { 
