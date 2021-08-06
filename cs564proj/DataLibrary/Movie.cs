@@ -37,6 +37,7 @@ namespace DataLibrary
         [Ignore]
         public Country Country { get; set; }
         public List<FilmLocation> FilmLocationList { get; set; }
+        public List<MovieLeaderboard> LeaderboardEntryList { get; set; }
         //[Ignore]
         //public string RtAllNumFresh { get; set; }
         //[Ignore]

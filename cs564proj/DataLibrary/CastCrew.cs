@@ -11,6 +11,7 @@ namespace DataLibrary
         public string Name { get; set; }
         public List<ActsIn> ActingRoles { get; set; }
         public List<Directs> DirectingCredits { get; set; }
+        public List<ActorLeaderboard> ActorLeaderboardEntryList { get; set; }
 
         public CastCrew(string castCrewId, string name)
         {

@@ -19,7 +19,7 @@ namespace LetterBoxDClone.Pages.Users
         }
 
         [BindProperty]
-        public User User { get; set; }
+        public User UserRecord { get; set; }
 
         public async Task<IActionResult> OnGetAsync(long? id)
         {
@@ -28,9 +28,9 @@ namespace LetterBoxDClone.Pages.Users
                 return NotFound();
             }
 
-            User = await _context.User.FirstOrDefaultAsync(m => m.UserId == id);
+            UserRecord = await _context.User.FirstOrDefaultAsync(m => m.UserId == id);
 
-            if (User == null)
+            if (UserRecord == null)
             {
                 return NotFound();
             }
@@ -44,11 +44,11 @@ namespace LetterBoxDClone.Pages.Users
                 return NotFound();
             }
 
-            User = await _context.User.FindAsync(id);
+            UserRecord = await _context.User.FindAsync(id);
 
-            if (User != null)
+            if (UserRecord != null)
             {
-                _context.User.Remove(User);
+                _context.User.Remove(UserRecord);
                 await _context.SaveChangesAsync();
             }
 

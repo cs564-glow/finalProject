@@ -18,64 +18,73 @@
     </div>
 </div>
 
-<br /><br />
+<br />
+<br />
 
 <div container>
     <div class="row">
 
-        <div class="col-lg-4">
-            <div class="card mb-4">
-                <div class="card-header">Top 10 Most Seen Movies</div>
-                <div class="card-body">
-                    <div class="row">
-                        <ol class="list-group-flush list-group-numbered mb">
-                            @foreach (var movie in Model.MostSeen)
-                            {
-                                <li class="list-group-item">
-                                    <a href="~/Movies/Details?movieID=@movie.MovieId">@movie.Title (@movie.Year)</a>
-                                </li>
-                            }
-                        </ol>
+        @if (Model.MostSeen != null && Model.MostSeen.Count > 0)
+        {
+            <div class="col-lg-4">
+                <div class="card mb-4">
+                    <div class="card-header">Top 10 Most Seen Movies</div>
+                    <div class="card-body">
+                        <div class="row">
+                            <ol class="list-group-flush list-group-numbered mb">
+                                @foreach (var movie in Model.MostSeen)
+                                {
+                                    <li class="list-group-item">
+                                        <a href="~/Movies/Details?movieID=@movie.MovieId">@movie.Title (@movie.Year)</a>
+                                    </li>
+                                }
+                            </ol>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        }
 
-        <div class="col-lg-4">
-            <div class="card mb-4">
-                <div class="card-header">Top 10 Highest Rated Movies</div>
-                <div class="card-body">
-                    <div class="row">
-                        <ol class="list-group-flush list-group-numbered mb">
-                            @foreach (var movie in Model.HighestRated)
-                            {
-                                <li class="list-group-item">
-                                    <a href="~/Movies/Details?movieID=@movie.MovieId">@movie.Title (@movie.Year)</a>
-                                </li>
-                            }
-                        </ol>
+        @if (Model.HighestRated != null && Model.HighestRated.Count > 0)
+        {
+            <div class="col-lg-4">
+                <div class="card mb-4">
+                    <div class="card-header">Top 10 Highest Rated Movies</div>
+                    <div class="card-body">
+                        <div class="row">
+                            <ol class="list-group-flush list-group-numbered mb">
+                                @foreach (var movie in Model.HighestRated)
+                                {
+                                    <li class="list-group-item">
+                                        <a href="~/Movies/Details?movieID=@movie.MovieId">@movie.Title (@movie.Year)</a>
+                                    </li>
+                                }
+                            </ol>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        }
 
-        <div class="col-lg-4">
-            <div class="card mb-4">
-                <div class="card-header">Top 10 Actors With Highest Rated Movies</div>
-                <div class="card-body">
-                    <div class="row">
-                        <ol class="list-group-flush list-group-numbered mb">
-                            @foreach (var user in Model.ActorsWithHighestRatedMovies)
-                            {
-                                <li class="list-group-item">
-                                    <a asp-page="/CastCrewPage/Details" asp-route-id="@user.CastCrewId">@user.Name</a>
-                                </li>
-                            }
-                        </ol>
+        @if (Model.ActorsWithHighestRatedMovies != null && Model.ActorsWithHighestRatedMovies.Count > 0)
+        {
+            <div class="col-lg-4">
+                <div class="card mb-4">
+                    <div class="card-header">Top 10 Actors With Highest Rated Movies</div>
+                    <div class="card-body">
+                        <div class="row">
+                            <ol class="list-group-flush list-group-numbered mb">
+                                @foreach (var user in Model.ActorsWithHighestRatedMovies)
+                                {
+                                    <li class="list-group-item">
+                                        <a asp-page="/CastCrewPage/Details" asp-route-id="@user.CastCrewId">@user.Name</a>
+                                    </li>
+                                }
+                            </ol>
+                        </div>
                     </div>
                 </div>
             </div>
+        }
         </div>
-
-    </div>
 </div>
