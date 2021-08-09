@@ -42,21 +42,37 @@ namespace LetterBoxDClone.Pages
 
                 for (int i = 0; i < MostSeen.Count; i++)
                 {
-                    _context.MovieLeaderboard.Update(new MovieLeaderboard("MostSeen", MostSeen[i].MovieId, i));
+                    _context.MovieLeaderboard.Add(new MovieLeaderboard("MostSeen", MostSeen[i].MovieId, i));
 
                 }
 
                 for (int i = 0; i < HighestRated.Count; i++)
                 {
-                    _context.MovieLeaderboard.Update(new MovieLeaderboard("HighestRated", HighestRated[i].MovieId, i));
+                    _context.MovieLeaderboard.Add(new MovieLeaderboard("HighestRated", HighestRated[i].MovieId, i));
                 }
 
                 for (int i = 0; i < ActorsWithHighestRatedMovies.Count; i++)
                 {
-                    _context.ActorLeaderboard.Update(new ActorLeaderboard("HighestRatedActors", ActorsWithHighestRatedMovies[i].CastCrewId, i));
+                    _context.ActorLeaderboard.Add(new ActorLeaderboard("HighestRatedActors", ActorsWithHighestRatedMovies[i].CastCrewId, i));
                 }
 
-                _context.SaveChanges();
+                bool saveFailed;
+                do
+				{
+                    saveFailed = false;
+
+                    try
+					{
+                        _context.SaveChanges();
+                    }
+                    catch(DbUpdateConcurrencyException ex)
+					{
+                        saveFailed = true;
+
+                        ex.Entries.Single().Reload();
+                    }
+				}while(saveFailed);
+                
             }
             else
             {

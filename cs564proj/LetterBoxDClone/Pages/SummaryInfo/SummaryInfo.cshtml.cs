@@ -76,7 +76,24 @@ namespace LetterBoxDClone.Pages.SummaryInfo
                     _context.ActorLeaderboard.Update(new ActorLeaderboard("HighestRatedActors", ActorsWithHighestRatedMovies[i].CastCrewId, i));
                 }
 
-                _context.SaveChanges();
+                bool saveFailed;
+                do
+                {
+                    saveFailed = false;
+
+                    try
+                    {
+                        _context.SaveChanges();
+                    }
+                    catch (DbUpdateConcurrencyException ex)
+                    {
+                        saveFailed = true;
+
+                        var entry = ex.Entries.Single();
+                        entry.OriginalValues.SetValues(entry.GetDatabaseValues());
+                    }
+                } while (saveFailed);
+                
             }
 
 
