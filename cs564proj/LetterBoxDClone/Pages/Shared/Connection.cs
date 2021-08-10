@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using Microsoft.Data.Sqlite;
 
 namespace LetterBoxDClone.Pages.Shared
@@ -11,7 +12,7 @@ namespace LetterBoxDClone.Pages.Shared
 
         //private const string PATH_TO_DATABASE = "Data Source=/Users/Nugi/Downloads/hetrec2011-movielens-2k-v2/movie.db";
 
-        private const string PATH_TO_DATABASE = "Data Source=C:\\ProgramData\\cs564proj\\movie.db";
+        private static string CONNECTION_STRING = "Data Source=" + Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "cs564proj", "movie.db");
 
         /// <summary>
         /// Opens a connection to the database and returns a single 
@@ -27,7 +28,7 @@ namespace LetterBoxDClone.Pages.Shared
         /// Default of T if SQL query didn't return any results</returns>
         public static T GetSingleRow<T>(string query, Func<SqliteDataReader, T> function)
         {
-            using var connection = new SqliteConnection(PATH_TO_DATABASE);
+            using var connection = new SqliteConnection(CONNECTION_STRING);
             connection.Open();
 
             var command = connection.CreateCommand();
@@ -45,7 +46,7 @@ namespace LetterBoxDClone.Pages.Shared
 
         public static int SetSingleRow(string query)
 		{
-            using var connection = new SqliteConnection(PATH_TO_DATABASE);
+            using var connection = new SqliteConnection(CONNECTION_STRING);
             connection.Open();
 
             var command = connection.CreateCommand();
@@ -68,7 +69,7 @@ namespace LetterBoxDClone.Pages.Shared
         /// An empty list if SQL query didn't return any results</returns>
         public static List<T> GetMultipleRows<T>(string query, Func<SqliteDataReader, T> function)
         {
-            using var connection = new SqliteConnection(PATH_TO_DATABASE);
+            using var connection = new SqliteConnection(CONNECTION_STRING);
             connection.Open();
 
             var command = connection.CreateCommand();
