@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using LetterBoxDClone.Models;
+using EFCore.BulkExtensions;
 
 namespace LetterBoxDClone.Pages
 {
@@ -42,21 +43,27 @@ namespace LetterBoxDClone.Pages
 
                 for (int i = 0; i < MostSeen.Count; i++)
                 {
-                    _context.MovieLeaderboard.Update(new MovieLeaderboard("MostSeen", MostSeen[i].MovieId, i));
+                    _context.MovieLeaderboard.Add(new MovieLeaderboard("MostSeen", MostSeen[i].MovieId, i));
 
                 }
 
                 for (int i = 0; i < HighestRated.Count; i++)
                 {
-                    _context.MovieLeaderboard.Update(new MovieLeaderboard("HighestRated", HighestRated[i].MovieId, i));
+                    _context.MovieLeaderboard.Add(new MovieLeaderboard("HighestRated", HighestRated[i].MovieId, i));
                 }
 
                 for (int i = 0; i < ActorsWithHighestRatedMovies.Count; i++)
                 {
-                    _context.ActorLeaderboard.Update(new ActorLeaderboard("HighestRatedActors", ActorsWithHighestRatedMovies[i].CastCrewId, i));
+                    _context.ActorLeaderboard.Add(new ActorLeaderboard("HighestRatedActors", ActorsWithHighestRatedMovies[i].CastCrewId, i));
                 }
 
                 _context.SaveChanges();
+
+                //using var transaction = _context.Database.BeginTransaction();
+                //_context.BulkInsert(this.MostSeen);
+                //_context.BulkInsert(this.HighestRated);
+                //_context.BulkInsert(this.ActorsWithHighestRatedMovies);
+                //transaction.Commit();                
             }
             else
             {
