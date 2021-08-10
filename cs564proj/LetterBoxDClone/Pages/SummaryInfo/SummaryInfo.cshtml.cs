@@ -101,6 +101,7 @@ namespace LetterBoxDClone.Pages.SummaryInfo
                 }
 
                 _context.SaveChanges();
+                
             }
 
 
