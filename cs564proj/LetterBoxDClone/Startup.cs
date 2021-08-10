@@ -8,9 +8,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
 using DataLibrary;
 using Microsoft.EntityFrameworkCore;
+using System.IO;
 
 namespace LetterBoxDClone
 {
@@ -27,8 +27,15 @@ namespace LetterBoxDClone
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddRazorPages();
+            string connString = Configuration.GetConnectionString("DefaultConnection");
+            if (connString == null) // default db location
+            {
+
+                connString = "Data Source=" + Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "cs564proj", "movie.db");
+            }
+
             services.AddDbContext<MovieContext>(option =>
-                option.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
+                    option.UseSqlite(connString));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

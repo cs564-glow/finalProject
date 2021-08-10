@@ -23,8 +23,9 @@ namespace Importer
     internal class Program
     {
         // Environment.SpecialFolder.CommonApplicationData = C:\ProgramData or /usr/share
+        // Environment.SpecialFolder.ApplicationData = C:\Users\john\AppData\Roaming or C:\Users\john
         // Desktop = C:\Users\john\Desktop or /Users/john/Desktop
-        private static readonly string AppData = Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData);
+        private static readonly string AppData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
         private static readonly string Cs564Proj = Path.Combine(AppData, "cs564proj");
         private static void Main(string[] args)
         {
