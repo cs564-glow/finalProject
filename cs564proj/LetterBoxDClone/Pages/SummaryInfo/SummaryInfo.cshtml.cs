@@ -100,23 +100,7 @@ namespace LetterBoxDClone.Pages.SummaryInfo
                     }
                 }
 
-                bool saveFailed;
-                do
-                {
-                    saveFailed = false;
-
-                    try
-                    {
-                        _context.SaveChanges();
-                    }
-                    catch (DbUpdateConcurrencyException ex)
-                    {
-                        saveFailed = true;
-
-                        var entry = ex.Entries.Single();
-                        entry.OriginalValues.SetValues(entry.GetDatabaseValues());
-                    }
-                } while (saveFailed);
+                _context.SaveChanges();
                 
             }
 
