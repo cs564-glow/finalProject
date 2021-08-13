@@ -23,11 +23,13 @@ You are now in the LetterBoxDClone!
 
 Reference: https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-run
 
-## How to Run the Importer to Create a Database from Scratch
-1. Extract the final submission archive
-2. Download the [HetRec MovieLens dataset](https://files.grouplens.org/datasets/hetrec2011/hetrec2011-movielens-2k-v2.zip) or use the copy included with the final submission (hetrec2011-movielens-2k-v2 folder)
-3. From a PowerShell or CMD terminal, run Importer.exe
-4. `Importer -i <path to dataset> [-x]` NOTE: `-x` flag will delete any existing movie.db database at the output location
+## How to Run the Importer to Create a Database from Scratch (OPTIONAL)
+This is optional. You can use the included movie.db to run the website. In case you want to recreate the database from scratch, do the following:\
+1. Download the [HetRec MovieLens dataset](https://files.grouplens.org/datasets/hetrec2011/hetrec2011-movielens-2k-v2.zip) or use the copy included with the final submission (hetrec2011-movielens-2k-v2 folder)
+2. Extract the final submission archive
+3. `cd` to ImporterPublish subfolder, which contains Importer.exe
+4. From a PowerShell or CMD terminal, run Importer.exe
+5. `Importer -i <path to dataset> [-x]` NOTE: `-x` flag will delete any existing movie.db database at the output location
    1. Example: `Importer -i "W:\source\repos\finalProject\testFiles\hetrec2011-movielens-2k-v2" -x`
    2. Running this command will create the SQLite database at %AppData%\cs564proj\movie.db
    3. Specify a custom output location by using the optional -d flag `[-d] <path to db>`
