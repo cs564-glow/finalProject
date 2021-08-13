@@ -1,4 +1,5 @@
 # Instructions for Grading of Final Submission (Windows only)
+1. You can retrieve the repository by running `git clone https://github.com/cs564-glow/finalProject.git`
 ## How to Run the Website
 1. Extract the final submission archive.
 2. Navigate to %AppData% (ex: C:\Users\Garrett\AppData\Roaming).
