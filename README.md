@@ -7,13 +7,15 @@
 5. From a PowerShell or CMD terminal, `cd` to the LetterBoxDClone directory (ex: .\finalProject\cs564proj\LetterBoxDClone)
 6. Run `dotnet run`
 7. You should see a message like:
->Building...
->info: Microsoft.Hosting.Lifetime[0]
->     Now listening on: https://localhost:5001
->info: Microsoft.Hosting.Lifetime[0]
->      Now listening on: http://localhost:5000
->info: Microsoft.Hosting.Lifetime[0]
->      Application started. Press Ctrl+C to shut down.
+```
+Building...
+info: Microsoft.Hosting.Lifetime[0]
+     Now listening on: https://localhost:5001
+info: Microsoft.Hosting.Lifetime[0]
+      Now listening on: http://localhost:5000
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+```
 8. Navigate to the address in a browser
 
 You are now in the LetterBoxDClone!
