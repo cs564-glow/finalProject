@@ -24,7 +24,7 @@ You are now in the LetterBoxDClone!
 Reference: https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-run
 
 ## How to Run the Importer to Create a Database from Scratch (OPTIONAL)
-This is optional. You can use the included movie.db to run the website. In case you want to recreate the database from scratch, do the following:\
+This is optional. You can use the included movie.db to run the website. In case you want to recreate the database from scratch, do the following:
 1. Download the [HetRec MovieLens dataset](https://files.grouplens.org/datasets/hetrec2011/hetrec2011-movielens-2k-v2.zip) or use the copy included with the final submission (hetrec2011-movielens-2k-v2 folder)
 2. Extract the final submission archive
 3. `cd` to ImporterPublish subfolder, which contains Importer.exe
